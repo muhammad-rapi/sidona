@@ -3,6 +3,8 @@
 use App\Livewire\Auth\LoginForm;
 use App\Livewire\Campaigns\CampaignForm;
 use App\Livewire\Campaigns\CampaignIndex;
+use App\Livewire\Disbursements\DisbursementForm;
+use App\Livewire\Disbursements\DisbursementIndex;
 use App\Livewire\Donations\DonationIndex;
 use App\Livewire\Public\CampaignDetail;
 use App\Livewire\Public\CampaignList;
@@ -44,4 +46,9 @@ Route::middleware('auth')->group(function () {
         ->name('campaigns.edit');
 
     Route::get('/donasi', DonationIndex::class)->name('donations.index');
+
+    Route::get('/campaigns/{campaign}/penyaluran/ajukan', DisbursementForm::class)
+        ->middleware('role:bendahara')
+        ->name('disbursements.create');
+    Route::get('/penyaluran', DisbursementIndex::class)->name('disbursements.index');
 });
