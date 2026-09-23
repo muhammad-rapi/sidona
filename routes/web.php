@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Audit\ActivityLogIndex;
+use App\Livewire\Audit\AnomalyDashboard;
 use App\Livewire\Audit\LoginLogIndex;
 use App\Livewire\Audit\VerifyIntegrity;
 use App\Livewire\Auth\LoginForm;
@@ -64,4 +65,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/audit/login', LoginLogIndex::class)
         ->middleware('role:auditor')
         ->name('audit.login');
+    Route::get('/audit/anomali', AnomalyDashboard::class)
+        ->middleware('role:auditor')
+        ->name('audit.anomalies');
 });
