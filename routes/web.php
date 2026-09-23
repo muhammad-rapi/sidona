@@ -3,6 +3,7 @@
 use App\Livewire\Auth\LoginForm;
 use App\Livewire\Campaigns\CampaignForm;
 use App\Livewire\Campaigns\CampaignIndex;
+use App\Livewire\Donations\DonationIndex;
 use App\Livewire\Public\CampaignDetail;
 use App\Livewire\Public\CampaignList;
 use App\Livewire\Public\DonationStatusCheck;
@@ -41,4 +42,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/campaigns/{campaign}/edit', CampaignForm::class)
         ->middleware('role:bendahara,admin')
         ->name('campaigns.edit');
+
+    Route::get('/donasi', DonationIndex::class)->name('donations.index');
 });
