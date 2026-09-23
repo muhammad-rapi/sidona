@@ -1,5 +1,8 @@
 <div>
-    <h1 class="text-xl font-semibold mb-6">Log Aktivitas</h1>
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-xl font-semibold">Log Aktivitas</h1>
+        <button type="button" wire:click="exportPdf" class="rounded bg-slate-900 px-4 py-2 text-white text-sm">Unduh PDF</button>
+    </div>
 
     <form class="flex flex-wrap gap-3 mb-4 bg-white p-4 rounded border border-slate-300">
         <input type="text" wire:model.live="action" placeholder="Jenis aksi" class="rounded border border-slate-300 px-3 py-2 text-sm">
