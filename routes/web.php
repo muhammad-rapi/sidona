@@ -14,6 +14,7 @@ use App\Livewire\Donations\DonationIndex;
 use App\Livewire\Public\CampaignDetail;
 use App\Livewire\Public\CampaignList;
 use App\Livewire\Public\DonationStatusCheck;
+use App\Livewire\Reports\BalanceSummary;
 use App\Livewire\Reports\DisbursementReport;
 use App\Livewire\Reports\DonationReport;
 use Illuminate\Support\Facades\Auth;
@@ -78,6 +79,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/penyaluran', DisbursementReport::class)
         ->middleware('role:auditor')
         ->name('reports.disbursements');
+    Route::get('/laporan/saldo', BalanceSummary::class)
+        ->middleware('role:auditor')
+        ->name('reports.balance');
     Route::get('/laporan/unduh/{reportExport:reference}', DownloadReportExportController::class)
         ->middleware('role:auditor')
         ->name('reports.download');
