@@ -16,6 +16,7 @@ class DisbursementSeeder extends Seeder
     {
         $bendaharas = User::query()->where('role', UserRole::Bendahara)->get();
         $admins = User::query()->where('role', UserRole::Admin)->get();
+        $seededFastApproval = false;
 
         foreach (Campaign::all() as $campaign) {
             if ($campaign->availableBalance() <= 0) {
@@ -52,10 +53,16 @@ class DisbursementSeeder extends Seeder
                     $admin = $admins->random();
                     $before = $disbursement->only(['status', 'reviewed_by', 'reviewed_at']);
 
+                    $reviewedAt = $seededFastApproval
+                        ? $disbursement->created_at->addMinutes(fake()->numberBetween(30, 2000))
+                        : $disbursement->created_at->addSeconds(fake()->numberBetween(5, 45));
+
+                    $seededFastApproval = true;
+
                     $disbursement->update([
                         'status' => DisbursementStatus::Approved,
                         'reviewed_by' => $admin->id,
-                        'reviewed_at' => $disbursement->created_at->addMinutes(fake()->numberBetween(30, 2000)),
+                        'reviewed_at' => $reviewedAt,
                     ]);
 
                     $logger->log('disbursement.approved', $admin, $disbursement, $before, $disbursement->only(['status', 'reviewed_by', 'reviewed_at']));

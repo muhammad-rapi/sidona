@@ -14,6 +14,12 @@
             <a href="{{ route('campaigns.index') }}" wire:navigate>Program Donasi</a>
             <a href="{{ route('donations.index') }}" wire:navigate>Donasi</a>
             <a href="{{ route('disbursements.index') }}" wire:navigate>Penyaluran</a>
+            @if (auth()->user()->isAuditor())
+                <a href="{{ route('audit.integrity') }}" wire:navigate>Verifikasi Integritas</a>
+                <a href="{{ route('audit.activity') }}" wire:navigate>Log Aktivitas</a>
+                <a href="{{ route('audit.login') }}" wire:navigate>Log Login</a>
+                <a href="{{ route('audit.anomalies') }}" wire:navigate>Dashboard Anomali</a>
+            @endif
             <span class="text-slate-400">{{ auth()->user()->name }} ({{ auth()->user()->role->label() }})</span>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf

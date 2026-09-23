@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             CampaignSeeder::class,
             DonationSeeder::class,
             DisbursementSeeder::class,
+            LoginLogSeeder::class,
         ]);
     }
 }
