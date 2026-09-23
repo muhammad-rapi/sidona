@@ -1,6 +1,8 @@
 <?php
 
 use App\Livewire\Auth\LoginForm;
+use App\Livewire\Campaigns\CampaignForm;
+use App\Livewire\Campaigns\CampaignIndex;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -24,4 +26,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return redirect()->route('campaigns.index');
     })->name('dashboard');
+
+    Route::get('/campaigns', CampaignIndex::class)->name('campaigns.index');
+    Route::get('/campaigns/create', CampaignForm::class)
+        ->middleware('role:bendahara,admin')
+        ->name('campaigns.create');
+    Route::get('/campaigns/{campaign}/edit', CampaignForm::class)
+        ->middleware('role:bendahara,admin')
+        ->name('campaigns.edit');
 });
