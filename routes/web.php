@@ -5,6 +5,7 @@ use App\Livewire\Campaigns\CampaignForm;
 use App\Livewire\Campaigns\CampaignIndex;
 use App\Livewire\Public\CampaignDetail;
 use App\Livewire\Public\CampaignList;
+use App\Livewire\Public\DonationStatusCheck;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -14,6 +15,7 @@ Route::get('/', function () {
 
 Route::get('/program', CampaignList::class)->name('program.index');
 Route::get('/program/{campaign}', CampaignDetail::class)->name('program.show');
+Route::get('/donasi/cek', DonationStatusCheck::class)->name('donations.check');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', LoginForm::class)->name('login');
