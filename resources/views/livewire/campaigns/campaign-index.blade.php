@@ -30,6 +30,9 @@
                         @can('delete', $campaign)
                             <button type="button" wire:click="delete({{ $campaign->id }})" wire:confirm="Yakin ingin menghapus program ini?">Hapus</button>
                         @endcan
+                        @can('create', App\Models\Disbursement::class)
+                            <a href="{{ route('disbursements.create', $campaign) }}" wire:navigate>Ajukan Penyaluran</a>
+                        @endcan
                     </td>
                 </tr>
             @empty

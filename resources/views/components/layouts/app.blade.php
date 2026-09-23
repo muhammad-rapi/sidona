@@ -13,6 +13,7 @@
         <div class="flex items-center gap-4 text-sm">
             <a href="{{ route('campaigns.index') }}" wire:navigate>Program Donasi</a>
             <a href="{{ route('donations.index') }}" wire:navigate>Donasi</a>
+            <a href="{{ route('disbursements.index') }}" wire:navigate>Penyaluran</a>
             <span class="text-slate-400">{{ auth()->user()->name }} ({{ auth()->user()->role->label() }})</span>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
