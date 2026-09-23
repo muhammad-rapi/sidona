@@ -63,6 +63,17 @@ it('refuses to load the donation form for a completed campaign', function () {
         ->assertForbidden();
 });
 
+it('refuses to load the donation form for a campaign that has not started yet', function () {
+    $campaign = Campaign::factory()->create([
+        'status' => CampaignStatus::Active,
+        'starts_on' => now()->addDays(3),
+        'ends_on' => now()->addDays(30),
+    ]);
+
+    Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
+        ->assertForbidden();
+});
+
 it('writes an activity log entry for a submitted donation without a user', function () {
     Storage::fake('public');
     $campaign = Campaign::factory()->create(['status' => CampaignStatus::Active, 'ends_on' => now()->addDays(10)]);

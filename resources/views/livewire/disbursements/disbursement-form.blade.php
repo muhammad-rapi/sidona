@@ -1,7 +1,7 @@
 <div class="max-w-xl">
     <h1 class="text-xl font-semibold mb-2">Ajukan Penyaluran Dana</h1>
     <p class="text-sm text-slate-600 mb-6">
-        {{ $campaign->name }} — saldo tersedia Rp {{ number_format($campaign->availableBalance(), 0, ',', '.') }}
+        {{ $campaign->name }} — saldo tersedia Rp {{ number_format($availableBalance, 0, ',', '.') }}
     </p>
 
     <form wire:submit="submit" class="space-y-4 bg-white p-6 rounded border border-slate-300">

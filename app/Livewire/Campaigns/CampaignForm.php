@@ -5,6 +5,7 @@ namespace App\Livewire\Campaigns;
 use App\Enums\CampaignStatus;
 use App\Models\Campaign;
 use App\Services\AuditLogger;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -57,7 +58,11 @@ class CampaignForm extends Component
         $data = $this->validate();
 
         if ($this->campaign) {
-            $before = $this->campaign->only(array_keys($data));
+            $before = collect(array_keys($data))->mapWithKeys(function (string $key) {
+                $value = $this->campaign->{$key};
+
+                return [$key => $value instanceof Carbon ? $value->format('Y-m-d') : $value];
+            })->all();
             $this->campaign->update($data);
             $logger->log('campaign.updated', auth()->user(), $this->campaign, $before, $data);
         } else {

@@ -1,16 +1,21 @@
 <?php
 
 use App\Enums\DisbursementStatus;
+use App\Enums\DonationStatus;
 use App\Enums\UserRole;
 use App\Livewire\Disbursements\DisbursementIndex;
 use App\Models\ActivityLog;
+use App\Models\Campaign;
 use App\Models\Disbursement;
+use App\Models\Donation;
 use App\Models\User;
 use Livewire\Livewire;
 
 it('lets an admin approve a submitted disbursement and logs it', function () {
     $admin = User::factory()->create(['role' => UserRole::Admin]);
-    $disbursement = Disbursement::factory()->create(['status' => DisbursementStatus::Submitted]);
+    $campaign = Campaign::factory()->create();
+    Donation::factory()->for($campaign)->create(['amount' => 1_000_000, 'status' => DonationStatus::Verified]);
+    $disbursement = Disbursement::factory()->for($campaign)->create(['amount' => 100_000, 'status' => DisbursementStatus::Submitted]);
 
     Livewire::actingAs($admin)
         ->test(DisbursementIndex::class)
@@ -85,4 +90,21 @@ it('prevents approving a disbursement that is no longer submitted', function () 
         ->test(DisbursementIndex::class)
         ->call('approve', $disbursement->id)
         ->assertForbidden();
+});
+
+it('refuses to approve a disbursement whose amount no longer fits the campaign balance', function () {
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+    $campaign = Campaign::factory()->create();
+    Donation::factory()->for($campaign)->create(['amount' => 100_000, 'status' => DonationStatus::Verified]);
+
+    $first = Disbursement::factory()->for($campaign)->create(['amount' => 90_000, 'status' => DisbursementStatus::Submitted]);
+    $second = Disbursement::factory()->for($campaign)->create(['amount' => 90_000, 'status' => DisbursementStatus::Submitted]);
+
+    $component = Livewire::actingAs($admin)->test(DisbursementIndex::class);
+
+    $component->call('approve', $first->id);
+    expect($first->fresh()->status)->toBe(DisbursementStatus::Approved);
+
+    $component->call('approve', $second->id);
+    expect($second->fresh()->status)->toBe(DisbursementStatus::Submitted);
 });

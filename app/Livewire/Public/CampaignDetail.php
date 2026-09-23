@@ -31,7 +31,9 @@ class CampaignDetail extends Component
     public function mount(Campaign $campaign): void
     {
         abort_unless(
-            $campaign->status === CampaignStatus::Active && ! $campaign->ends_on->isPast(),
+            $campaign->status === CampaignStatus::Active
+                && ! $campaign->ends_on->isPast()
+                && ! $campaign->starts_on->isFuture(),
             403
         );
 

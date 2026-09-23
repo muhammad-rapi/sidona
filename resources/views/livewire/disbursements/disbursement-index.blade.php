@@ -9,6 +9,8 @@
         </select>
     </div>
 
+    @error('approve') <p class="text-sm text-red-700 mb-4">{{ $message }}</p> @enderror
+
     <table class="w-full border border-slate-300 text-sm bg-white">
         <thead class="bg-slate-200">
             <tr>

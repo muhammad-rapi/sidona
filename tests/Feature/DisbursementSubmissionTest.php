@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\CampaignStatus;
 use App\Enums\DonationStatus;
 use App\Enums\UserRole;
 use App\Livewire\Disbursements\DisbursementForm;
@@ -57,4 +58,14 @@ it('blocks an admin from opening the disbursement creation route', function () {
     $campaign = Campaign::factory()->create();
 
     $this->actingAs($admin)->get(route('disbursements.create', $campaign))->assertForbidden();
+});
+
+it('refuses to load the form for a completed campaign even with a positive balance', function () {
+    $bendahara = User::factory()->create(['role' => UserRole::Bendahara]);
+    $campaign = Campaign::factory()->create(['status' => CampaignStatus::Completed]);
+    Donation::factory()->for($campaign)->create(['amount' => 1_000_000, 'status' => DonationStatus::Verified]);
+
+    Livewire::actingAs($bendahara)
+        ->test(DisbursementForm::class, ['campaign' => $campaign])
+        ->assertForbidden();
 });

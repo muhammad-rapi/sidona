@@ -25,6 +25,8 @@ class CampaignPolicy
 
     public function delete(User $user, Campaign $campaign): bool
     {
-        return $user->role === UserRole::Admin;
+        return $user->role === UserRole::Admin
+            && ! $campaign->donations()->exists()
+            && ! $campaign->disbursements()->exists();
     }
 }

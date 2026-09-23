@@ -41,6 +41,24 @@ it('creates a campaign and writes an activity log entry', function () {
         ->exists())->toBeTrue();
 });
 
+it('logs matching before/after date formats when editing a campaign without changing its dates', function () {
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+    $campaign = Campaign::factory()->create([
+        'starts_on' => '2026-01-01',
+        'ends_on' => '2026-03-01',
+    ]);
+
+    Livewire::actingAs($admin)
+        ->test(CampaignForm::class, ['campaign' => $campaign])
+        ->set('name', 'Nama Baru')
+        ->call('save');
+
+    $log = ActivityLog::where('action', 'campaign.updated')->where('subject_id', $campaign->id)->first();
+
+    expect($log->before['starts_on'])->toBe($log->after['starts_on']);
+    expect($log->before['ends_on'])->toBe($log->after['ends_on']);
+});
+
 it('rejects a campaign whose end date is before its start date', function () {
     $admin = User::factory()->create(['role' => UserRole::Admin]);
 

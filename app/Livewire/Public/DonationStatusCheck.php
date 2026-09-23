@@ -23,7 +23,7 @@ class DonationStatusCheck extends Component
 
         $this->result = Donation::query()
             ->with('campaign')
-            ->where('reference_code', $this->reference_code)
+            ->where('reference_code', strtoupper(trim($this->reference_code)))
             ->first();
 
         $this->searched = true;

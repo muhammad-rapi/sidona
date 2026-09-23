@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Disbursements;
 
+use App\Enums\CampaignStatus;
 use App\Enums\DisbursementStatus;
 use App\Models\Campaign;
 use App\Models\Disbursement;
@@ -21,12 +22,18 @@ class DisbursementForm extends Component
 
     public string $description = '';
 
+    public int $availableBalance = 0;
+
     public function mount(Campaign $campaign): void
     {
         Gate::authorize('create', Disbursement::class);
-        abort_unless($campaign->availableBalance() > 0, 403);
+
+        $availableBalance = $campaign->availableBalance();
+
+        abort_unless($campaign->status === CampaignStatus::Active && $availableBalance > 0, 403);
 
         $this->campaign = $campaign;
+        $this->availableBalance = $availableBalance;
     }
 
     protected function rules(): array

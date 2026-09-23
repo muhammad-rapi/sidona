@@ -3,9 +3,13 @@
 namespace App\Livewire\Disbursements;
 
 use App\Enums\DisbursementStatus;
+use App\Livewire\Concerns\HasRejectionWorkflow;
+use App\Models\Campaign;
 use App\Models\Disbursement;
 use App\Services\AuditLogger;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -13,64 +17,62 @@ use Livewire\Component;
 #[Layout('components.layouts.app')]
 class DisbursementIndex extends Component
 {
+    use HasRejectionWorkflow;
+
     #[Url]
     public string $status = 'submitted';
 
-    public ?int $rejectingId = null;
-
-    public string $rejectionReason = '';
-
     public function approve(int $disbursementId, AuditLogger $logger): void
     {
-        $disbursement = Disbursement::findOrFail($disbursementId);
+        DB::transaction(function () use ($disbursementId, $logger) {
+            $disbursement = Disbursement::query()->lockForUpdate()->findOrFail($disbursementId);
 
-        Gate::authorize('approve', $disbursement);
+            Gate::authorize('approve', $disbursement);
 
-        $before = $disbursement->only(['status', 'reviewed_by', 'reviewed_at']);
+            $campaign = Campaign::query()->lockForUpdate()->findOrFail($disbursement->campaign_id);
 
-        $disbursement->update([
-            'status' => DisbursementStatus::Approved,
-            'reviewed_by' => auth()->id(),
-            'reviewed_at' => now(),
-        ]);
+            if ($disbursement->amount > $campaign->availableBalance()) {
+                throw ValidationException::withMessages([
+                    'approve' => 'Saldo program tidak lagi mencukupi untuk menyetujui penyaluran ini.',
+                ]);
+            }
 
-        $logger->log('disbursement.approved', auth()->user(), $disbursement, $before, $disbursement->only(['status', 'reviewed_by', 'reviewed_at']));
+            $before = $disbursement->only(['status', 'reviewed_by', 'reviewed_at']);
+
+            $disbursement->update([
+                'status' => DisbursementStatus::Approved,
+                'reviewed_by' => auth()->id(),
+                'reviewed_at' => now(),
+            ]);
+
+            $logger->log('disbursement.approved', auth()->user(), $disbursement, $before, $disbursement->only(['status', 'reviewed_by', 'reviewed_at']));
+        });
 
         session()->flash('status', 'Penyaluran disetujui.');
     }
 
-    public function startReject(int $disbursementId): void
-    {
-        $this->rejectingId = $disbursementId;
-        $this->rejectionReason = '';
-    }
-
-    public function cancelReject(): void
-    {
-        $this->rejectingId = null;
-        $this->rejectionReason = '';
-    }
-
     public function confirmReject(AuditLogger $logger): void
     {
-        $disbursement = Disbursement::findOrFail($this->rejectingId);
-
-        Gate::authorize('reject', $disbursement);
-
         $this->validate([
             'rejectionReason' => ['required', 'string', 'min:3'],
         ]);
 
-        $before = $disbursement->only(['status', 'reviewed_by', 'reviewed_at', 'rejection_reason']);
+        DB::transaction(function () use ($logger) {
+            $disbursement = Disbursement::query()->lockForUpdate()->findOrFail($this->rejectingId);
 
-        $disbursement->update([
-            'status' => DisbursementStatus::Rejected,
-            'reviewed_by' => auth()->id(),
-            'reviewed_at' => now(),
-            'rejection_reason' => $this->rejectionReason,
-        ]);
+            Gate::authorize('reject', $disbursement);
 
-        $logger->log('disbursement.rejected', auth()->user(), $disbursement, $before, $disbursement->only(['status', 'reviewed_by', 'reviewed_at', 'rejection_reason']));
+            $before = $disbursement->only(['status', 'reviewed_by', 'reviewed_at', 'rejection_reason']);
+
+            $disbursement->update([
+                'status' => DisbursementStatus::Rejected,
+                'reviewed_by' => auth()->id(),
+                'reviewed_at' => now(),
+                'rejection_reason' => $this->rejectionReason,
+            ]);
+
+            $logger->log('disbursement.rejected', auth()->user(), $disbursement, $before, $disbursement->only(['status', 'reviewed_by', 'reviewed_at', 'rejection_reason']));
+        });
 
         $this->rejectingId = null;
         $this->rejectionReason = '';
