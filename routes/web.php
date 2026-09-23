@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Audit\VerifyIntegrity;
 use App\Livewire\Auth\LoginForm;
 use App\Livewire\Campaigns\CampaignForm;
 use App\Livewire\Campaigns\CampaignIndex;
@@ -51,4 +52,8 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:bendahara')
         ->name('disbursements.create');
     Route::get('/penyaluran', DisbursementIndex::class)->name('disbursements.index');
+
+    Route::get('/audit/integritas', VerifyIntegrity::class)
+        ->middleware('role:auditor')
+        ->name('audit.integrity');
 });
