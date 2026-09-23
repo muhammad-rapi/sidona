@@ -2,7 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\ReportExport;
+use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ReportChecksum
 {
@@ -46,5 +50,32 @@ class ReportChecksum
             'valid' => $recomputed === $claimedChecksum,
             'checksum' => $claimedChecksum,
         ];
+    }
+
+    public function export(string $html, string $reportType, array $filters, User $user): ReportExport
+    {
+        $draft = $this->renderDraft($html);
+        [$checksum, $final] = $this->stamp($draft);
+
+        $reference = self::generateReference();
+
+        Storage::disk('local')->put("report-exports/{$reference}.pdf", $final);
+
+        return ReportExport::create([
+            'reference' => $reference,
+            'report_type' => $reportType,
+            'filters' => $filters,
+            'checksum' => $checksum,
+            'user_id' => $user->id,
+        ]);
+    }
+
+    public static function generateReference(): string
+    {
+        do {
+            $reference = 'RPT-'.strtoupper(Str::random(8));
+        } while (ReportExport::where('reference', $reference)->exists());
+
+        return $reference;
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DownloadReportExportController;
 use App\Livewire\Audit\ActivityLogIndex;
 use App\Livewire\Audit\AnomalyDashboard;
 use App\Livewire\Audit\LoginLogIndex;
@@ -13,6 +14,7 @@ use App\Livewire\Donations\DonationIndex;
 use App\Livewire\Public\CampaignDetail;
 use App\Livewire\Public\CampaignList;
 use App\Livewire\Public\DonationStatusCheck;
+use App\Livewire\Reports\DonationReport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -68,4 +70,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/audit/anomali', AnomalyDashboard::class)
         ->middleware('role:auditor')
         ->name('audit.anomalies');
+
+    Route::get('/laporan/donasi', DonationReport::class)
+        ->middleware('role:auditor')
+        ->name('reports.donations');
+    Route::get('/laporan/unduh/{reportExport:reference}', DownloadReportExportController::class)
+        ->middleware('role:auditor')
+        ->name('reports.download');
 });
