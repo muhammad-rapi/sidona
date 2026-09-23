@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Audit\ActivityLogIndex;
 use App\Livewire\Audit\VerifyIntegrity;
 use App\Livewire\Auth\LoginForm;
 use App\Livewire\Campaigns\CampaignForm;
@@ -56,4 +57,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/audit/integritas', VerifyIntegrity::class)
         ->middleware('role:auditor')
         ->name('audit.integrity');
+    Route::get('/audit/aktivitas', ActivityLogIndex::class)
+        ->middleware('role:auditor')
+        ->name('audit.activity');
 });
