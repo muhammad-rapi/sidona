@@ -17,6 +17,7 @@ use App\Livewire\Public\DonationStatusCheck;
 use App\Livewire\Reports\BalanceSummary;
 use App\Livewire\Reports\DisbursementReport;
 use App\Livewire\Reports\DonationReport;
+use App\Livewire\Reports\VerifyReport;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -85,4 +86,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/laporan/unduh/{reportExport:reference}', DownloadReportExportController::class)
         ->middleware('role:auditor')
         ->name('reports.download');
+    Route::get('/laporan/cek-keaslian', VerifyReport::class)
+        ->middleware('role:auditor')
+        ->name('reports.verify');
 });

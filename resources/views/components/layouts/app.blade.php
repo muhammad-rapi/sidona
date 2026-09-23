@@ -19,6 +19,10 @@
                 <a href="{{ route('audit.activity') }}" wire:navigate>Log Aktivitas</a>
                 <a href="{{ route('audit.login') }}" wire:navigate>Log Login</a>
                 <a href="{{ route('audit.anomalies') }}" wire:navigate>Dashboard Anomali</a>
+                <a href="{{ route('reports.donations') }}" wire:navigate>Laporan Donasi</a>
+                <a href="{{ route('reports.disbursements') }}" wire:navigate>Laporan Penyaluran</a>
+                <a href="{{ route('reports.balance') }}" wire:navigate>Ringkasan Saldo</a>
+                <a href="{{ route('reports.verify') }}" wire:navigate>Cek Keaslian Laporan</a>
             @endif
             <span class="text-slate-400">{{ auth()->user()->name }} ({{ auth()->user()->role->label() }})</span>
             <form method="POST" action="{{ route('logout') }}">
