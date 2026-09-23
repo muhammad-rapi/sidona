@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             CampaignSeeder::class,
             DonationSeeder::class,
+            DisbursementSeeder::class,
         ]);
     }
 }
