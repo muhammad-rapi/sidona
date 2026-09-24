@@ -1,5 +1,9 @@
 <div class="max-w-md mx-auto">
-    <h1 class="text-xl font-semibold mb-6 text-center animate-fade-in-up">Cek Status Donasi</h1>
+    <a href="{{ route('program.index') }}" wire:navigate class="inline-flex items-center gap-1 text-sm text-graphite transition-colors duration-200 hover:text-coral-pulse">
+        &larr; Kembali ke Program Donasi
+    </a>
+
+    <h1 class="text-xl font-semibold mt-4 mb-6 text-center animate-fade-in-up">Cek Status Donasi</h1>
 
     <form wire:submit="check" class="space-y-4 bg-white p-6 rounded-2xl border border-frost-gray animate-fade-in-up" style="animation-delay: 60ms">
         <div>
