@@ -1,6 +1,6 @@
 <div class="min-h-[80vh] flex items-center justify-center px-4">
     <form wire:submit="authenticate" class="block bg-white p-6 max-w-[350px] w-full rounded-lg shadow-[0_10px_15px_-3px_rgba(0,0,0,0.1),0_4px_6px_-2px_rgba(0,0,0,0.05)]">
-        <h1 class="text-xl font-semibold text-center text-ink-black">Masuk ke SIDONA</h1>
+        <h1 class="text-lg font-medium text-center text-graphite">Masuk ke SIDONA</h1>
 
         <div class="relative mt-4">
             <input
@@ -35,7 +35,7 @@
         </div>
         @error('password') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
 
-        <button type="submit" class="block mt-4 py-3 px-5 bg-coral-pulse text-white text-sm font-medium w-full rounded-lg uppercase tracking-wide transition-colors duration-200 hover:bg-coral-pulse-dark">
+        <button type="submit" class="block mt-4 py-3 px-5 bg-coral-pulse text-white text-sm font-medium w-full rounded-lg transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-coral-pulse-dark active:scale-95">
             Masuk
         </button>
     </form>
