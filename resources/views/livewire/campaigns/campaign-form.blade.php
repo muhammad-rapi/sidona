@@ -42,6 +42,28 @@
             @error('target_amount') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
         </div>
 
+        <div class="rounded-2xl border border-frost-gray bg-mint-wash/40 p-4 space-y-4">
+            <p class="text-sm font-medium text-canopy-green">Rekening Tujuan Donasi</p>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Nama Bank / E-Wallet</label>
+                <input type="text" wire:model="bank_name" placeholder="mis. BCA, Mandiri, GoPay" class="w-full rounded border border-frost-gray px-3 py-2">
+                @error('bank_name') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Nomor Rekening</label>
+                <input type="text" wire:model="account_number" class="w-full rounded border border-frost-gray px-3 py-2 font-mono">
+                @error('account_number') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium mb-1">Atas Nama</label>
+                <input type="text" wire:model="account_holder" class="w-full rounded border border-frost-gray px-3 py-2">
+                @error('account_holder') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
         <div class="grid grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium mb-1">Tanggal Mulai</label>

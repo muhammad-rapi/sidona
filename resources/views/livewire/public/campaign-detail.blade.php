@@ -22,6 +22,29 @@
                     <span class="text-graphite">terkumpul dari target Rp {{ number_format($campaign->target_amount, 0, ',', '.') }}</span>
                 </div>
             </div>
+
+            @if ($campaign->bank_name && $campaign->account_number)
+                <div class="mt-6 bg-mint-wash rounded-3xl border border-frost-gray p-6">
+                    <p class="text-sm font-medium text-canopy-green">Langkah Donasi</p>
+                    <ol class="mt-2 text-sm text-graphite list-decimal list-inside space-y-1">
+                        <li>Transfer sesuai nominal ke rekening tujuan di bawah ini.</li>
+                        <li>Isi formulir &amp; unggah bukti transfer di sebelah kanan.</li>
+                    </ol>
+
+                    <div class="mt-4 bg-white rounded-2xl border border-frost-gray p-4">
+                        <p class="text-xs text-graphite uppercase tracking-wide">{{ $campaign->bank_name }}</p>
+                        <div
+                            x-data="{ copied: false }"
+                            x-on:click="navigator.clipboard.writeText('{{ $campaign->account_number }}'); copied = true; setTimeout(() => copied = false, 1500)"
+                            class="mt-1 flex items-center justify-between gap-2 cursor-pointer"
+                        >
+                            <span class="font-mono text-lg font-semibold tracking-wider text-ink-black">{{ $campaign->account_number }}</span>
+                            <span class="shrink-0 text-xs font-medium text-canopy-green" x-text="copied ? 'Tersalin!' : 'Salin'"></span>
+                        </div>
+                        <p class="text-sm text-graphite mt-1">a.n. {{ $campaign->account_holder }}</p>
+                    </div>
+                </div>
+            @endif
         </div>
 
         <div class="lg:sticky lg:top-6">

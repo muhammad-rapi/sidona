@@ -21,6 +21,12 @@ class CampaignForm extends Component
 
     public int $target_amount = 0;
 
+    public string $bank_name = '';
+
+    public string $account_number = '';
+
+    public string $account_holder = '';
+
     public string $starts_on = '';
 
     public string $ends_on = '';
@@ -35,6 +41,9 @@ class CampaignForm extends Component
             $this->name = $campaign->name;
             $this->description = (string) $campaign->description;
             $this->target_amount = $campaign->target_amount;
+            $this->bank_name = (string) $campaign->bank_name;
+            $this->account_number = (string) $campaign->account_number;
+            $this->account_holder = (string) $campaign->account_holder;
             $this->starts_on = $campaign->starts_on->format('Y-m-d');
             $this->ends_on = $campaign->ends_on->format('Y-m-d');
         }
@@ -46,6 +55,9 @@ class CampaignForm extends Component
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'target_amount' => ['required', 'integer', 'min:10000'],
+            'bank_name' => ['required', 'string', 'max:255'],
+            'account_number' => ['required', 'string', 'max:255'],
+            'account_holder' => ['required', 'string', 'max:255'],
             'starts_on' => ['required', 'date'],
             'ends_on' => ['required', 'date', 'after:starts_on'],
         ];
