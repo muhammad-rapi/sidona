@@ -56,3 +56,7 @@
 .animate-fade-in-up {
     animation: fade-in-up 0.45s ease-out both;
 }
+
+[x-cloak] {
+    display: none !important;
+}
