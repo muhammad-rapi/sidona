@@ -2,28 +2,28 @@
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-xl font-semibold">Program Donasi</h1>
         @can('create', App\Models\Campaign::class)
-            <a href="{{ route('campaigns.create') }}" wire:navigate class="rounded-[40px] bg-coral-pulse px-4 py-2 text-white text-sm">Tambah Program</a>
+            <a href="{{ route('campaigns.create') }}" wire:navigate class="rounded-md bg-ink px-4 py-2 text-white text-sm">Tambah Program</a>
         @endcan
     </div>
 
-    <table class="w-full border border-frost-gray text-sm bg-white">
-        <thead class="bg-cloud-gray">
+    <table class="w-full text-sm">
+        <thead>
             <tr>
-                <th class="border border-frost-gray px-3 py-2 text-left">Nama</th>
-                <th class="border border-frost-gray px-3 py-2 text-left">Target</th>
-                <th class="border border-frost-gray px-3 py-2 text-left">Periode</th>
-                <th class="border border-frost-gray px-3 py-2 text-left">Status</th>
-                <th class="border border-frost-gray px-3 py-2 text-left">Aksi</th>
+                <th class="border-b-2 border-ink px-4 py-3 text-left font-medium text-ink-muted">Nama</th>
+                <th class="border-b-2 border-ink px-4 py-3 text-left font-medium text-ink-muted">Target</th>
+                <th class="border-b-2 border-ink px-4 py-3 text-left font-medium text-ink-muted">Periode</th>
+                <th class="border-b-2 border-ink px-4 py-3 text-left font-medium text-ink-muted">Status</th>
+                <th class="border-b-2 border-ink px-4 py-3 text-left font-medium text-ink-muted">Aksi</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($campaigns as $campaign)
                 <tr>
-                    <td class="border border-frost-gray px-3 py-2">{{ $campaign->name }}</td>
-                    <td class="border border-frost-gray px-3 py-2">Rp {{ number_format($campaign->target_amount, 0, ',', '.') }}</td>
-                    <td class="border border-frost-gray px-3 py-2">{{ $campaign->starts_on->format('d/m/Y') }} sampai {{ $campaign->ends_on->format('d/m/Y') }}</td>
-                    <td class="border border-frost-gray px-3 py-2">{{ $campaign->status->label() }}</td>
-                    <td class="border border-frost-gray px-3 py-2 space-x-2">
+                    <td class="border-b border-line px-4 py-3">{{ $campaign->name }}</td>
+                    <td class="border-b border-line px-4 py-3 font-mono">Rp {{ number_format($campaign->target_amount, 0, ',', '.') }}</td>
+                    <td class="border-b border-line px-4 py-3">{{ $campaign->starts_on->format('d/m/Y') }} sampai {{ $campaign->ends_on->format('d/m/Y') }}</td>
+                    <td class="border-b border-line px-4 py-3">{{ $campaign->status->label() }}</td>
+                    <td class="border-b border-line px-4 py-3 space-x-2">
                         @can('update', $campaign)
                             <a href="{{ route('campaigns.edit', $campaign) }}" wire:navigate>Ubah</a>
                         @endcan
@@ -37,7 +37,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" class="border border-frost-gray px-3 py-6 text-center text-slate-text">Belum ada program donasi.</td>
+                    <td colspan="5" class="border-b border-line px-4 py-6 text-center text-ink-muted">Belum ada program donasi.</td>
                 </tr>
             @endforelse
         </tbody>
