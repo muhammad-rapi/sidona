@@ -1,7 +1,7 @@
 <div>
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-xl font-semibold">Donasi Masuk</h1>
-        <select wire:model.live="status" class="rounded border border-frost-gray px-3 py-2 text-sm">
+        <select wire:model.live="status" class="rounded-full border border-frost-gray px-4 py-2 text-sm outline-none transition-all duration-200 focus:border-coral-pulse focus:ring-2 focus:ring-coral-pulse/20">
             <option value="pending">Menunggu</option>
             <option value="verified">Terverifikasi</option>
             <option value="rejected">Ditolak</option>
@@ -9,63 +9,74 @@
         </select>
     </div>
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-        <thead>
-            <tr>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Kode</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Program</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Donatur</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Nominal</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Bukti</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Status</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Aksi</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($donations as $donation)
-                <tr>
-                    <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">{{ $donation->reference_code }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $donation->campaign->name }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $donation->donor_name }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">Rp {{ number_format($donation->amount, 0, ',', '.') }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3">
-                        <a href="{{ Illuminate\Support\Facades\Storage::url($donation->proof_path) }}" target="_blank" rel="noopener">Lihat</a>
-                    </td>
-                    <td class="border-b border-frost-gray px-4 py-3">
-                        @php($statusColor = match ($donation->status->value) { 'verified' => 'text-leaf-bright', 'rejected' => 'text-flag-red', default => 'text-graphite' })
-                        <span class="{{ $statusColor }}">&bull; {{ $donation->status->label() }}</span>
-                    </td>
-                    <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap space-x-3">
-                        @can('verify', $donation)
-                            <button type="button" wire:click="verify({{ $donation->id }})" wire:confirm="Verifikasi donasi ini?" class="text-leaf-bright hover:text-canopy-green transition-colors duration-200">Verifikasi</button>
-                        @endcan
-                        @can('reject', $donation)
-                            <button type="button" wire:click="startReject({{ $donation->id }})" class="text-flag-red hover:text-flag-red/70 transition-colors duration-200">Tolak</button>
-                        @endcan
-                    </td>
-                </tr>
-                @if ($rejectingId === $donation->id)
+    <div class="bg-white rounded-3xl border border-frost-gray overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
                     <tr>
-                        <td colspan="7" class="border-b border-frost-gray px-4 py-3 bg-cloud-gray">
-                            <form wire:submit="confirmReject" class="flex items-start gap-3">
-                                <div class="flex-1">
-                                    <textarea wire:model="rejectionReason" class="w-full rounded border border-frost-gray px-3 py-2 text-sm" placeholder="Alasan penolakan"></textarea>
-                                    @error('rejectionReason') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
-                                </div>
-                                <button type="submit" class="rounded-full bg-coral-pulse px-5 py-2 text-white text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-coral-pulse-dark active:scale-95">Kirim</button>
-                                <button type="button" wire:click="cancelReject" class="rounded-full border border-ink-black px-5 py-2 text-sm transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-ink-black hover:text-white active:scale-95">Batal</button>
-                            </form>
-                        </td>
+                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Kode</th>
+                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Program</th>
+                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Donatur</th>
+                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Nominal</th>
+                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Bukti</th>
+                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Status</th>
+                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Aksi</th>
                     </tr>
-                @endif
-            @empty
-                <tr>
-                    <td colspan="7" class="border-b border-frost-gray px-4 py-6 text-center text-graphite">Tidak ada donasi.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+                </thead>
+                <tbody>
+                    @forelse ($donations as $donation)
+                        @php
+                            $statusBadge = match ($donation->status->value) {
+                                'verified' => ['bg-mint-wash', 'text-canopy-green'],
+                                'rejected' => ['bg-flag-red/10', 'text-flag-red'],
+                                default => ['bg-sand', 'text-graphite'],
+                            };
+                        @endphp
+                        <tr class="hover:bg-mint-wash/40 transition-colors duration-150">
+                            <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">{{ $donation->reference_code }}</td>
+                            <td class="border-b border-frost-gray px-4 py-3">{{ $donation->campaign->name }}</td>
+                            <td class="border-b border-frost-gray px-4 py-3">{{ $donation->donor_name }}</td>
+                            <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">Rp {{ number_format($donation->amount, 0, ',', '.') }}</td>
+                            <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap">
+                                <a href="{{ Illuminate\Support\Facades\Storage::url($donation->proof_path) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm text-coral-pulse transition-colors duration-200 hover:text-coral-pulse-dark">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    Lihat
+                                </a>
+                            </td>
+                            <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap">
+                                <span class="inline-flex items-center rounded-full {{ $statusBadge[0] }} {{ $statusBadge[1] }} px-3 py-1 text-xs font-medium">{{ $donation->status->label() }}</span>
+                            </td>
+                            <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap space-x-2">
+                                @can('verify', $donation)
+                                    <button type="button" wire:click="verify({{ $donation->id }})" wire:confirm="Verifikasi donasi ini?" class="inline-flex items-center rounded-full bg-mint-wash px-3 py-1 text-xs font-medium text-canopy-green transition-colors duration-200 hover:bg-sky-wash">Verifikasi</button>
+                                @endcan
+                                @can('reject', $donation)
+                                    <button type="button" wire:click="startReject({{ $donation->id }})" class="inline-flex items-center rounded-full border border-flag-red/30 px-3 py-1 text-xs font-medium text-flag-red transition-colors duration-200 hover:bg-flag-red/10">Tolak</button>
+                                @endcan
+                            </td>
+                        </tr>
+                        @if ($rejectingId === $donation->id)
+                            <tr>
+                                <td colspan="7" class="border-b border-frost-gray px-4 py-3 bg-cloud-gray">
+                                    <form wire:submit="confirmReject" class="flex items-start gap-3">
+                                        <div class="flex-1">
+                                            <textarea wire:model="rejectionReason" class="w-full rounded border border-frost-gray px-3 py-2 text-sm outline-none transition-all duration-200 focus:border-coral-pulse focus:ring-2 focus:ring-coral-pulse/20" placeholder="Alasan penolakan"></textarea>
+                                            @error('rejectionReason') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
+                                        </div>
+                                        <button type="submit" class="rounded-full bg-coral-pulse px-5 py-2 text-white text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-coral-pulse-dark active:scale-95">Kirim</button>
+                                        <button type="button" wire:click="cancelReject" class="rounded-full border border-ink-black px-5 py-2 text-sm transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-ink-black hover:text-white active:scale-95">Batal</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endif
+                    @empty
+                        <tr>
+                            <td colspan="7" class="border-b border-frost-gray px-4 py-6 text-center text-graphite">Tidak ada donasi.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="mt-4">{{ $donations->links() }}</div>
