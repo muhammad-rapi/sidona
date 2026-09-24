@@ -8,6 +8,11 @@
     @livewireStyles
 </head>
 <body class="bg-lavender-mist text-ink-black">
+    <nav class="bg-paper-white border-b border-frost-gray px-6 py-4 flex items-center justify-between">
+        <a href="{{ route('program.index') }}" wire:navigate class="font-medium tracking-tight text-graphite">SIDONA</a>
+        <a href="{{ route('program.index') }}" wire:navigate class="text-sm text-graphite hover:text-coral-pulse transition-colors duration-200">Home</a>
+    </nav>
+
     {{ $slot }}
     @livewireScripts
 </body>

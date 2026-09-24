@@ -38,7 +38,7 @@ Route::post('/logout', function () {
     request()->session()->invalidate();
     request()->session()->regenerateToken();
 
-    return redirect()->route('login');
+    return redirect()->route('program.index');
 })->middleware('auth')->name('logout');
 
 Route::middleware('auth')->group(function () {
