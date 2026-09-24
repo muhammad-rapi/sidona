@@ -26,10 +26,23 @@
 
         <div class="lg:sticky lg:top-6">
             @if ($referenceCode)
-                <div class="bg-white p-6 rounded-3xl border border-leaf-bright">
-                    <p class="text-sm">Terima kasih. Donasi Anda tercatat dengan kode referensi:</p>
-                    <p class="font-mono text-lg mt-2 text-canopy-green">{{ $referenceCode }}</p>
-                    <p class="text-sm text-graphite mt-2">Simpan kode ini untuk memeriksa status donasi Anda.</p>
+                <div class="bg-white p-6 rounded-3xl border border-leaf-bright animate-fade-in-up">
+                    <div class="flex items-center gap-2 text-canopy-green">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                        <p class="text-sm font-medium">Donasi Anda berhasil tercatat</p>
+                    </div>
+
+                    <p class="text-xs text-graphite mt-4 uppercase tracking-wide">Kode Referensi</p>
+                    <div
+                        x-data="{ copied: false }"
+                        x-on:click="navigator.clipboard.writeText('{{ $referenceCode }}'); copied = true; setTimeout(() => copied = false, 1500)"
+                        class="mt-1 flex items-center justify-between gap-2 rounded-2xl border-2 border-dashed border-frost-gray bg-mint-wash px-4 py-3 cursor-pointer transition-colors duration-200 hover:bg-sky-wash"
+                    >
+                        <span class="font-mono text-xl font-semibold tracking-wider text-canopy-green">{{ $referenceCode }}</span>
+                        <span class="shrink-0 text-xs font-medium text-canopy-green" x-text="copied ? 'Tersalin!' : 'Salin'"></span>
+                    </div>
+
+                    <p class="text-sm text-graphite mt-3">Simpan kode ini untuk memeriksa status donasi Anda.</p>
                     <a href="{{ route('donations.check') }}" wire:navigate class="mt-4 inline-block text-sm text-coral-pulse transition-colors duration-200 hover:text-coral-pulse-dark">Cek status donasi &rarr;</a>
                 </div>
             @else
