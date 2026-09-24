@@ -9,7 +9,8 @@
         </select>
     </div>
 
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
         <thead>
             <tr>
                 <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Kode</th>
@@ -65,6 +66,7 @@
             @endforelse
         </tbody>
     </table>
+    </div>
 
     <div class="mt-4">{{ $donations->links() }}</div>
 </div>

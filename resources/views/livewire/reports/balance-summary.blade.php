@@ -4,7 +4,8 @@
         <button type="button" wire:click="exportPdf" class="rounded-full bg-coral-pulse px-6 py-3 text-white text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-coral-pulse-dark active:scale-95">Unduh PDF</button>
     </div>
 
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
         <thead>
             <tr>
                 <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Program</th>
@@ -28,4 +29,5 @@
             @endforelse
         </tbody>
     </table>
+    </div>
 </div>

@@ -10,7 +10,8 @@
         <input type="date" wire:model.live="to" class="rounded border border-frost-gray px-3 py-2 text-sm">
     </form>
 
-    <table class="w-full text-sm">
+    <div class="overflow-x-auto">
+        <table class="w-full text-sm">
         <thead>
             <tr>
                 <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Waktu</th>
@@ -56,6 +57,7 @@
             @endforelse
         </tbody>
     </table>
+    </div>
 
     <div class="mt-4">{{ $entries->links() }}</div>
 </div>
