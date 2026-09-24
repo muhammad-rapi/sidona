@@ -2,7 +2,7 @@
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-xl font-semibold">Program Donasi</h1>
         @can('create', App\Models\Campaign::class)
-            <a href="{{ route('campaigns.create') }}" wire:navigate class="rounded-full bg-coral-pulse px-6 py-3 text-white text-sm font-medium transition-colors duration-200 hover:bg-coral-pulse-dark">Tambah Program</a>
+            <a href="{{ route('campaigns.create') }}" wire:navigate class="rounded-full bg-coral-pulse px-6 py-3 text-white text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-coral-pulse-dark active:scale-95">Tambah Program</a>
         @endcan
     </div>
 

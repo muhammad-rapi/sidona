@@ -17,6 +17,6 @@
             @error('description') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
         </div>
 
-        <button type="submit" class="rounded-full bg-coral-pulse px-6 py-3 text-white text-sm font-medium transition-colors duration-200 hover:bg-coral-pulse-dark">Ajukan</button>
+        <button type="submit" class="rounded-full bg-coral-pulse px-6 py-3 text-white text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-coral-pulse-dark active:scale-95">Ajukan</button>
     </form>
 </div>

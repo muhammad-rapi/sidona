@@ -8,11 +8,11 @@
     @livewireStyles
 </head>
 <body class="bg-lavender-mist text-ink-black">
-    <nav class="bg-paper-white border-b border-frost-gray px-6 py-8 flex items-center justify-between">
-        <a href="{{ route('program.index') }}" class="font-semibold tracking-tight">SIDONA</a>
+    <nav class="bg-paper-white border-b border-frost-gray px-6 py-4 flex items-center justify-between">
+        <a href="{{ route('program.index') }}" class="font-medium tracking-tight text-graphite">SIDONA</a>
         <div class="flex items-center gap-5 text-sm">
-            <a href="{{ route('donations.check') }}" wire:navigate class="text-canopy-green hover:text-coral-pulse">Cek Status Donasi</a>
-            <a href="{{ route('login') }}" wire:navigate class="text-canopy-green hover:text-coral-pulse">Masuk Staf</a>
+            <a href="{{ route('donations.check') }}" wire:navigate class="text-graphite hover:text-coral-pulse transition-colors duration-200">Cek Status Donasi</a>
+            <a href="{{ route('login') }}" wire:navigate class="text-graphite hover:text-coral-pulse transition-colors duration-200">Masuk Staf</a>
         </div>
     </nav>
 

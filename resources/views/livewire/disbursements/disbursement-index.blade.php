@@ -50,8 +50,8 @@
                                     <textarea wire:model="rejectionReason" class="w-full rounded border border-frost-gray px-3 py-2 text-sm" placeholder="Alasan penolakan"></textarea>
                                     @error('rejectionReason') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
                                 </div>
-                                <button type="submit" class="rounded-full bg-coral-pulse px-5 py-2 text-white text-sm font-medium transition-colors duration-200 hover:bg-coral-pulse-dark">Kirim</button>
-                                <button type="button" wire:click="cancelReject" class="rounded-full border border-ink-black px-5 py-2 text-sm transition-colors duration-200 hover:bg-ink-black hover:text-white">Batal</button>
+                                <button type="submit" class="rounded-full bg-coral-pulse px-5 py-2 text-white text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-coral-pulse-dark active:scale-95">Kirim</button>
+                                <button type="button" wire:click="cancelReject" class="rounded-full border border-ink-black px-5 py-2 text-sm transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-ink-black hover:text-white active:scale-95">Batal</button>
                             </form>
                         </td>
                     </tr>

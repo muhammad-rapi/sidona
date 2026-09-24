@@ -8,28 +8,28 @@
     @livewireStyles
 </head>
 <body class="bg-lavender-mist text-ink-black">
-    <nav class="bg-paper-white border-b border-frost-gray px-6 py-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-        <a href="{{ route('dashboard') }}" class="font-semibold tracking-tight">SIDONA</a>
+    <nav class="bg-paper-white border-b border-frost-gray px-6 py-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+        <a href="{{ route('dashboard') }}" class="font-medium tracking-tight text-graphite">SIDONA</a>
         <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm">
-            <a href="{{ route('campaigns.index') }}" wire:navigate class="text-canopy-green hover:text-coral-pulse">Program Donasi</a>
-            <a href="{{ route('donations.index') }}" wire:navigate class="text-canopy-green hover:text-coral-pulse">Donasi</a>
-            <a href="{{ route('disbursements.index') }}" wire:navigate class="text-canopy-green hover:text-coral-pulse">Penyaluran</a>
+            <a href="{{ route('campaigns.index') }}" wire:navigate class="text-graphite hover:text-coral-pulse transition-colors duration-200">Program Donasi</a>
+            <a href="{{ route('donations.index') }}" wire:navigate class="text-graphite hover:text-coral-pulse transition-colors duration-200">Donasi</a>
+            <a href="{{ route('disbursements.index') }}" wire:navigate class="text-graphite hover:text-coral-pulse transition-colors duration-200">Penyaluran</a>
             @if (auth()->user()->isAuditor())
-                <a href="{{ route('audit.integrity') }}" wire:navigate class="text-canopy-green hover:text-coral-pulse">Verifikasi Integritas</a>
-                <a href="{{ route('audit.activity') }}" wire:navigate class="text-canopy-green hover:text-coral-pulse">Log Aktivitas</a>
-                <a href="{{ route('audit.login') }}" wire:navigate class="text-canopy-green hover:text-coral-pulse">Log Login</a>
-                <a href="{{ route('audit.anomalies') }}" wire:navigate class="text-canopy-green hover:text-coral-pulse">Dashboard Anomali</a>
-                <a href="{{ route('reports.donations') }}" wire:navigate class="text-canopy-green hover:text-coral-pulse">Laporan Donasi</a>
-                <a href="{{ route('reports.disbursements') }}" wire:navigate class="text-canopy-green hover:text-coral-pulse">Laporan Penyaluran</a>
-                <a href="{{ route('reports.balance') }}" wire:navigate class="text-canopy-green hover:text-coral-pulse">Ringkasan Saldo</a>
-                <a href="{{ route('reports.verify') }}" wire:navigate class="text-canopy-green hover:text-coral-pulse">Cek Keaslian Laporan</a>
+                <a href="{{ route('audit.integrity') }}" wire:navigate class="text-graphite hover:text-coral-pulse transition-colors duration-200">Verifikasi Integritas</a>
+                <a href="{{ route('audit.activity') }}" wire:navigate class="text-graphite hover:text-coral-pulse transition-colors duration-200">Log Aktivitas</a>
+                <a href="{{ route('audit.login') }}" wire:navigate class="text-graphite hover:text-coral-pulse transition-colors duration-200">Log Login</a>
+                <a href="{{ route('audit.anomalies') }}" wire:navigate class="text-graphite hover:text-coral-pulse transition-colors duration-200">Dashboard Anomali</a>
+                <a href="{{ route('reports.donations') }}" wire:navigate class="text-graphite hover:text-coral-pulse transition-colors duration-200">Laporan Donasi</a>
+                <a href="{{ route('reports.disbursements') }}" wire:navigate class="text-graphite hover:text-coral-pulse transition-colors duration-200">Laporan Penyaluran</a>
+                <a href="{{ route('reports.balance') }}" wire:navigate class="text-graphite hover:text-coral-pulse transition-colors duration-200">Ringkasan Saldo</a>
+                <a href="{{ route('reports.verify') }}" wire:navigate class="text-graphite hover:text-coral-pulse transition-colors duration-200">Cek Keaslian Laporan</a>
             @endif
         </div>
         <div class="flex items-center gap-4 text-sm">
             <span class="text-graphite">{{ auth()->user()->name }} ({{ auth()->user()->role->label() }})</span>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="text-canopy-green hover:text-coral-pulse">Keluar</button>
+                <button type="submit" class="text-graphite hover:text-coral-pulse transition-colors duration-200">Keluar</button>
             </form>
         </div>
     </nav>
