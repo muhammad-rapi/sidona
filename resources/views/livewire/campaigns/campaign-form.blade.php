@@ -15,8 +15,30 @@
         </div>
 
         <div>
-            <label class="block text-sm font-medium mb-1">Target Dana (Rupiah)</label>
-            <input type="number" wire:model="target_amount" class="w-full rounded border border-frost-gray px-3 py-2">
+            <label class="block text-sm font-medium mb-1">Target Dana</label>
+            <div
+                x-data="{
+                    raw: $wire.entangle('target_amount'),
+                    formatted: '',
+                    format(v) { return v ? new Intl.NumberFormat('id-ID').format(v) : ''; },
+                    init() { this.formatted = this.format(this.raw); },
+                }"
+                class="relative"
+            >
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-graphite">Rp</span>
+                <input
+                    type="text"
+                    inputmode="numeric"
+                    x-model="formatted"
+                    x-on:input="
+                        let digits = $event.target.value.replace(/[^0-9]/g, '');
+                        raw = digits ? parseInt(digits) : 0;
+                        formatted = format(raw);
+                    "
+                    placeholder="0"
+                    class="w-full rounded border border-frost-gray pl-9 pr-3 py-2"
+                >
+            </div>
             @error('target_amount') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
         </div>
 
