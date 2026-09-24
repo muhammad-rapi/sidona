@@ -10,7 +10,7 @@
                 (jauh di atas rata rata donasi program ini)
             </div>
         @empty
-            <p class="text-sm text-slate-500">Tidak ada donasi dengan nominal mencurigakan.</p>
+            <p class="text-sm text-slate-text">Tidak ada donasi dengan nominal mencurigakan.</p>
         @endforelse
     </section>
 
@@ -22,7 +22,7 @@
                 ({{ $log->created_at->format('d/m/Y H:i') }})
             </div>
         @empty
-            <p class="text-sm text-slate-500">Tidak ada pola login gagal yang mencurigakan.</p>
+            <p class="text-sm text-slate-text">Tidak ada pola login gagal yang mencurigakan.</p>
         @endforelse
     </section>
 
@@ -34,7 +34,7 @@
                 disetujui kurang dari 1 menit setelah diajukan
             </div>
         @empty
-            <p class="text-sm text-slate-500">Tidak ada penyaluran yang disetujui terlalu cepat.</p>
+            <p class="text-sm text-slate-text">Tidak ada penyaluran yang disetujui terlalu cepat.</p>
         @endforelse
     </section>
 </div>

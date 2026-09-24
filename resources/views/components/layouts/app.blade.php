@@ -7,8 +7,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-slate-100 text-slate-900">
-    <nav class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+<body class="bg-lavender-mist text-canopy-green">
+    <nav class="bg-canopy-green text-white px-6 py-4 flex items-center justify-between">
         <a href="{{ route('dashboard') }}" class="font-semibold">SIDONA</a>
         <div class="flex items-center gap-4 text-sm">
             <a href="{{ route('campaigns.index') }}" wire:navigate>Program Donasi</a>
@@ -24,7 +24,7 @@
                 <a href="{{ route('reports.balance') }}" wire:navigate>Ringkasan Saldo</a>
                 <a href="{{ route('reports.verify') }}" wire:navigate>Cek Keaslian Laporan</a>
             @endif
-            <span class="text-slate-400">{{ auth()->user()->name }} ({{ auth()->user()->role->label() }})</span>
+            <span class="text-ash">{{ auth()->user()->name }} ({{ auth()->user()->role->label() }})</span>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit">Keluar</button>
@@ -34,7 +34,7 @@
 
     <main class="max-w-5xl mx-auto px-6 py-8">
         @if (session('status'))
-            <div class="mb-4 rounded border border-emerald-600 bg-emerald-50 px-4 py-3 text-emerald-800">
+            <div class="mb-4 rounded border border-leaf-bright bg-mint-wash px-4 py-3 text-canopy-green">
                 {{ session('status') }}
             </div>
         @endif

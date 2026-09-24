@@ -7,8 +7,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-slate-100 text-slate-900">
-    <nav class="bg-slate-900 text-white px-6 py-4 flex items-center justify-between">
+<body class="bg-lavender-mist text-canopy-green">
+    <nav class="bg-canopy-green text-white px-6 py-4 flex items-center justify-between">
         <a href="{{ route('program.index') }}" class="font-semibold">SIDONA</a>
         <div class="flex items-center gap-4 text-sm">
             <a href="{{ route('donations.check') }}" wire:navigate>Cek Status Donasi</a>
