@@ -1,7 +1,7 @@
 <div>
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-xl font-semibold">Laporan Donasi</h1>
-        <button type="button" wire:click="exportPdf" class="rounded-md bg-ink px-4 py-2 text-white text-sm">Unduh PDF</button>
+        <button type="button" wire:click="exportPdf" class="rounded-full bg-coral px-6 py-3 text-white text-sm font-medium transition-colors duration-200 hover:bg-coral-dark">Unduh PDF</button>
     </div>
 
     <form class="flex flex-wrap gap-3 mb-4 bg-white p-4 rounded border border-line">

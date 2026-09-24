@@ -2,7 +2,7 @@
     <h1 class="text-xl font-semibold mb-2">Verifikasi Integritas</h1>
     <p class="text-sm text-ink-muted mb-6">Menghitung ulang seluruh rantai hash activity log dan membandingkannya dengan yang tersimpan.</p>
 
-    <button type="button" wire:click="verify" class="rounded-md bg-ink px-4 py-2 text-white text-sm">Verifikasi Sekarang</button>
+    <button type="button" wire:click="verify" class="rounded-full bg-coral px-6 py-3 text-white text-sm font-medium transition-colors duration-200 hover:bg-coral-dark">Verifikasi Sekarang</button>
 
     @if ($result)
         @if ($result['valid'])
