@@ -7,10 +7,13 @@ use App\Services\AuditLogger;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('components.layouts.app')]
 class CampaignIndex extends Component
 {
+    use WithPagination;
+
     public function delete(Campaign $campaign, AuditLogger $logger): void
     {
         Gate::authorize('delete', $campaign);

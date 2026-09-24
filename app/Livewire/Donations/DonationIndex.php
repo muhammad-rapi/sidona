@@ -11,11 +11,13 @@ use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('components.layouts.app')]
 class DonationIndex extends Component
 {
     use HasRejectionWorkflow;
+    use WithPagination;
 
     #[Url]
     public string $status = 'pending';

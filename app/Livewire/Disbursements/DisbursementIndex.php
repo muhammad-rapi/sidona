@@ -13,11 +13,13 @@ use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('components.layouts.app')]
 class DisbursementIndex extends Component
 {
     use HasRejectionWorkflow;
+    use WithPagination;
 
     #[Url]
     public string $status = 'submitted';

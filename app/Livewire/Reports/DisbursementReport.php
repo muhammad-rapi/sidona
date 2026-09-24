@@ -8,10 +8,13 @@ use App\Services\ReportChecksum;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 #[Layout('components.layouts.app')]
 class DisbursementReport extends Component
 {
+    use WithPagination;
+
     #[Url]
     public string $campaign_id = '';
 
