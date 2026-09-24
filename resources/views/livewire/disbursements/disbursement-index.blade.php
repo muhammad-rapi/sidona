@@ -27,19 +27,19 @@
             @forelse ($disbursements as $disbursement)
                 <tr>
                     <td class="border-b border-frost-gray px-4 py-3">{{ $disbursement->campaign->name }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3 font-mono">Rp {{ number_format($disbursement->amount, 0, ',', '.') }}</td>
+                    <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">Rp {{ number_format($disbursement->amount, 0, ',', '.') }}</td>
                     <td class="border-b border-frost-gray px-4 py-3">{{ $disbursement->description }}</td>
                     <td class="border-b border-frost-gray px-4 py-3">{{ $disbursement->submitter->name }}</td>
                     <td class="border-b border-frost-gray px-4 py-3">
                         @php($statusColor = match ($disbursement->status->value) { 'approved' => 'text-leaf-bright', 'rejected' => 'text-flag-red', default => 'text-graphite' })
                         <span class="{{ $statusColor }}">&bull; {{ $disbursement->status->label() }}</span>
                     </td>
-                    <td class="border-b border-frost-gray px-4 py-3 space-x-2">
+                    <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap space-x-3">
                         @can('approve', $disbursement)
-                            <button type="button" wire:click="approve({{ $disbursement->id }})" wire:confirm="Setujui penyaluran ini?">Setujui</button>
+                            <button type="button" wire:click="approve({{ $disbursement->id }})" wire:confirm="Setujui penyaluran ini?" class="text-leaf-bright hover:text-canopy-green transition-colors duration-200">Setujui</button>
                         @endcan
                         @can('reject', $disbursement)
-                            <button type="button" wire:click="startReject({{ $disbursement->id }})">Tolak</button>
+                            <button type="button" wire:click="startReject({{ $disbursement->id }})" class="text-flag-red hover:text-flag-red/70 transition-colors duration-200">Tolak</button>
                         @endcan
                     </td>
                 </tr>

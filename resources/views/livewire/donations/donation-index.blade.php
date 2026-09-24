@@ -25,10 +25,10 @@
         <tbody>
             @forelse ($donations as $donation)
                 <tr>
-                    <td class="border-b border-frost-gray px-4 py-3 font-mono">{{ $donation->reference_code }}</td>
+                    <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">{{ $donation->reference_code }}</td>
                     <td class="border-b border-frost-gray px-4 py-3">{{ $donation->campaign->name }}</td>
                     <td class="border-b border-frost-gray px-4 py-3">{{ $donation->donor_name }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3 font-mono">Rp {{ number_format($donation->amount, 0, ',', '.') }}</td>
+                    <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">Rp {{ number_format($donation->amount, 0, ',', '.') }}</td>
                     <td class="border-b border-frost-gray px-4 py-3">
                         <a href="{{ Illuminate\Support\Facades\Storage::url($donation->proof_path) }}" target="_blank" rel="noopener">Lihat</a>
                     </td>
@@ -36,12 +36,12 @@
                         @php($statusColor = match ($donation->status->value) { 'verified' => 'text-leaf-bright', 'rejected' => 'text-flag-red', default => 'text-graphite' })
                         <span class="{{ $statusColor }}">&bull; {{ $donation->status->label() }}</span>
                     </td>
-                    <td class="border-b border-frost-gray px-4 py-3 space-x-2">
+                    <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap space-x-3">
                         @can('verify', $donation)
-                            <button type="button" wire:click="verify({{ $donation->id }})" wire:confirm="Verifikasi donasi ini?">Verifikasi</button>
+                            <button type="button" wire:click="verify({{ $donation->id }})" wire:confirm="Verifikasi donasi ini?" class="text-leaf-bright hover:text-canopy-green transition-colors duration-200">Verifikasi</button>
                         @endcan
                         @can('reject', $donation)
-                            <button type="button" wire:click="startReject({{ $donation->id }})">Tolak</button>
+                            <button type="button" wire:click="startReject({{ $donation->id }})" class="text-flag-red hover:text-flag-red/70 transition-colors duration-200">Tolak</button>
                         @endcan
                     </td>
                 </tr>

@@ -21,18 +21,18 @@
             @forelse ($campaigns as $campaign)
                 <tr>
                     <td class="border-b border-frost-gray px-4 py-3">{{ $campaign->name }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3 font-mono">Rp {{ number_format($campaign->target_amount, 0, ',', '.') }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $campaign->starts_on->format('d/m/Y') }} sampai {{ $campaign->ends_on->format('d/m/Y') }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $campaign->status->label() }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3 space-x-2">
+                    <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">Rp {{ number_format($campaign->target_amount, 0, ',', '.') }}</td>
+                    <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap">{{ $campaign->starts_on->format('d/m/Y') }} sampai {{ $campaign->ends_on->format('d/m/Y') }}</td>
+                    <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap">{{ $campaign->status->label() }}</td>
+                    <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap space-x-3">
                         @can('update', $campaign)
-                            <a href="{{ route('campaigns.edit', $campaign) }}" wire:navigate>Ubah</a>
+                            <a href="{{ route('campaigns.edit', $campaign) }}" wire:navigate class="text-coral-pulse hover:text-coral-pulse-dark transition-colors duration-200">Ubah</a>
                         @endcan
                         @can('delete', $campaign)
-                            <button type="button" wire:click="delete({{ $campaign->id }})" wire:confirm="Yakin ingin menghapus program ini?">Hapus</button>
+                            <button type="button" wire:click="delete({{ $campaign->id }})" wire:confirm="Yakin ingin menghapus program ini?" class="text-flag-red hover:text-flag-red/70 transition-colors duration-200">Hapus</button>
                         @endcan
                         @can('create', App\Models\Disbursement::class)
-                            <a href="{{ route('disbursements.create', $campaign) }}" wire:navigate>Ajukan Penyaluran</a>
+                            <a href="{{ route('disbursements.create', $campaign) }}" wire:navigate class="text-canopy-green hover:text-leaf-bright transition-colors duration-200">Ajukan Penyaluran</a>
                         @endcan
                     </td>
                 </tr>
