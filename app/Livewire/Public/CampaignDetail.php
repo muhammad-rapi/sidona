@@ -7,6 +7,7 @@ use App\Enums\DonationStatus;
 use App\Models\Campaign;
 use App\Models\Donation;
 use App\Services\AuditLogger;
+use Illuminate\Support\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -48,7 +49,7 @@ class CampaignDetail extends Component
             'donor_name' => ['required', 'string', 'max:255'],
             'donor_contact' => ['required', 'string', 'max:255'],
             'amount' => ['required', 'integer', 'min:10000'],
-            'transferred_at' => ['required', 'date', 'before_or_equal:now'],
+            'transferred_at' => ['required', 'date_format:Y-m-d\TH:i'],
             'proof' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
         ];
     }
@@ -57,6 +58,14 @@ class CampaignDetail extends Component
     {
         $data = $this->validate();
 
+        $transferredAt = Carbon::createFromFormat('Y-m-d\TH:i', $data['transferred_at'], 'Asia/Jakarta')->utc();
+
+        if ($transferredAt->isFuture()) {
+            $this->addError('transferred_at', 'Waktu transfer tidak boleh di masa depan.');
+
+            return;
+        }
+
         $path = $this->proof->store('donation-proofs', 'public');
 
         $donation = Donation::create([
@@ -64,7 +73,7 @@ class CampaignDetail extends Component
             'donor_name' => $data['donor_name'],
             'donor_contact' => $data['donor_contact'],
             'amount' => $data['amount'],
-            'transferred_at' => $data['transferred_at'],
+            'transferred_at' => $transferredAt,
             'proof_path' => $path,
             'status' => DonationStatus::Pending,
         ]);

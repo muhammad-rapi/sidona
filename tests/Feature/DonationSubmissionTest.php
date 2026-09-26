@@ -18,7 +18,7 @@ it('lets a guest submit a donation with valid data and a proof file', function (
         ->set('donor_name', 'Budi Santoso')
         ->set('donor_contact', '08123456789')
         ->set('amount', 50000)
-        ->set('transferred_at', now()->subMinutes(5)->format('Y-m-d\TH:i'))
+        ->set('transferred_at', now('Asia/Jakarta')->subMinutes(5)->format('Y-m-d\TH:i'))
         ->set('proof', UploadedFile::fake()->create('bukti.jpg', 500, 'image/jpeg'))
         ->call('submit')
         ->assertHasNoErrors();
@@ -52,12 +52,34 @@ it('rejects a donation whose transfer time is in the future', function () {
         ->set('donor_name', 'Budi')
         ->set('donor_contact', '08123456789')
         ->set('amount', 50000)
-        ->set('transferred_at', now()->addMinutes(5)->format('Y-m-d\TH:i'))
+        ->set('transferred_at', now('Asia/Jakarta')->addMinutes(5)->format('Y-m-d\TH:i'))
         ->set('proof', UploadedFile::fake()->create('bukti.jpg', 100, 'image/jpeg'))
         ->call('submit')
         ->assertHasErrors('transferred_at');
 
     expect(Donation::count())->toBe(0);
+});
+
+it('accepts a transfer time that is current in Jakarta time even though the server runs in UTC', function () {
+    Storage::fake('public');
+    config(['app.timezone' => 'UTC']);
+    $campaign = Campaign::factory()->create(['status' => CampaignStatus::Active, 'ends_on' => now()->addDays(10)]);
+
+    // Jakarta (UTC+7) is ahead of the server's UTC clock, so this string
+    // would look like it's in the future if compared against naive now().
+    $jakartaNow = now('Asia/Jakarta')->format('Y-m-d\TH:i');
+
+    Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
+        ->set('donor_name', 'Budi Santoso')
+        ->set('donor_contact', '08123456789')
+        ->set('amount', 50000)
+        ->set('transferred_at', $jakartaNow)
+        ->set('proof', UploadedFile::fake()->create('bukti.jpg', 100, 'image/jpeg'))
+        ->call('submit')
+        ->assertHasNoErrors();
+
+    $donation = Donation::first();
+    expect($donation->transferred_at->diffInMinutes(now(), true))->toBeLessThan(1);
 });
 
 it('rejects a proof file that is not jpg, png or pdf', function () {
@@ -99,7 +121,7 @@ it('writes an activity log entry for a submitted donation without a user', funct
         ->set('donor_name', 'Budi')
         ->set('donor_contact', '08123456789')
         ->set('amount', 50000)
-        ->set('transferred_at', now()->subMinutes(5)->format('Y-m-d\TH:i'))
+        ->set('transferred_at', now('Asia/Jakarta')->subMinutes(5)->format('Y-m-d\TH:i'))
         ->set('proof', UploadedFile::fake()->create('bukti.jpg', 100, 'image/jpeg'))
         ->call('submit');
 

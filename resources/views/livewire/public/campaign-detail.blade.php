@@ -150,9 +150,24 @@
                         </div>
 
                         <div>
-                            <label class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-graphite">Waktu Transfer</label>
-                            <input type="datetime-local" wire:model="transferred_at" class="w-full rounded-2xl border border-frost-gray bg-white px-4 py-2.5 text-sm outline-none transition-all duration-300 focus:border-coral-pulse focus:ring-2 focus:ring-coral-pulse/20">
-                            <p class="mt-1.5 text-xs text-graphite">Isi sesuai waktu transfer di aplikasi bank/e-wallet Anda, agar mudah dicocokkan.</p>
+                            <label class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-graphite">Waktu Transfer (WIB)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 z-10 flex items-center pl-4 text-graphite">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+                                </span>
+                                <input type="datetime-local" wire:model="transferred_at" class="w-full rounded-2xl border border-frost-gray bg-white py-2.5 pl-10 pr-24 text-sm outline-none transition-all duration-300 focus:border-coral-pulse focus:ring-2 focus:ring-coral-pulse/20">
+                                <button
+                                    type="button"
+                                    x-on:click="
+                                        let n = new Date();
+                                        n.setSeconds(0, 0);
+                                        let pad = (v) => String(v).padStart(2, '0');
+                                        $wire.set('transferred_at', `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}T${pad(n.getHours())}:${pad(n.getMinutes())}`);
+                                    "
+                                    class="absolute inset-y-0 right-1.5 my-1.5 rounded-full bg-mint-wash px-3 text-xs font-medium text-canopy-green transition-colors duration-300 hover:bg-sky-wash"
+                                >Sekarang</button>
+                            </div>
+                            <p class="mt-1.5 text-xs text-graphite">Isi sesuai waktu transfer di aplikasi bank/e-wallet Anda (WIB), agar mudah dicocokkan.</p>
                             @error('transferred_at') <p class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror
                         </div>
 

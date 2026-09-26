@@ -39,7 +39,7 @@
                             <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">
                                 Rp {{ number_format($donation->amount, 0, ',', '.') }}
                                 @if ($donation->transferred_at)
-                                    <p class="text-xs font-sans font-normal text-graphite">{{ $donation->transferred_at->format('d/m/Y H:i') }}</p>
+                                    <p class="text-xs font-sans font-normal text-graphite">{{ $donation->transferred_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</p>
                                 @endif
                             </td>
                             <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap">
