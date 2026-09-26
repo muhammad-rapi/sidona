@@ -4,10 +4,12 @@ namespace App\Livewire\Donations;
 
 use App\Enums\DonationStatus;
 use App\Livewire\Concerns\HasRejectionWorkflow;
+use App\Mail\DonationVerifiedMail;
 use App\Models\Donation;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -24,7 +26,7 @@ class DonationIndex extends Component
 
     public function verify(int $donationId, AuditLogger $logger): void
     {
-        DB::transaction(function () use ($donationId, $logger) {
+        $donation = DB::transaction(function () use ($donationId, $logger) {
             $donation = Donation::query()->lockForUpdate()->findOrFail($donationId);
 
             Gate::authorize('verify', $donation);
@@ -38,7 +40,13 @@ class DonationIndex extends Component
             ]);
 
             $logger->log('donation.verified', auth()->user(), $donation, $before, $donation->only(['status', 'verified_by', 'verified_at']));
+
+            return $donation;
         });
+
+        if (filter_var($donation->donor_contact, FILTER_VALIDATE_EMAIL)) {
+            Mail::to($donation->donor_contact)->send(new DonationVerifiedMail($donation->load('campaign')));
+        }
 
         session()->flash('status', 'Donasi diverifikasi.');
     }
