@@ -7,6 +7,7 @@ use App\Models\Campaign;
 use App\Services\AuditLogger;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -23,6 +24,8 @@ class CampaignForm extends Component
     public string $description = '';
 
     public $cover_image_upload;
+
+    public bool $remove_cover_image = false;
 
     public int $target_amount = 0;
 
@@ -78,7 +81,13 @@ class CampaignForm extends Component
         unset($data['cover_image_upload']);
 
         if ($this->cover_image_upload) {
+            if ($this->campaign?->cover_image) {
+                Storage::disk('public')->delete($this->campaign->cover_image);
+            }
             $data['cover_image'] = $this->cover_image_upload->store('campaign-covers', 'public');
+        } elseif ($this->remove_cover_image && $this->campaign?->cover_image) {
+            Storage::disk('public')->delete($this->campaign->cover_image);
+            $data['cover_image'] = null;
         }
 
         if ($this->campaign) {
