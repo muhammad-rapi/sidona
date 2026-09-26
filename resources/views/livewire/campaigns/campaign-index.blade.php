@@ -13,6 +13,7 @@
                     <tr>
                         <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Nama</th>
                         <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Target</th>
+                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Rekening Tujuan</th>
                         <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Periode</th>
                         <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Status</th>
                         <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Aksi</th>
@@ -30,6 +31,14 @@
                         <tr class="hover:bg-mint-wash/40 transition-colors duration-150">
                             <td class="border-b border-frost-gray px-4 py-3 font-medium">{{ $campaign->name }}</td>
                             <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">Rp {{ number_format($campaign->target_amount, 0, ',', '.') }}</td>
+                            <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap">
+                                @if ($campaign->bank_name && $campaign->account_number)
+                                    <span class="text-graphite">{{ $campaign->bank_name }}</span>
+                                    <span class="font-mono">{{ $campaign->account_number }}</span>
+                                @else
+                                    <span class="text-flag-red text-xs">Belum diisi</span>
+                                @endif
+                            </td>
                             <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap text-graphite">{{ $campaign->starts_on->format('d/m/Y') }} &ndash; {{ $campaign->ends_on->format('d/m/Y') }}</td>
                             <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap">
                                 <span class="inline-flex items-center rounded-full {{ $statusBadge[0] }} {{ $statusBadge[1] }} px-3 py-1 text-xs font-medium">{{ $campaign->status->label() }}</span>
@@ -48,7 +57,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="border-b border-frost-gray px-4 py-6 text-center text-graphite">Belum ada program donasi.</td>
+                            <td colspan="6" class="border-b border-frost-gray px-4 py-6 text-center text-graphite">Belum ada program donasi.</td>
                         </tr>
                     @endforelse
                 </tbody>

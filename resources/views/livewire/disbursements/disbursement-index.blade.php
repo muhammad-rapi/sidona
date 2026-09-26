@@ -34,7 +34,12 @@
                             };
                         @endphp
                         <tr class="hover:bg-mint-wash/40 transition-colors duration-150">
-                            <td class="border-b border-frost-gray px-4 py-3 font-medium">{{ $disbursement->campaign->name }}</td>
+                            <td class="border-b border-frost-gray px-4 py-3 font-medium">
+                                {{ $disbursement->campaign->name }}
+                                @if ($disbursement->campaign->bank_name && $disbursement->campaign->account_number)
+                                    <p class="text-xs font-normal text-graphite">{{ $disbursement->campaign->bank_name }} <span class="font-mono">{{ $disbursement->campaign->account_number }}</span></p>
+                                @endif
+                            </td>
                             <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">Rp {{ number_format($disbursement->amount, 0, ',', '.') }}</td>
                             <td class="border-b border-frost-gray px-4 py-3">{{ $disbursement->description }}</td>
                             <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap">{{ $disbursement->submitter->name }}</td>

@@ -4,6 +4,13 @@
         {{ $campaign->name }} — saldo tersedia Rp {{ number_format($availableBalance, 0, ',', '.') }}
     </p>
 
+    @if ($campaign->bank_name && $campaign->account_number)
+        <div class="mb-6 rounded-2xl border border-frost-gray bg-mint-wash/40 p-4 text-sm">
+            <p class="text-graphite">Sumber dana</p>
+            <p class="font-medium text-ink-black">{{ $campaign->bank_name }} <span class="font-mono">{{ $campaign->account_number }}</span> a.n. {{ $campaign->account_holder }}</p>
+        </div>
+    @endif
+
     <form wire:submit="submit" class="space-y-4 bg-white p-6 rounded-2xl border border-frost-gray">
         <div>
             <label class="block text-sm font-medium mb-1">Jumlah</label>

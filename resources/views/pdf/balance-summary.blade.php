@@ -19,6 +19,7 @@
         <thead>
             <tr>
                 <th>Program</th>
+                <th>Rekening Tujuan</th>
                 <th>Donasi Terverifikasi</th>
                 <th>Penyaluran Disetujui</th>
                 <th>Saldo Tersedia</th>
@@ -28,12 +29,13 @@
             @forelse ($campaigns as $campaign)
                 <tr>
                     <td>{{ $campaign->name }}</td>
+                    <td>{{ $campaign->bank_name }} {{ $campaign->account_number }}@if ($campaign->account_holder) ({{ $campaign->account_holder }})@endif</td>
                     <td>Rp {{ number_format($campaign->verifiedDonationsTotal(), 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($campaign->approvedDisbursementsTotal(), 0, ',', '.') }}</td>
                     <td>Rp {{ number_format($campaign->availableBalance(), 0, ',', '.') }}</td>
                 </tr>
             @empty
-                <tr><td colspan="4">Belum ada program donasi.</td></tr>
+                <tr><td colspan="5">Belum ada program donasi.</td></tr>
             @endforelse
         </tbody>
     </table>

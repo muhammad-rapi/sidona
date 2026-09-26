@@ -17,7 +17,12 @@
         <tbody>
             @forelse ($campaigns as $campaign)
                 <tr>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $campaign->name }}</td>
+                    <td class="border-b border-frost-gray px-4 py-3">
+                        {{ $campaign->name }}
+                        @if ($campaign->bank_name && $campaign->account_number)
+                            <p class="text-xs text-graphite">{{ $campaign->bank_name }} <span class="font-mono">{{ $campaign->account_number }}</span> a.n. {{ $campaign->account_holder }}</p>
+                        @endif
+                    </td>
                     <td class="border-b border-frost-gray px-4 py-3 font-mono">Rp {{ number_format($campaign->verifiedDonationsTotal(), 0, ',', '.') }}</td>
                     <td class="border-b border-frost-gray px-4 py-3 font-mono">Rp {{ number_format($campaign->approvedDisbursementsTotal(), 0, ',', '.') }}</td>
                     <td class="border-b border-frost-gray px-4 py-3 font-mono">Rp {{ number_format($campaign->availableBalance(), 0, ',', '.') }}</td>
