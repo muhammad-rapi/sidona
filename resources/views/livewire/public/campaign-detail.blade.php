@@ -122,6 +122,13 @@
                         @error('amount') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
                     </div>
 
+                    <div class="animate-fade-in-up" style="animation-delay: 210ms">
+                        <label class="block text-sm font-medium mb-1">Waktu Transfer</label>
+                        <input type="datetime-local" wire:model="transferred_at" class="w-full rounded border border-frost-gray px-3 py-2 transition-all duration-200 outline-none focus:border-coral-pulse focus:ring-2 focus:ring-coral-pulse/20">
+                        <p class="text-xs text-graphite mt-1">Isi sesuai waktu transfer di aplikasi bank/e-wallet Anda, agar mudah dicocokkan.</p>
+                        @error('transferred_at') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
+                    </div>
+
                     <div class="animate-fade-in-up" style="animation-delay: 240ms">
                         <label class="block text-sm font-medium mb-1">Bukti Transfer (jpg/png/pdf, maks 2MB)</label>
                         <input

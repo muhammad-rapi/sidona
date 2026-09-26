@@ -18,6 +18,7 @@ it('lets a guest submit a donation with valid data and a proof file', function (
         ->set('donor_name', 'Budi Santoso')
         ->set('donor_contact', '08123456789')
         ->set('amount', 50000)
+        ->set('transferred_at', now()->subMinutes(5)->format('Y-m-d\TH:i'))
         ->set('proof', UploadedFile::fake()->create('bukti.jpg', 500, 'image/jpeg'))
         ->call('submit')
         ->assertHasNoErrors();
@@ -39,6 +40,22 @@ it('rejects a donation below the minimum amount', function () {
         ->set('proof', UploadedFile::fake()->create('bukti.jpg', 100, 'image/jpeg'))
         ->call('submit')
         ->assertHasErrors('amount');
+
+    expect(Donation::count())->toBe(0);
+});
+
+it('rejects a donation whose transfer time is in the future', function () {
+    Storage::fake('public');
+    $campaign = Campaign::factory()->create(['status' => CampaignStatus::Active, 'ends_on' => now()->addDays(10)]);
+
+    Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
+        ->set('donor_name', 'Budi')
+        ->set('donor_contact', '08123456789')
+        ->set('amount', 50000)
+        ->set('transferred_at', now()->addMinutes(5)->format('Y-m-d\TH:i'))
+        ->set('proof', UploadedFile::fake()->create('bukti.jpg', 100, 'image/jpeg'))
+        ->call('submit')
+        ->assertHasErrors('transferred_at');
 
     expect(Donation::count())->toBe(0);
 });
@@ -82,6 +99,7 @@ it('writes an activity log entry for a submitted donation without a user', funct
         ->set('donor_name', 'Budi')
         ->set('donor_contact', '08123456789')
         ->set('amount', 50000)
+        ->set('transferred_at', now()->subMinutes(5)->format('Y-m-d\TH:i'))
         ->set('proof', UploadedFile::fake()->create('bukti.jpg', 100, 'image/jpeg'))
         ->call('submit');
 

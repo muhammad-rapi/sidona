@@ -36,7 +36,12 @@
                             <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">{{ $donation->reference_code }}</td>
                             <td class="border-b border-frost-gray px-4 py-3">{{ $donation->campaign->name }}</td>
                             <td class="border-b border-frost-gray px-4 py-3">{{ $donation->donor_name }}</td>
-                            <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">Rp {{ number_format($donation->amount, 0, ',', '.') }}</td>
+                            <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">
+                                Rp {{ number_format($donation->amount, 0, ',', '.') }}
+                                @if ($donation->transferred_at)
+                                    <p class="text-xs font-sans font-normal text-graphite">{{ $donation->transferred_at->format('d/m/Y H:i') }}</p>
+                                @endif
+                            </td>
                             <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap">
                                 <a href="{{ Illuminate\Support\Facades\Storage::url($donation->proof_path) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm text-coral-pulse transition-colors duration-200 hover:text-coral-pulse-dark">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>

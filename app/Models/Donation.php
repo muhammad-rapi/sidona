@@ -17,6 +17,7 @@ class Donation extends Model
         'donor_name',
         'donor_contact',
         'amount',
+        'transferred_at',
         'proof_path',
         'status',
         'verified_by',
@@ -29,6 +30,7 @@ class Donation extends Model
         return [
             'status' => DonationStatus::class,
             'verified_at' => 'datetime',
+            'transferred_at' => 'datetime',
         ];
     }
 
