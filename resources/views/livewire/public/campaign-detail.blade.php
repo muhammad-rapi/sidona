@@ -11,6 +11,16 @@
         $percent = $campaign->target_amount > 0 ? min(100, (int) round($raised / $campaign->target_amount * 100)) : 0;
     @endphp
 
+    <div class="animate-fade-in-up-blur mt-6 aspect-[21/9] w-full overflow-hidden rounded-[2rem]">
+        @if ($campaign->cover_image)
+            <img src="{{ Illuminate\Support\Facades\Storage::url($campaign->cover_image) }}" alt="{{ $campaign->name }}" class="h-full w-full object-cover">
+        @else
+            <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-mint-wash to-sky-wash">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14 text-canopy-green/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"/></svg>
+            </div>
+        @endif
+    </div>
+
     <div class="mt-8 grid gap-12 py-4 lg:grid-cols-[1fr_400px] lg:items-start">
         <div class="animate-fade-in-up-blur max-w-lg">
             <span class="inline-flex items-center rounded-full bg-mint-wash px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-canopy-green">Program Aktif</span>
