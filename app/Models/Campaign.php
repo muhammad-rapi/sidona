@@ -16,6 +16,7 @@ class Campaign extends Model
     protected $fillable = [
         'name',
         'description',
+        'cover_image',
         'target_amount',
         'bank_name',
         'account_number',

@@ -15,6 +15,18 @@
         </div>
 
         <div>
+            <label class="block text-sm font-medium mb-1">Foto Sampul (jpg/png, maks 2MB)</label>
+            @if ($campaign?->cover_image)
+                <img src="{{ Illuminate\Support\Facades\Storage::url($campaign->cover_image) }}" class="mb-2 h-32 w-full rounded-xl object-cover">
+            @endif
+            @if ($cover_image_upload)
+                <img src="{{ $cover_image_upload->temporaryUrl() }}" class="mb-2 h-32 w-full rounded-xl object-cover">
+            @endif
+            <input type="file" wire:model="cover_image_upload" class="w-full rounded border border-frost-gray px-3 py-2 text-sm file:mr-3 file:rounded-full file:border-0 file:bg-mint-wash file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-canopy-green">
+            @error('cover_image_upload') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        <div>
             <label class="block text-sm font-medium mb-1">Target Dana</label>
             <div
                 x-data="{

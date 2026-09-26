@@ -10,44 +10,42 @@
             @php
                 $raised = $campaign->verifiedDonationsTotal();
                 $percent = $campaign->target_amount > 0 ? min(100, (int) round($raised / $campaign->target_amount * 100)) : 0;
-                $featured = $loop->first && $campaigns->count() > 1;
             @endphp
             <a
                 href="{{ route('program.show', $campaign) }}"
                 wire:navigate
-                class="group animate-fade-in-up-blur block rounded-[2rem] bg-mint-wash/40 p-1.5 ring-1 ring-black/5 transition-all duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:bg-mint-wash/70 {{ $featured ? 'sm:col-span-2 lg:col-span-2 lg:row-span-2' : '' }}"
+                class="group animate-fade-in-up-blur block overflow-hidden rounded-[1.75rem] bg-white ring-1 ring-black/5 transition-all duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.12)]"
                 style="animation-delay: {{ min($loop->index, 6) * 70 }}ms"
             >
-                <div class="flex h-full flex-col rounded-[calc(2rem-0.375rem)] bg-white p-7 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)] {{ $featured ? 'justify-between' : '' }}">
-                    <div>
-                        <div class="flex items-start justify-between gap-4">
-                            @if ($featured)
-                                <span class="inline-flex w-fit items-center rounded-full bg-mint-wash px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-canopy-green">Program Unggulan</span>
-                                <span class="text-3xl font-semibold tracking-tighter text-canopy-green">{{ $percent }}%</span>
-                            @else
-                                <span class="inline-flex w-fit items-center rounded-full bg-mint-wash px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.15em] text-canopy-green">{{ $percent }}% Terkumpul</span>
-                            @endif
+                <div class="relative aspect-video w-full overflow-hidden">
+                    @if ($campaign->cover_image)
+                        <img
+                            src="{{ Illuminate\Support\Facades\Storage::url($campaign->cover_image) }}"
+                            alt="{{ $campaign->name }}"
+                            class="h-full w-full object-cover transition-transform duration-700 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105"
+                        >
+                    @else
+                        <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-mint-wash to-sky-wash">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-canopy-green/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"/></svg>
                         </div>
+                    @endif
+                </div>
 
-                        <h2 class="mt-4 font-semibold tracking-tight text-ink-black transition-colors duration-300 group-hover:text-canopy-green {{ $featured ? 'text-3xl' : 'text-lg' }}">{{ $campaign->name }}</h2>
-                        <p class="mt-2 text-sm leading-relaxed text-graphite {{ $featured ? 'max-w-sm line-clamp-3' : 'line-clamp-2' }}">{{ $campaign->description }}</p>
+                <div class="p-5">
+                    <div class="flex items-center gap-1.5 text-xs text-graphite">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-canopy-green" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 9.5 4.5 6 4l-.5 3.5L2 9l2 3-2 3 3.5 1.5L6 20l3.5-.5L12 22l2.5-2.5 3.5.5.5-3.5L22 15l-2-3 2-3-3.5-1.5L18 4l-3.5.5L12 2Z"/><path d="m9 12 2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                        {{ $campaign->account_holder ?: 'Yayasan SIDONA' }}
                     </div>
 
-                    <div class="{{ $featured ? 'mt-10' : 'mt-6' }}">
-                        <div class="h-2 overflow-hidden rounded-full bg-mint-wash">
-                            <div class="h-full rounded-full bg-coral-pulse transition-all duration-700 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)]" style="width: {{ $percent }}%"></div>
-                        </div>
-                        <div class="mt-2 flex items-baseline justify-between text-sm">
-                            <span class="font-medium text-canopy-green">Rp {{ number_format($raised, 0, ',', '.') }}</span>
-                            <span class="text-graphite">dari Rp {{ number_format($campaign->target_amount, 0, ',', '.') }}</span>
-                        </div>
+                    <h2 class="mt-2 line-clamp-2 font-semibold leading-snug tracking-tight text-ink-black transition-colors duration-300 group-hover:text-canopy-green">{{ $campaign->name }}</h2>
 
-                        <span class="mt-5 inline-flex items-center gap-2 text-sm font-medium text-coral-pulse">
-                            Lihat Program
-                            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-mint-wash transition-transform duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-                            </span>
-                        </span>
+                    <div class="mt-3 flex items-baseline gap-1.5 text-sm">
+                        <span class="text-graphite">Terkumpul</span>
+                        <span class="font-semibold text-coral-pulse">Rp {{ number_format($raised, 0, ',', '.') }}</span>
+                    </div>
+
+                    <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
+                        <div class="h-full rounded-full bg-coral-pulse transition-all duration-700 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)]" style="width: {{ $percent }}%"></div>
                     </div>
                 </div>
             </a>

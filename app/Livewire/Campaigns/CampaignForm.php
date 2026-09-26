@@ -9,15 +9,20 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('components.layouts.app')]
 class CampaignForm extends Component
 {
+    use WithFileUploads;
+
     public ?Campaign $campaign = null;
 
     public string $name = '';
 
     public string $description = '';
+
+    public $cover_image_upload;
 
     public int $target_amount = 0;
 
@@ -55,6 +60,7 @@ class CampaignForm extends Component
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'target_amount' => ['required', 'integer', 'min:10000'],
+            'cover_image_upload' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'bank_name' => ['required', 'string', 'max:255'],
             'account_number' => ['required', 'string', 'max:255'],
             'account_holder' => ['required', 'string', 'max:255'],
@@ -68,6 +74,12 @@ class CampaignForm extends Component
         Gate::authorize($this->campaign ? 'update' : 'create', $this->campaign ?? Campaign::class);
 
         $data = $this->validate();
+
+        unset($data['cover_image_upload']);
+
+        if ($this->cover_image_upload) {
+            $data['cover_image'] = $this->cover_image_upload->store('campaign-covers', 'public');
+        }
 
         if ($this->campaign) {
             $before = collect(array_keys($data))->mapWithKeys(function (string $key) {
