@@ -1,4 +1,4 @@
-<div>
+<div x-data="{ confirmId: null, confirmProgram: '' }">
     <div class="flex items-center justify-between mb-6">
         <h1 class="text-xl font-semibold">Penyaluran Dana</h1>
         <select wire:model.live="status" class="rounded-full border border-frost-gray px-4 py-2 text-sm outline-none transition-all duration-200 focus:border-coral-pulse focus:ring-2 focus:ring-coral-pulse/20">
@@ -48,7 +48,7 @@
                             </td>
                             <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap space-x-2">
                                 @can('approve', $disbursement)
-                                    <button type="button" wire:click="approve({{ $disbursement->id }})" wire:confirm="Setujui penyaluran ini?" class="inline-flex items-center rounded-full bg-mint-wash px-3 py-1 text-xs font-medium text-canopy-green transition-colors duration-200 hover:bg-sky-wash">Setujui</button>
+                                    <button type="button" @click="confirmId = {{ $disbursement->id }}; confirmProgram = '{{ addslashes($disbursement->campaign->name) }}'" class="inline-flex items-center rounded-full bg-mint-wash px-3 py-1 text-xs font-medium text-canopy-green transition-all duration-200 hover:bg-sky-wash active:scale-95">Setujui</button>
                                 @endcan
                                 @can('reject', $disbursement)
                                     <button type="button" wire:click="startReject({{ $disbursement->id }})" class="inline-flex items-center rounded-full border border-flag-red/30 px-3 py-1 text-xs font-medium text-flag-red transition-colors duration-200 hover:bg-flag-red/10">Tolak</button>
@@ -80,4 +80,35 @@
     </div>
 
     <div class="mt-4">{{ $disbursements->links() }}</div>
+
+    <div
+        x-show="confirmId !== null"
+        x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center bg-ink-black/30 backdrop-blur-sm px-4"
+        style="display: none"
+    >
+        <div
+            x-show="confirmId !== null"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-90"
+            x-transition:enter-end="opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100"
+            x-transition:leave-end="opacity-0 scale-90"
+            @click.outside="confirmId = null"
+            class="w-full max-w-sm rounded-3xl bg-white p-6 shadow-xl"
+        >
+            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-mint-wash text-canopy-green">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <h2 class="mt-4 text-center font-semibold text-ink-black">Setujui Penyaluran?</h2>
+            <p class="mt-1 text-center text-sm text-graphite">
+                Penyaluran untuk <span class="font-medium" x-text="confirmProgram"></span> akan ditandai sebagai disetujui.
+            </p>
+            <div class="mt-6 flex gap-3">
+                <button type="button" @click="confirmId = null" class="flex-1 rounded-full border border-frost-gray px-4 py-2 text-sm font-medium text-graphite transition-all duration-200 ease-out hover:bg-cloud-gray active:scale-95">Batal</button>
+                <button type="button" @click="$wire.approve(confirmId); confirmId = null" class="flex-1 rounded-full bg-coral-pulse px-4 py-2 text-sm font-medium text-white transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-coral-pulse-dark active:scale-95">Ya, Setujui</button>
+            </div>
+        </div>
+    </div>
 </div>
