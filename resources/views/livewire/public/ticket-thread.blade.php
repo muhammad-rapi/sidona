@@ -23,7 +23,7 @@
         @foreach ($messages as $message)
             <li @class(['max-w-xl border-2 border-ink p-4', 'ml-auto bg-board-wash' => ! $message->is_staff, 'bg-paper' => $message->is_staff])>
                 <p class="flex flex-wrap items-baseline justify-between gap-x-4 text-sm">
-                    <span class="font-bold">{{ $message->is_staff ? $message->author_name.' (tim SIDONA)' : 'Anda' }}</span>
+                    <span class="font-bold">{{ $message->is_auto ? $message->author_name : ($message->is_staff ? $message->author_name.' (tim SIDONA)' : 'Anda') }}</span>
                     <span class="text-ink-soft">{{ $message->created_at->timezone('Asia/Jakarta')->locale('id')->translatedFormat('j M Y, H:i') }}</span>
                 </p>
                 <p class="mt-2 whitespace-pre-line">{{ $message->body }}</p>

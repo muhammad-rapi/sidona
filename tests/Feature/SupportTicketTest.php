@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\DonationStatus;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
 use App\Livewire\Public\TicketCreate;
@@ -9,6 +10,7 @@ use App\Livewire\Tickets\TicketIndex;
 use App\Livewire\Tickets\TicketShow;
 use App\Mail\TicketMail;
 use App\Models\ActivityLog;
+use App\Models\Donation;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
@@ -36,7 +38,7 @@ it('lets a guest open a ticket, emails a private link and logs it', function () 
     $ticket = Ticket::first();
     expect($ticket->code)->toStartWith('TKT-');
     expect($ticket->status)->toBe(TicketStatus::Open);
-    expect($ticket->messages)->toHaveCount(1);
+    expect($ticket->messages)->toHaveCount(2); // pesan pengirim + balasan otomatis
     expect(ActivityLog::where('action', 'ticket.created')->whereNull('user_id')->count())->toBe(1);
     Mail::assertSent(TicketMail::class, fn ($m) => $m->hasTo('budi@example.com') && $m->kind === 'received');
 
@@ -75,8 +77,9 @@ it('lets staff who handle tickets reply, email the requester and change status',
     $ticket->refresh();
     expect($ticket->status)->toBe(TicketStatus::Closed);
     expect($ticket->assigned_to)->toBe($admin->id);
-    expect($ticket->messages)->toHaveCount(2);
+    expect($ticket->messages)->toHaveCount(3);
     expect($ticket->messages->last()->is_staff)->toBeTrue();
+    expect($ticket->messages->last()->is_auto)->toBeFalse();
     Mail::assertSent(TicketMail::class, fn ($m) => $m->kind === 'reply' && $m->hasTo('budi@example.com'));
     expect(ActivityLog::where('action', 'ticket.replied')->count())->toBe(1);
     expect(ActivityLog::where('action', 'ticket.status_changed')->count())->toBe(1);
@@ -93,7 +96,7 @@ it('lets the requester reply and reopens a closed ticket', function () {
         ->set('body', 'Masih belum masuk, mohon dicek lagi.')->call('reply')->assertHasNoErrors();
 
     expect($ticket->fresh()->status)->toBe(TicketStatus::Open);
-    expect($ticket->fresh()->messages)->toHaveCount(2);
+    expect($ticket->fresh()->messages)->toHaveCount(3);
 });
 
 it('lets auditors read tickets but not reply or change them', function () {
@@ -182,4 +185,35 @@ it('rate limits ticket tracking attempts', function () {
     }
 
     Livewire::test(TicketTrack::class)->set('code', 'TKT-AAAA1111')->set('email', 'a@example.com')->call('track')->assertHasErrors('code');
+});
+
+it('posts an automatic reply with live status when a ticket is created, and still waits for a human', function () {
+    Mail::fake();
+    $donation = Donation::factory()->create(['reference_code' => 'DON-ABCD1234', 'status' => DonationStatus::Pending]);
+
+    fillTicket(Livewire::test(TicketCreate::class))->call('submit');
+
+    $ticket = Ticket::first();
+    expect($ticket->messages)->toHaveCount(2);
+
+    $auto = $ticket->messages->last();
+    expect($auto->is_auto)->toBeTrue();
+    expect($auto->is_staff)->toBeTrue();
+    expect($auto->author_name)->toBe('SIDONA (otomatis)');
+    expect($auto->body)->toContain($ticket->code)->toContain('Menunggu pembayaran')->toContain('Cek Donasi');
+    expect($auto->body)->not->toContain('1 jam')->not->toContain('24 jam');
+
+    expect($ticket->load('messages')->needsStaffReply())->toBeTrue();
+    expect(ActivityLog::where('action', 'ticket.replied')->count())->toBe(0);
+
+    $this->get(route('support.thread', $ticket->token))->assertSee('SIDONA (otomatis)')->assertSee('Terima kasih, Budi Santoso');
+});
+
+it('says so when the related code is unknown and gives category hints', function () {
+    Mail::fake();
+
+    fillTicket(Livewire::test(TicketCreate::class))->set('related_code', 'PRG-ZZZZ9999')->set('category', 'proposal')->call('submit');
+
+    $body = Ticket::first()->messages->last()->body;
+    expect($body)->toContain('belum kami temukan')->toContain('konfirmasi');
 });

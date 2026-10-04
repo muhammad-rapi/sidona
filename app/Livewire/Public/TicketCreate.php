@@ -7,6 +7,7 @@ use App\Enums\TicketStatus;
 use App\Mail\TicketMail;
 use App\Models\Ticket;
 use App\Services\AuditLogger;
+use App\Services\TicketAutoReply;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
@@ -86,6 +87,7 @@ class TicketCreate extends Component
         $ticket->messages()->create(['author_name' => $ticket->name, 'is_staff' => false, 'body' => trim($data['message'])]);
 
         $logger->log('ticket.created', null, $ticket, [], $ticket->only(['code', 'category', 'subject']));
+        app(TicketAutoReply::class)->post($ticket);
         Mail::to($ticket->email)->send(new TicketMail($ticket, 'received'));
 
         return $this->redirectRoute('support.thread', $ticket->token, navigate: true);

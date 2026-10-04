@@ -46,7 +46,7 @@ class Ticket extends Model
 
     public function needsStaffReply(): bool
     {
-        $last = $this->messages->last();
+        $last = $this->messages->where('is_auto', false)->last();
 
         return $this->status !== TicketStatus::Closed && $last !== null && ! $last->is_staff;
     }
