@@ -36,23 +36,26 @@
     <div class="mx-auto grid max-w-6xl gap-x-14 gap-y-10 px-5 py-10 lg:grid-cols-[1fr_25rem] lg:items-start">
         {{-- Donation form: first on phones, sticky on the right on desktop --}}
         <form wire:submit="submit" class="rise-in order-first border-2 border-ink bg-paper lg:sticky lg:top-24 lg:order-last" style="animation-delay: 120ms" novalidate>
-            <div class="on-board border-b-2 border-ink bg-board px-5 py-3">
-                <h2 class="paint-type text-3xl text-ink">Donasi sekarang</h2>
+            <div class="px-5 pb-0 pt-5">
+                <h2 class="text-2xl font-extrabold tracking-tight text-ink">Donasi untuk program ini</h2>
             </div>
 
             <div class="space-y-6 p-5"
                 x-data="{
                     amount: $wire.entangle('amount'),
                     chips: [25000, 50000, 100000, 250000, 500000],
+                    method: $wire.entangle('payment_method'),
+                    hints: @js(collect($methods)->mapWithKeys(fn ($m) => [$m->value => $m->hint()])),
                     fmt(v) { return v ? new Intl.NumberFormat('id-ID').format(v) : ''; },
                 }">
                 <fieldset>
                     <legend class="label">Nominal donasi</legend>
+                    <p class="paint-type mb-3 text-6xl leading-none" :class="amount >= 10000 ? 'text-paint' : 'text-ink-faint/60'" aria-live="polite">Rp&nbsp;<span x-text="amount ? fmt(amount) : '0'"></span></p>
                     <div class="grid grid-cols-3 gap-2">
                         <template x-for="chip in chips" :key="chip">
                             <button type="button" @click="amount = chip"
-                                class="min-h-11 border-2 border-ink px-2 py-2 text-sm font-bold transition-colors"
-                                :class="amount === chip ? 'bg-ink text-board' : 'bg-paper text-ink hover:bg-board-wash'"
+                                class="paint-type min-h-11 border-2 border-ink px-2 py-1.5 text-xl transition-colors"
+                                :class="amount === chip ? 'bg-paint text-white' : 'bg-paper text-ink hover:bg-board-wash'"
                                 :aria-pressed="amount === chip"
                                 x-text="fmt(chip)"></button>
                         </template>
@@ -87,19 +90,15 @@
 
                 <fieldset>
                     <legend class="label">Bayar lewat</legend>
-                    <div class="space-y-2">
+                    <div class="grid grid-cols-3 gap-2">
                         @foreach ($methods as $method)
-                            <label class="block cursor-pointer">
+                            <label class="cursor-pointer">
                                 <input type="radio" wire:model="payment_method" value="{{ $method->value }}" class="peer sr-only">
-                                <span class="flex items-center justify-between gap-3 border-2 border-ink bg-paper px-4 py-3 transition-colors peer-checked:bg-board peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-paint hover:bg-board-wash peer-checked:hover:bg-board">
-                                    <span>
-                                        <span class="block font-bold">{{ $method->label() }}</span>
-                                        <span class="block text-xs text-ink-soft">{{ $method->hint() }}</span>
-                                    </span>
-                                </span>
+                                <span class="block border-2 border-ink bg-paper px-2 py-2.5 text-center text-sm font-bold transition-colors peer-checked:bg-ink peer-checked:text-board peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-paint hover:bg-board-wash peer-checked:hover:bg-ink">{{ $method->label() }}</span>
                             </label>
                         @endforeach
                     </div>
+                    <p class="hint" x-text="hints[method]"></p>
                     @error('payment_method') <p class="error-text" role="alert">{{ $message }}</p> @enderror
                 </fieldset>
 
