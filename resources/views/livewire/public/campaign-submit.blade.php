@@ -1,12 +1,16 @@
 <div>
-    <section class="on-board border-b-4 border-ink bg-board" aria-labelledby="submit-title">
-        <div class="mx-auto max-w-3xl px-5 py-12 md:py-16">
-            <h1 id="submit-title" class="paint-type text-5xl text-ink sm:text-7xl">Ajukan program donasi</h1>
-            <p class="mt-4 max-w-xl text-lg text-ink">Punya kebutuhan yang perlu dibantu banyak orang? Ceritakan di sini. Tim SIDONA meninjau tiap pengajuan sebelum program tayang, supaya donatur terlindungi dari penipuan.</p>
-        </div>
-    </section>
+    <div class="mx-auto grid max-w-6xl gap-x-16 gap-y-8 px-5 py-14 lg:grid-cols-[22rem_1fr]">
+        <aside class="lg:sticky lg:top-24 lg:self-start">
+            <h1 id="submit-title" class="paint-type text-5xl text-ink sm:text-6xl">Ajukan program donasi</h1>
+            <p class="mt-5 text-lg text-ink">Punya kebutuhan yang perlu dibantu banyak orang? Ceritakan di sini. Kami baca tiap pengajuan sebelum program tayang, supaya donatur tidak tertipu.</p>
+            <ol class="mt-6 space-y-3 border-t-2 border-ink pt-5 text-sm text-ink-soft">
+                <li><strong class="text-ink">Anda mengisi</strong> cerita, target, dan rekening penerima.</li>
+                <li><strong class="text-ink">Admin memeriksa</strong> kebenaran dan kelengkapannya.</li>
+                <li><strong class="text-ink">Program tayang</strong> dan mulai menerima donasi.</li>
+            </ol>
+        </aside>
 
-    <div class="mx-auto max-w-3xl px-5 py-10">
+        <div>
         @if ($submitted)
             <div class="border-2 border-paid bg-paid-wash p-6" role="status">
                 <h2 class="paint-type text-4xl text-paid">Sudah kami terima</h2>
@@ -14,12 +18,6 @@
                 <a href="{{ route('program.index') }}" wire:navigate class="btn btn-ink mt-6">Kembali ke program</a>
             </div>
         @else
-            <ol class="mb-8 max-w-xl list-decimal space-y-1 pl-5 text-sm text-ink-soft">
-                <li>Isi cerita program, target, dan rekening penerima dana.</li>
-                <li>Admin memeriksa kebenaran dan kelengkapan data.</li>
-                <li>Setelah disetujui, program tayang dan bisa menerima donasi.</li>
-            </ol>
-
             <form wire:submit="submit" class="space-y-8" novalidate>
                 <div class="hidden" aria-hidden="true">
                     <label>Jangan diisi <input type="text" wire:model="website" tabindex="-1" autocomplete="off"></label>
@@ -116,5 +114,6 @@
                 </button>
             </form>
         @endif
+        </div>
     </div>
 </div>

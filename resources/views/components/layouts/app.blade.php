@@ -1,22 +1,22 @@
 @php
     $user = auth()->user();
     $nav = [
-        ['label' => 'Ringkasan', 'route' => 'dashboard', 'match' => 'dashboard', 'icon' => 'M3 12 12 4l9 8M5 10v10h14V10'],
-        ['label' => 'Program Donasi', 'route' => 'campaigns.index', 'match' => 'campaigns.*', 'icon' => 'M4 5h16v4H4zM4 13h16v6H4z'],
-        ['label' => 'Riwayat Donasi', 'route' => 'donations.index', 'match' => 'donations.*', 'icon' => 'M12 3v18M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'],
-        ['label' => 'Penyaluran Dana', 'route' => 'disbursements.index', 'match' => 'disbursements.*', 'icon' => 'M5 12h14M13 6l6 6-6 6'],
+        ['label' => 'Ringkasan', 'route' => 'dashboard', 'match' => 'dashboard', 'icon' => 'home'],
+        ['label' => 'Program Donasi', 'route' => 'campaigns.index', 'match' => 'campaigns.*', 'icon' => 'programs'],
+        ['label' => 'Riwayat Donasi', 'route' => 'donations.index', 'match' => 'donations.*', 'icon' => 'coins'],
+        ['label' => 'Penyaluran Dana', 'route' => 'disbursements.index', 'match' => 'disbursements.*', 'icon' => 'send'],
     ];
     $audit = [
-        ['label' => 'Verifikasi Integritas', 'route' => 'audit.integrity'],
-        ['label' => 'Log Aktivitas', 'route' => 'audit.activity'],
-        ['label' => 'Log Login', 'route' => 'audit.login'],
-        ['label' => 'Dashboard Anomali', 'route' => 'audit.anomalies'],
+        ['label' => 'Verifikasi Integritas', 'route' => 'audit.integrity', 'icon' => 'shield'],
+        ['label' => 'Log Aktivitas', 'route' => 'audit.activity', 'icon' => 'list'],
+        ['label' => 'Log Login', 'route' => 'audit.login', 'icon' => 'login'],
+        ['label' => 'Dashboard Anomali', 'route' => 'audit.anomalies', 'icon' => 'alert'],
     ];
     $reports = [
-        ['label' => 'Laporan Donasi', 'route' => 'reports.donations'],
-        ['label' => 'Laporan Penyaluran', 'route' => 'reports.disbursements'],
-        ['label' => 'Ringkasan Saldo', 'route' => 'reports.balance'],
-        ['label' => 'Cek Keaslian Laporan', 'route' => 'reports.verify'],
+        ['label' => 'Laporan Donasi', 'route' => 'reports.donations', 'icon' => 'report'],
+        ['label' => 'Laporan Penyaluran', 'route' => 'reports.disbursements', 'icon' => 'send'],
+        ['label' => 'Ringkasan Saldo', 'route' => 'reports.balance', 'icon' => 'wallet'],
+        ['label' => 'Cek Keaslian Laporan', 'route' => 'reports.verify', 'icon' => 'stamp'],
     ];
 @endphp
 <!DOCTYPE html>
@@ -51,7 +51,7 @@
         <nav class="flex-1 pb-4" @click="menu = false">
             @foreach ($nav as $item)
                 <a href="{{ route($item['route']) }}" wire:navigate class="nav-link" @if (request()->routeIs($item['match'])) aria-current="page" @endif>
-                    <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" stroke-linejoin="round"><path d="{{ $item['icon'] }}"/></svg>
+                    <x-icon :name="$item['icon']" class="h-5 w-5" />
                     {{ $item['label'] }}
                 </a>
             @endforeach
@@ -59,7 +59,7 @@
             @if ($user->isSuperAdmin())
                 <p class="nav-heading">Sistem</p>
                 <a href="{{ route('users.index') }}" wire:navigate class="nav-link" @if (request()->routeIs('users.*')) aria-current="page" @endif>
-                    <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" stroke-linejoin="round"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM21 20v-1a4 4 0 0 0-3-3.87M16 4.13a3.5 3.5 0 0 1 0 6.74"/></svg>
+                    <x-icon name="users" class="h-5 w-5" />
                     Pengguna
                 </a>
             @endif
@@ -67,12 +67,18 @@
             @if ($user->canAudit())
                 <p class="nav-heading">Audit</p>
                 @foreach ($audit as $item)
-                    <a href="{{ route($item['route']) }}" wire:navigate class="nav-link" @if (request()->routeIs($item['route'])) aria-current="page" @endif>{{ $item['label'] }}</a>
+                    <a href="{{ route($item['route']) }}" wire:navigate class="nav-link" @if (request()->routeIs($item['route'])) aria-current="page" @endif>
+                        <x-icon :name="$item['icon']" class="h-5 w-5" />
+                        {{ $item['label'] }}
+                    </a>
                 @endforeach
 
                 <p class="nav-heading">Laporan</p>
                 @foreach ($reports as $item)
-                    <a href="{{ route($item['route']) }}" wire:navigate class="nav-link" @if (request()->routeIs($item['route'])) aria-current="page" @endif>{{ $item['label'] }}</a>
+                    <a href="{{ route($item['route']) }}" wire:navigate class="nav-link" @if (request()->routeIs($item['route'])) aria-current="page" @endif>
+                        <x-icon :name="$item['icon']" class="h-5 w-5" />
+                        {{ $item['label'] }}
+                    </a>
                 @endforeach
             @endif
         </nav>

@@ -26,11 +26,7 @@
         <div class="h-1 bg-ink"></div>
     </section>
 
-    <div class="mx-auto max-w-3xl space-y-8 px-5 py-10">
-        <div class="border-2 border-ink bg-board-wash px-5 py-4 text-sm leading-relaxed">
-            <p class="font-extrabold uppercase tracking-wider">Mode simulasi</p>
-            <p class="mt-1">Belum terhubung ke bank atau e-wallet sungguhan. Tombol &ldquo;Simulasikan pembayaran berhasil&rdquo; menggantikan notifikasi otomatis dari penyedia pembayaran. Tidak ada uang yang berpindah.</p>
-        </div>
+    <div class="mx-auto grid max-w-5xl gap-x-12 gap-y-8 px-5 py-10 lg:grid-cols-[1fr_19rem] lg:items-start">
 
         <section class="border-2 border-ink" aria-labelledby="method-title">
             <div class="flex items-center justify-between gap-4 border-b-2 border-ink bg-ink px-5 py-3 text-white">
@@ -74,7 +70,12 @@
             </div>
         </section>
 
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <aside class="space-y-5 lg:sticky lg:top-24">
+        <div class="border-2 border-ink bg-board-wash px-5 py-4 text-sm leading-relaxed">
+            <p class="font-extrabold uppercase tracking-wider">Mode simulasi</p>
+            <p class="mt-1">Belum terhubung ke bank atau e-wallet sungguhan. Tombol &ldquo;Simulasikan pembayaran berhasil&rdquo; menggantikan notifikasi otomatis dari penyedia pembayaran. Tidak ada uang yang berpindah.</p>
+        </div>
+        <div class="flex flex-col gap-3 ">
             <button type="button" wire:click="simulatePayment" wire:loading.attr="disabled" class="btn btn-paint btn-lg sm:flex-1">
                 <span wire:loading.remove wire:target="simulatePayment">Simulasikan pembayaran berhasil</span>
                 <span wire:loading wire:target="simulatePayment">Memproses&hellip;</span>
@@ -83,5 +84,6 @@
         </div>
 
         <p class="text-sm text-ink-soft">Catat kode <span class="font-mono font-bold text-ink">{{ $donation->reference_code }}</span>. Lewat menu Cek Donasi, kuitansi bisa dibuka lagi kapan pun.</p>
+        </aside>
     </div>
 </div>
