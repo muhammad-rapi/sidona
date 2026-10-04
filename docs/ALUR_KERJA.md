@@ -1,259 +1,284 @@
 # Alur Kerja SIDONA
 
-Dokumen ini memetakan alur kerja (workflow) tiap fitur yang ada di SIDONA dalam bentuk diagram. Untuk penjelasan cara instalasi, akun demo, dan peta halaman, lihat [`PANDUAN_PENGGUNAAN.md`](PANDUAN_PENGGUNAAN.md).
+Dokumen ini memetakan alur kerja tiap fitur SIDONA dalam bentuk diagram. Untuk cara instalasi, akun demo, dan peta halaman, lihat [`PANDUAN_PENGGUNAAN.md`](PANDUAN_PENGGUNAAN.md).
 
 Diagram memakai format Mermaid, otomatis tampil sebagai gambar di GitHub dan kebanyakan pratinjau markdown.
+
+Satu catatan penting sebelum membaca: **pembayaran donasi saat ini masih simulasi** (tidak ada uang yang berpindah). Titik penyambung ke gateway sungguhan (Midtrans atau Xendit) sudah disiapkan di `DonationPayment::confirm()`, jadi alurnya sama persis ketika gateway dipasang nanti.
 
 ---
 
 ## 1. Peta Alur Keseluruhan Sistem
 
-Gambaran bagaimana keempat jenis pengguna berinteraksi dengan bagian bagian utama sistem.
-
 ```mermaid
 flowchart TD
-    Donatur([Donatur / Tamu]) -->|isi form donasi| Donasi[(Donasi)]
-    Donatur -->|cek status via kode referensi| Donasi
+    Donatur([Donatur / Tamu]) -->|pilih nominal, bayar| Donasi[(Donasi)]
+    Donatur -->|cek kuitansi dengan kode DON| Donasi
+    Donatur -->|tulis pesan| Tiket[(Tiket bantuan)]
+
+    Pengaju([Pengaju program / Tamu]) -->|isi form, konfirmasi email| Pengajuan[(Pengajuan program)]
+    Pengaju -->|pantau lewat tautan pribadi| Pengajuan
 
     Bendahara([Bendahara]) -->|kelola| Program[(Program Donasi)]
-    Bendahara -->|verifikasi / tolak| Donasi
     Bendahara -->|ajukan| Penyaluran[(Penyaluran Dana)]
+    Bendahara -->|balas| Tiket
 
-    Admin([Admin]) -->|kelola / hapus| Program
+    Admin([Admin]) -->|setujui / tolak| Pengajuan
     Admin -->|setujui / tolak| Penyaluran
+    Admin -->|kelola, hapus bila belum ada uang| Program
+    Admin -->|balas| Tiket
 
-    Program -.setiap perubahan tercatat.-> Log[(Activity Log + Hash Chain)]
-    Donasi -.setiap perubahan tercatat.-> Log
-    Penyaluran -.setiap perubahan tercatat.-> Log
-    Login[(Login Log)] -.dibaca.-> Anomali
+    SuperAdmin([Super Admin]) -->|semua kewenangan staf + kelola pengguna| Program
 
-    Auditor([Auditor]) -->|verifikasi keutuhan| Log
-    Auditor -->|pantau| Anomali[Dashboard Anomali]
-    Auditor -->|lihat & export| Log
-    Auditor -->|lihat| Login
-    Auditor -->|buat & unduh| Laporan[Laporan PDF Berchecksum]
-    Auditor -->|cek keaslian| Laporan
+    Pengajuan -->|disetujui menjadi| Program
+    Donasi -.tercatat.-> Log[(Log Aktivitas + Hash Chain)]
+    Penyaluran -.tercatat.-> Log
+    Program -.tercatat.-> Log
+    Tiket -.tercatat.-> Log
 
-    Log -.sumber data.-> Anomali
-    Donasi -.sumber data.-> Anomali
-    Penyaluran -.sumber data.-> Anomali
-    Program -.sumber data.-> Laporan
-    Donasi -.sumber data.-> Laporan
-    Penyaluran -.sumber data.-> Laporan
+    Auditor([Auditor]) -->|verifikasi keutuhan, baca log| Log
+    Auditor -->|periksa temuan| Anomali[Dashboard Anomali]
+    Auditor -->|unduh & cek keaslian| Laporan[Laporan PDF Berchecksum]
+    Login[(Log Login)] -.dibaca.-> Anomali
+    Log -.dibaca.-> Anomali
 ```
 
 ---
 
-## 2. Alur Donasi
+## 2. Alur Donasi (tanpa verifikasi manual)
 
-Dari donatur mengisi form sampai donasi diverifikasi atau ditolak Bendahara.
+Donasi sah **otomatis** begitu pembayaran terkonfirmasi. Tidak ada upload bukti transfer dan tidak ada antrean verifikasi oleh staf.
 
 ```mermaid
 flowchart TD
-    A([Donatur buka /program/{id}]) --> B[Isi form donasi:\nnama, kontak, nominal,\nwaktu transfer, bukti transfer]
-    B --> C{Validasi input}
-    C -->|nominal tidak valid\natau bukti transfer kosong| B
-    C -->|valid| D[Sistem simpan donasi\nstatus: Menunggu\n+ buat kode referensi unik]
-    D --> E[Donatur menerima kode referensi]
-    E --> F([Donatur bisa cek status\nkapan saja di /donasi/cek])
-
-    D --> G[Bendahara buka /donasi]
-    G --> H{Bendahara tinjau\nbukti transfer}
-    H -->|setuju| I[Klik Verifikasi]
-    H -->|tidak sesuai| J[Klik Tolak\n+ wajib isi alasan]
-
-    I --> K[Status donasi: Terverifikasi\ntercatat verified_by dan verified_at]
-    J --> L[Status donasi: Ditolak\ntercatat rejection_reason]
-
-    K --> M[AuditLogger mencatat\naksi donation.verified]
-    J --> N[AuditLogger mencatat\naksi donation.rejected]
-
-    K --> O{Kontak donatur\nberupa email valid?}
-    O -->|ya| P[Kirim email pemberitahuan\ndonasi terverifikasi]
-    O -->|tidak| Q[Lewati pengiriman email]
-
-    K --> R[Saldo program bertambah,\nikut dihitung di Laporan Saldo]
+    A([Donatur buka /program/id]) --> B[Pilih nominal, isi nama dan\nemail atau WhatsApp, pilih cara bayar,\ncentang syarat dan privasi]
+    B --> C{Validasi}
+    C -->|tidak valid| B
+    C -->|valid| D[Donasi dibuat, status: Menunggu pembayaran\nkode DON-xxxxxxxx\nlog donation.created]
+    D --> E[Halaman bayar:\nQRIS, Virtual Account, atau e-wallet]
+    E --> F{Pembayaran terkonfirmasi?}
+    F -->|ya: tombol simulasi sekarang,\nnotifikasi gateway nanti| G[DonationPayment::confirm\ndikunci transaksi DB, hanya sekali]
+    F -->|belum| E
+    E -.halaman memeriksa tiap 5 detik.-> F
+    G --> H[Status: Berhasil, paid_at terisi\nlog donation.paid oleh Sistem]
+    H --> I[Kuitansi terbit di /donasi/kode]
+    H --> J{Kontak berupa email?}
+    J -->|ya| K[Kirim email kuitansi]
+    J -->|tidak| L[Lewati email]
+    H --> M[Saldo program bertambah\ndan masuk laporan]
 ```
 
-Catatan aturan: hanya donasi berstatus Menunggu yang bisa diverifikasi atau ditolak, dan hanya Bendahara yang berwenang melakukannya (`DonationPolicy`).
+Catatan: donatur yang memilih anonim tampil sebagai "Hamba Allah" di halaman publik. Nama aslinya tetap tersimpan dan hanya terlihat staf.
 
 ---
 
-## 3. Alur Pengajuan dan Persetujuan Penyaluran Dana
+## 3. Alur Pengajuan Program oleh Tamu
 
-Ini menerapkan prinsip pemisahan tugas (maker checker): yang mengajukan tidak boleh menjadi yang menyetujui.
+Tanpa akun dan tanpa kata sandi. Identitas pengaju dibuktikan lewat konfirmasi email, dan pemantauan lewat tautan pribadi.
 
 ```mermaid
 flowchart TD
-    A([Bendahara buka\n/campaigns/{id}/penyaluran/ajukan]) --> B{Program aktif dan\nsaldo tersedia lebih dari 0?}
-    B -->|tidak| C[Form ditolak sistem]
-    B -->|ya| D[Isi jumlah dan\nketerangan penggunaan dana]
-    D --> E{Jumlah melebihi\nsaldo tersedia?}
+    A([Tamu buka /ajukan-program]) --> B[Isi cerita, target, lama penggalangan,\nrekening penerima, nama, email,\nWhatsApp opsional]
+    B --> C{Validasi, batas 3 pengajuan per jam,\nkolom jebakan bot}
+    C -->|tidak lolos| B
+    C -->|lolos| D[Program dibuat status: Menunggu tinjauan\nkode PRG-xxxxxxxx\nlog campaign.proposed]
+    D --> E[Email konfirmasi dikirim\ntautan bertanda tangan, berlaku 2 hari]
+    E --> F{Pengaju menekan tautan?}
+    F -->|ya| G[Email terkonfirmasi\nlog campaign.proposer_verified]
+    F -->|belum| H[Admin belum bisa menyetujui,\nmasih bisa menolak]
+
+    G --> I{Admin meninjau di Program Donasi}
+    H --> I
+    I -->|Setujui\nhanya jika email terkonfirmasi| J[Status: Aktif\nmasa dihitung dari hari persetujuan\nlog campaign.approved]
+    I -->|Tolak + wajib alasan| K[Status: Ditolak\nlog campaign.rejected]
+
+    J --> L[Email keputusan + tautan pantau pribadi /pantau/token]
+    K --> M[Email keputusan berisi alasan]
+    D -.kapan saja.-> N([Cek status di /donasi/cek dengan kode PRG])
+```
+
+Halaman pantau (`/pantau/token`) bersifat baca saja: dana terkumpul, jumlah donatur, donasi terbaru, penyaluran yang disetujui, dan saldo. Mengubah teks, foto, atau masa program dilakukan lewat admin.
+
+---
+
+## 4. Alur Pengajuan dan Persetujuan Penyaluran Dana
+
+Prinsip pemisahan tugas (maker-checker): yang mengajukan tidak boleh menyetujui.
+
+```mermaid
+flowchart TD
+    A([Bendahara atau Super Admin\nklik Ajukan penyaluran]) --> B{Program aktif dan\nsaldo lebih dari 0?}
+    B -->|tidak| C[Program tidak muncul di pilihan]
+    B -->|ya| D[Isi jumlah dan keterangan\nmin. 10 karakter]
+    D --> E{Jumlah melebihi saldo?}
     E -->|ya| D
-    E -->|tidak| F[Simpan pengajuan\nstatus: Diajukan\nsubmitted_by = Bendahara]
+    E -->|tidak| F[Pengajuan status: Diajukan\nlog disbursement.submitted]
 
-    F --> G[AuditLogger mencatat\naksi disbursement.created]
-    F --> H[Admin buka /penyaluran]
-    H --> I{Admin yang login\n= pengaju pengajuan ini?}
-    I -->|ya| J[Tombol setujui/tolak\ntidak tersedia untuk pengajuan ini]
-    I -->|tidak| K{Admin setujui\natau tolak?}
-
-    K -->|Setujui| L{Cek ulang saldo program\nsaat ini, terkunci transaksi DB}
-    L -->|saldo cukup| M[Status: Disetujui\nreviewed_by, reviewed_at tercatat]
-    L -->|saldo sudah tidak cukup\nkarena pengajuan lain| N[Persetujuan ditolak sistem]
-
-    K -->|Tolak| O[Status: Ditolak\nwajib isi alasan]
-
-    M --> P[AuditLogger mencatat\naksi disbursement.approved]
-    O --> Q[AuditLogger mencatat\naksi disbursement.rejected]
-
-    M --> R[Saldo program berkurang,\nikut dihitung di Laporan Saldo]
+    F --> G[Admin buka Penyaluran Dana:\nkolom Dampak ke saldo menunjukkan\nsaldo sebelum dan sesudah]
+    G --> H{Pengaju = yang login?}
+    H -->|ya| I[Setujui / Tolak tidak tersedia,\nperlu admin lain]
+    H -->|tidak| J{Keputusan}
+    J -->|Setujui| K{Cek ulang saldo\nterkunci transaksi DB}
+    K -->|cukup| L[Status: Disetujui\nlog disbursement.approved]
+    K -->|tidak cukup| M[Ditolak sistem]
+    J -->|Tolak + alasan| N[Status: Ditolak\nlog disbursement.rejected]
+    L --> O[Saldo berkurang,\nmasuk Laporan Saldo]
 ```
 
-Catatan aturan: `DisbursementPolicy` menolak persetujuan/penolakan kalau pengaju dan penyetuju adalah user yang sama, dan pengecekan saldo diulang dengan row lock saat persetujuan diproses supaya dua pengajuan yang diproses bersamaan tidak membuat saldo minus.
+Aturan ini berlaku untuk **semua** peran, termasuk Super Admin: tidak ada yang bisa menyetujui pengajuannya sendiri.
 
 ---
 
-## 4. Alur Login dan Pencatatan Login Log
+## 5. Alur Tiket Bantuan
 
 ```mermaid
 flowchart TD
-    A([User isi email dan kata sandi\ndi /login]) --> B{Auth::attempt}
-    B -->|berhasil| C[Event Login dipicu]
-    B -->|gagal| D[Event Failed dipicu]
-
-    C --> E[Listener LogSuccessfulLogin\nsimpan baris login_logs\nstatus: success]
-    D --> F[Listener LogFailedLogin\nsimpan baris login_logs\nstatus: failed]
-
-    E --> G[User diarahkan ke /dashboard\nsesuai role masing masing]
-    F --> H[Form login tampilkan\npesan kesalahan]
-
-    F --> I{3 atau lebih percobaan\ngagal dalam 15 menit\nuntuk email yang sama?}
-    I -->|ya| J[Muncul sebagai anomali\ndi Dashboard Anomali]
-    I -->|tidak| K[Tidak ada flag]
+    A([Pengunjung buka /bantuan]) --> B[Isi nama, email, kategori,\nkode terkait opsional, judul, pesan]
+    B --> C{Validasi, batas 5 pesan per jam,\nkolom jebakan bot}
+    C -->|lolos| D[Tiket TKT-xxxxxxxx dibuat\nstatus: Terbuka\nlog ticket.created]
+    D --> E[Balasan otomatis di percakapan:\nkonfirmasi, status terkini dari kode DON/PRG,\npetunjuk sesuai kategori]
+    D --> F[Email berisi tautan pribadi /bantuan/token]
+    E --> G[Tiket muncul di inbox staf dan\nantrean Menunggu keputusan di dashboard]
+    G --> H{Staf membalas?\nBendahara, Admin, Super Admin}
+    H -->|ya| I[Balasan masuk percakapan + email ke pengirim\nstatus: Menunggu pengaju atau Selesai\nlog ticket.replied]
+    I --> J[Pengirim membalas lagi di halaman pribadi,\nyang selesai otomatis terbuka kembali]
+    J -.diperbarui tiap 4 detik.-> H
+    F -.lupa tautan.-> K([Lacak tiket: kode + email,\ntautan dikirim ulang ke email])
 ```
+
+Auditor hanya bisa membaca tiket. Percakapan di sisi staf dan pengunjung diperbarui otomatis tiap beberapa detik (polling), bukan koneksi langsung.
 
 ---
 
-## 5. Alur Activity Log dengan Hash Chain
-
-Ini fitur pembeda utama SIDONA: setiap aksi penting terikat secara kriptografis ke aksi sebelumnya, sehingga manipulasi data lama bisa dideteksi.
-
-### 5.1 Pencatatan (terjadi otomatis di setiap aksi tulis)
+## 6. Alur Login dan Pencatatan Login Log
 
 ```mermaid
 flowchart TD
-    A([Aksi terjadi:\ncampaign/donation/disbursement\ndibuat, diubah, atau dihapus]) --> B[AuditLogger::log dipanggil]
-    B --> C[Ambil hash baris terakhir\ndi activity_logs\ndengan row lock]
-    C --> D[prev_hash = hash baris terakhir\natau genesis hash kalau baris pertama]
+    A([Staf isi email dan kata sandi\ndi alamat /login]) --> B{Akun aktif dan\nkredensial benar?}
+    B -->|akun dinonaktifkan| C[Pesan: akun dinonaktifkan,\nhubungi super admin]
+    B -->|berhasil| D[Listener LogSuccessfulLogin\nlogin_logs status: success]
+    B -->|gagal| E[Listener LogFailedLogin\nlogin_logs status: failed]
+    D --> F[Dashboard dengan pesan: Berhasil masuk]
+    E --> G[Pesan kesalahan di form]
+    E --> H{3 atau lebih gagal dalam\n15 menit untuk email yang sama?}
+    H -->|ya| I[Muncul di Dashboard Anomali\ndan ditandai di Log Login]
+```
+
+Tautan login staf sengaja **tidak** ditampilkan di situs publik; staf mengakses `/login` langsung. Akun yang dinonaktifkan super admin tidak bisa masuk, dan sesi yang sedang berjalan ikut diakhiri pada permintaan berikutnya.
+
+---
+
+## 7. Alur Activity Log dengan Hash Chain
+
+Fitur pembeda utama SIDONA: setiap aksi penting terikat secara kriptografis ke aksi sebelumnya, sehingga manipulasi data lama bisa dideteksi.
+
+### 7.1 Pencatatan (otomatis di setiap aksi tulis)
+
+```mermaid
+flowchart TD
+    A([Aksi terjadi: donasi dibayar, program diubah,\npenyaluran disetujui, tiket dibalas, dan seterusnya]) --> B[AuditLogger::log]
+    B --> C[Ambil hash baris terakhir\ndengan row lock]
+    C --> D[prev_hash = hash terakhir\natau genesis hash]
     D --> E[hash = SHA256 dari\nprev_hash + data aksi]
-    E --> F[Simpan baris baru:\naction, data lama/baru,\nprev_hash, hash]
+    E --> F[Simpan baris baru:\naction, data lama/baru, prev_hash, hash]
 ```
 
-### 5.2 Verifikasi Integritas (halaman Auditor `/audit/integritas`)
+Di homepage publik hanya jenis kejadian, waktu, dan sidik hash singkat yang ditampilkan (tanpa nama, kontak, atau nominal).
+
+### 7.2 Verifikasi Integritas (`/audit/integritas`)
 
 ```mermaid
 flowchart TD
-    A([Auditor buka /audit/integritas\nklik Verifikasi]) --> B[Ambil seluruh baris activity_logs\nberurutan dari yang paling lama]
-    B --> C[Hitung ulang hash tiap baris\nberdasarkan prev_hash dan datanya]
-    C --> D{Hash hasil hitung ulang\ncocok dengan hash tersimpan?}
-    D -->|cocok semua| E[Status: Chain valid]
-    D -->|ada yang tidak cocok| F[Status: Chain rusak,\ntunjukkan ID baris pertama\nyang mencurigakan]
+    A([Auditor klik Verifikasi sekarang]) --> B[Ambil seluruh catatan berurutan]
+    B --> C[Hitung ulang hash tiap baris]
+    C --> D{Cocok dengan yang tersimpan?}
+    D -->|semua cocok| E[Rantai utuh: semua N catatan cocok,\nwaktu dan nama pemeriksa]
+    D -->|ada yang tidak cocok| F[Rantai terputus: nomor catatan pertama yang\nbermasalah, jenis kejadian, waktu, pelaku]
 ```
 
-### 5.3 Skenario Demo Manipulasi Data
+### 7.3 Skenario Demo Manipulasi Data
 
 ```mermaid
 flowchart TD
-    A([Jalankan:\nphp artisan demo:tamper-log]) --> B[Baris activity log\npaling baru diubah langsung\nlewat database]
-    B --> C[Perubahan ini melewati\nAuditLogger, tidak\nmemperbarui hash]
-    C --> D([Auditor buka /audit/integritas\nklik Verifikasi])
-    D --> E[Sistem mendeteksi\nhash baris tersebut\ntidak lagi cocok]
-    E --> F[Chain dinyatakan rusak\nmulai dari baris itu]
+    A([php artisan demo:tamper-log]) --> B[Baris log terbaru diubah langsung\nlewat database]
+    B --> C[Melewati AuditLogger, hash tidak diperbarui]
+    C --> D([Auditor verifikasi integritas])
+    D --> E[Rantai dinyatakan terputus\nmulai dari baris itu]
 ```
 
 ---
 
-## 6. Alur Deteksi Anomali
+## 8. Alur Deteksi Anomali dan Pemeriksaan Temuan
 
 ```mermaid
 flowchart TD
-    A([Auditor buka /audit/anomali]) --> B[AnomalyDetector dijalankan]
-
-    B --> C[extremeDonations]
-    C --> C1[Hitung rata rata dan\nstandar deviasi nominal donasi\nper program]
-    C1 --> C2{Ada donasi lebih besar dari\nrata rata + 2 kali standar deviasi?}
-    C2 -->|ya| C3[Tandai sebagai anomali:\ndonasi nominal ekstrem]
-
-    B --> D[fastApprovedDisbursements]
-    D --> D1{Ada penyaluran dana disetujui\nkurang dari 60 detik\nsetelah diajukan?}
-    D1 -->|ya| D2[Tandai sebagai anomali:\npersetujuan tergesa gesa]
-
-    B --> E[failedLoginStreaks]
-    E --> E1{Ada 3 atau lebih\nlogin gagal dalam 15 menit\nuntuk email yang sama?}
-    E1 -->|ya| E2[Tandai sebagai anomali:\npercobaan login mencurigakan]
-
-    C3 --> F[Semua anomali ditampilkan\ndi Dashboard Anomali]
-    D2 --> F
-    E2 --> F
+    A([Auditor buka /audit/anomali]) --> B[AnomalyDetector]
+    B --> C[Donasi nominal ekstrem:\nlebih dari rata-rata program + 2 simpangan baku]
+    B --> D[Penyaluran disetujui\nkurang dari 60 detik setelah diajukan]
+    B --> E[3 atau lebih login gagal\ndalam 15 menit untuk email yang sama]
+    C --> F[Daftar temuan\nbaris dengan penanda merah]
+    D --> F
+    E --> F
+    F --> G[Auditor klik Detail:\nrincian temuan dan jejak terkait]
+    G --> H[Tandai diperiksa\nlog anomaly.reviewed]
+    H --> I[Baris menjadi abu-abu,\ntercatat siapa dan kapan]
 ```
 
 ---
 
-## 7. Alur Laporan dan Verifikasi Checksum
-
-### 7.1 Membuat dan Mengunduh Laporan
+## 9. Alur Laporan dan Verifikasi Checksum
 
 ```mermaid
 flowchart TD
-    A([Auditor buka salah satu:\n/laporan/donasi, /laporan/penyaluran,\natau /laporan/saldo]) --> B[Sistem susun data laporan\ndari database]
-    B --> C[Render ke PDF pakai dompdf]
-    C --> D[ReportChecksum hitung\nSHA256 dari isi PDF]
-    D --> E[Checksum ditulis\nke footer PDF]
-    E --> F[Simpan record di report_exports:\nkode referensi, jenis laporan,\nchecksum, siapa yang membuat]
-    F --> G[File PDF disimpan\ndi disk privat]
-    G --> H([Auditor unduh lewat\n/laporan/unduh/{kode referensi}])
-```
+    A([Auditor buka Laporan Donasi,\nPenyaluran, atau Ringkasan Saldo]) --> B[Filter dan ringkasan hasil filter]
+    B --> C[Unduh PDF]
+    C --> D[Render PDF dengan dompdf]
+    D --> E[SHA256 isi PDF ditulis di footer]
+    E --> F[report_exports: kode, jenis, checksum, pembuat]
+    F --> G([Unduh lewat /laporan/unduh/kode])
 
-### 7.2 Cek Keaslian Laporan
-
-```mermaid
-flowchart TD
-    A([Auditor buka /laporan/cek-keaslian]) --> B[Unggah file PDF laporan\nyang pernah diunduh]
-    B --> C[Sistem hitung ulang checksum\ndari isi PDF yang diunggah]
-    C --> D{Cocok dengan checksum\ndi tabel report_exports?}
-    D -->|cocok| E[Tampilkan: laporan asli,\ntunjukkan siapa dan kapan\nlaporan awalnya dibuat]
-    D -->|tidak cocok| F[Tampilkan: laporan\nsudah diubah / tidak dikenali]
+    H([Cek Keaslian Laporan]) --> I[Unggah PDF yang pernah diunduh]
+    I --> J[Hitung ulang checksum]
+    J --> K{Cocok dengan report_exports?}
+    K -->|cocok| L[Laporan asli, tampil siapa dan kapan membuatnya]
+    K -->|tidak| M[Sudah diubah atau tidak dikenali]
 ```
 
 ---
 
-## 8. Peta Hak Akses Ringkas
+## 10. Peta Hak Akses Ringkas
 
 ```mermaid
 flowchart LR
     subgraph Publik["Tanpa login"]
-        P1[Lihat daftar & detail program]
-        P2[Kirim donasi]
-        P3[Cek status donasi]
+        P1[Lihat dan cari program]
+        P2[Donasi dan unduh kuitansi]
+        P3[Ajukan program, pantau lewat tautan pribadi]
+        P4[Tiket bantuan, FAQ, syarat, privasi]
     end
 
     subgraph Bendahara["Bendahara"]
-        B1[Kelola program]
-        B2[Verifikasi / tolak donasi]
-        B3[Ajukan penyaluran dana]
+        B1[Buat dan ubah program]
+        B2[Ajukan penyaluran dana]
+        B3[Balas tiket]
     end
 
     subgraph Admin["Admin"]
-        A1[Kelola & hapus program]
-        A2[Setujui / tolak penyaluran\nkecuali pengajuan sendiri]
+        A1[Kelola program, hapus bila belum ada uang]
+        A2[Setujui / tolak pengajuan program\nhanya jika email pengaju terkonfirmasi]
+        A3[Setujui / tolak penyaluran\nkecuali pengajuan sendiri]
+        A4[Balas tiket]
     end
 
-    subgraph Auditor["Auditor, hanya baca"]
-        D1[Verifikasi integritas hash chain]
-        D2[Log aktivitas & login]
-        D3[Dashboard anomali]
-        D4[Laporan berchecksum]
-        D5[Cek keaslian laporan]
+    subgraph Super["Super Admin"]
+        S1[Semua kewenangan staf]
+        S2[Kelola pengguna: buat, ubah peran,\natur ulang sandi, nonaktifkan]
+    end
+
+    subgraph Auditor["Auditor"]
+        D1[Verifikasi integritas, log aktivitas dan login]
+        D2[Dashboard anomali + tandai diperiksa]
+        D3[Laporan berchecksum, cek keaslian]
+        D4[Baca tiket]
     end
 ```

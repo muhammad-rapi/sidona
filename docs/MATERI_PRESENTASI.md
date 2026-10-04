@@ -1,6 +1,6 @@
 # Materi Presentasi SIDONA
 
-Naskah lengkap untuk presentasi tugas kuliah. Baca dari atas ke bawah, urutannya sudah dirancang supaya alurnya natural: pembukaan, konsep, bukti pemenuhan ketentuan, keunggulan, demo, lalu antisipasi pertanyaan.
+Naskah untuk presentasi tugas kuliah. Baca dari atas ke bawah, urutannya dirancang supaya alurnya natural: pembukaan, konsep, bukti pemenuhan ketentuan, keunggulan, demo, lalu antisipasi pertanyaan.
 
 ---
 
@@ -8,140 +8,164 @@ Naskah lengkap untuk presentasi tugas kuliah. Baca dari atas ke bawah, urutannya
 
 Gunakan salah satu, sesuaikan gaya bicara sendiri:
 
-> "Sebelum masuk ke detail, saya mau luruskan satu hal dulu: sistem yang saya bangun ini bukan sistem audit. Fitur utamanya adalah pengelolaan donasi. Tapi yang membuatnya menarik untuk dibahas di mata kuliah ini adalah, sistem ini saya rancang supaya *bisa dipakai untuk* audit, lewat jejak transaksi yang lengkap, log yang tidak bisa dimanipulasi diam diam, dan pemisahan tugas antar peran."
+> "Sebelum masuk ke detail, saya mau luruskan satu hal dulu: sistem yang saya bangun ini bukan sistem audit. Fitur utamanya adalah galang dana untuk program sosial. Tapi yang membuatnya menarik untuk dibahas di mata kuliah ini adalah, sistem ini saya rancang supaya *bisa dipakai untuk* audit, lewat jejak transaksi yang lengkap, log yang tidak bisa dimanipulasi diam-diam, dan pemisahan tugas antar peran."
 
-Ini penting disampaikan di awal karena langsung menjawab pertanyaan yang mungkin muncul di kepala dosen: "kok judulnya donasi tapi ini tugas audit?"
+Ini penting disampaikan di awal karena langsung menjawab pertanyaan yang mungkin muncul: "kok judulnya donasi tapi ini tugas audit?"
 
 ---
 
 ## 1. Latar Belakang dan Alasan Pemilihan Topik
 
-Sampaikan poin poin ini (boleh dengan kalimat sendiri):
-
-- Sistem donasi dipilih karena secara alami membutuhkan kepercayaan publik: donatur perlu yakin uangnya tidak diselewengkan. Ini membuat kebutuhan audit trail jadi masuk akal secara bisnis, bukan sekadar tempelan fitur.
-- Kasus nyata: hampir semua platform donasi (Kitabisa, BAZNAS, dsb) menghadapi isu kepercayaan publik soal transparansi dana. SIDONA mencoba menjawab itu dari sisi teknis: bagaimana caranya sebuah sistem informasi bisa membuktikan datanya tidak diutak atik.
-- Fokus tugas ini bukan membangun fitur audit generik, tapi mendemonstrasikan bagaimana prinsip prinsip audit sistem informasi (jejak transaksi, pemisahan tugas, deteksi anomali, integritas data) diterapkan langsung ke dalam desain sebuah aplikasi bisnis.
+- Platform donasi secara alami membutuhkan kepercayaan publik: donatur perlu yakin uangnya tidak diselewengkan. Karena itu kebutuhan audit trail masuk akal secara bisnis, bukan tempelan fitur.
+- Hampir semua platform donasi menghadapi isu kepercayaan soal transparansi dana. SIDONA mencoba menjawabnya dari sisi teknis: bagaimana sebuah sistem informasi bisa **membuktikan** datanya tidak diutak-atik.
+- Fokus tugas ini bukan membangun fitur audit generik, tapi menunjukkan bagaimana prinsip audit sistem informasi (jejak transaksi, pemisahan tugas, deteksi anomali, integritas data) diterapkan langsung ke dalam desain aplikasi bisnis.
 
 ---
 
 ## 2. Gambaran Umum Sistem
 
 - **Nama**: SIDONA, Sistem Informasi Donasi dan Audit.
-- **Domain**: platform donasi berbasis program/campaign (donatur menyumbang ke program tertentu, dana disalurkan bertahap sesuai kebutuhan program).
-- **Tiga peran pengguna internal**:
-  - **Bendahara**: mengelola program, memverifikasi donasi masuk, mengajukan penyaluran dana.
-  - **Admin**: mengelola program, menyetujui atau menolak pengajuan penyaluran dana.
-  - **Auditor**: akses baca saja ke seluruh sistem, plus akses eksklusif ke halaman audit dan laporan.
-- **Donatur** tidak perlu akun, bisa langsung menyumbang lewat halaman publik dan mengecek status donasinya lewat kode referensi.
-- **Tech stack**: Laravel 13, Livewire 3, Tailwind CSS 4, database SQLite, testing pakai Pest (28 file test).
+- **Domain**: galang dana berbasis program. Donatur menyumbang ke program tertentu, dana disalurkan bertahap lewat persetujuan dua orang.
+- **Pengunjung tanpa akun** bisa berdonasi, mengajukan program (dengan konfirmasi email), mengirim tiket bantuan, dan mengecek kuitansi atau status dengan kode.
+- **Empat peran staf**:
+  - **Bendahara**: membuat dan mengubah program, mengajukan penyaluran dana, membalas tiket.
+  - **Admin**: menyetujui atau menolak pengajuan program dan penyaluran dana, kelola program, membalas tiket.
+  - **Auditor**: akses baca ke seluruh sistem, plus halaman audit, anomali, dan laporan.
+  - **Super Admin**: semua kewenangan staf, plus kelola pengguna (buat akun, ubah peran, nonaktifkan).
+- **Tech stack**: Laravel 13, Livewire 3, Tailwind CSS 4, SQLite, Pest (36 file test).
+- **Keterbukaan soal batas**: pembayaran saat ini **simulasi**. Tidak ada uang yang berpindah, dan halaman bayar menyatakannya terang-terangan. Alur setelah pembayaran terkonfirmasi sudah lengkap, dan titik penyambung ke gateway sungguhan sudah disiapkan.
 
 ---
 
 ## 3. Bukti Pemenuhan 10 Ketentuan Wajib
 
-Sampaikan ini sebagai checklist tegas, satu per satu, biar dosen langsung bisa mencoret di lembar penilaiannya:
-
 | No | Ketentuan | Cara dipenuhi |
 |---|---|---|
-| 1 | Login | Laravel session auth, halaman `/login` untuk Bendahara, Admin, Auditor |
-| 2 | Minimal 2 role | Tiga role: Bendahara, Admin, Auditor, masing masing kewenangan berbeda |
+| 1 | Login | Laravel session auth di `/login` (tidak ditautkan di situs publik) untuk semua peran staf |
+| 2 | Minimal 2 role | Empat peran: Bendahara, Admin, Auditor, Super Admin, masing-masing kewenangan berbeda |
 | 3 | Database | SQLite |
-| 4 | Minimal 3 tabel utama | `campaigns`, `donations`, `disbursements` |
-| 5 | Minimal 1 transaksi | Dua transaksi: donasi masuk, dan pengajuan/persetujuan penyaluran dana |
-| 6 | Validasi input | Validasi nominal, format bukti transfer, saldo tersedia, tanggal program, alasan wajib saat menolak |
-| 7 | Laporan | Laporan donasi, laporan penyaluran, ringkasan saldo, viewer log aktivitas dan login, semua bisa diexport PDF |
-| 8 | Login log | Tabel `login_logs`, mencatat setiap percobaan login berhasil maupun gagal |
-| 9 | Activity log | Tabel `activity_logs`, dengan tambahan hash chain untuk deteksi manipulasi |
-| 10 | Data uji | Seeder otomatis: 5 akun demo, 6 program, puluhan donasi dan penyaluran dana, riwayat login |
+| 4 | Minimal 3 tabel utama | `campaigns`, `donations`, `disbursements`, ditambah `tickets` dan `ticket_messages` |
+| 5 | Minimal 1 transaksi | Donasi masuk, dan pengajuan dan persetujuan penyaluran dana (maker-checker) |
+| 6 | Validasi input | Nominal donasi, format nama dan kontak, rekening, saldo tersedia, masa program, alasan wajib saat menolak, batas laju dan kolom jebakan bot pada form publik |
+| 7 | Laporan | Laporan donasi, penyaluran, ringkasan saldo, viewer log aktivitas dan login, semua bisa diunduh sebagai PDF |
+| 8 | Login log | Tabel `login_logs` (waktu, IP, perangkat, hasil), dengan penanda pola gagal berturut-turut |
+| 9 | Activity log | Tabel `activity_logs` dengan hash chain untuk mendeteksi manipulasi |
+| 10 | Data uji | Seeder: 6 akun demo, 6 program berfoto asli, puluhan donasi dan penyaluran, riwayat login, pengajuan program |
 
-Sampaikan singkat: "Semua 10 ketentuan wajib terpenuhi, dan saya akan tunjukkan beberapa di antaranya langsung lewat demo."
+Sampaikan singkat: "Semua 10 ketentuan wajib terpenuhi, dan saya akan tunjukkan beberapa di antaranya lewat demo."
 
 ---
 
 ## 4. Fitur Unggulan (Bagian Paling Penting)
 
-Ini bagian yang membedakan SIDONA dari tugas kuliah kebanyakan. Jelaskan satu per satu, dan tekankan *mengapa* tiap fitur relevan dengan konsep audit, bukan cuma "keren keren an teknis".
+Jelaskan satu per satu dan tekankan *mengapa* tiap fitur relevan dengan konsep audit.
 
-### 4.1 Activity Log dengan Hash Chain
+### 4.1 Donasi tanpa verifikasi manual, kendali dipindah ke tempat yang tepat
 
-- Setiap aksi penting (buat program, verifikasi donasi, setujui penyaluran) dicatat sebagai satu baris di `activity_logs`.
-- Setiap baris menyimpan hash dari dirinya sendiri, yang dihitung dari data baris itu ditambah hash baris sebelumnya. Ini prinsip yang sama dipakai blockchain untuk membuat rantai data yang tidak bisa diubah tanpa ketahuan.
-- Ada halaman khusus Auditor untuk menghitung ulang seluruh chain dan membuktikan apakah datanya masih utuh atau pernah diutak atik.
-- **Kenapa ini penting buat audit**: auditor sungguhan selalu mempertanyakan "bagaimana saya tahu log ini tidak dipalsukan setelah kejadian". Hash chain menjawab pertanyaan itu secara teknis, bukan cuma janji.
+- Donasi sah otomatis begitu pembayaran terkonfirmasi, tanpa antrean persetujuan staf. Itu sengaja: donatur tidak perlu menunggu manusia, dan staf tidak lagi menjadi titik rawan kesalahan atau kecurangan di sisi masuknya uang.
+- Kendali tidak hilang, melainkan pindah ke sisi **keluarnya** uang (persetujuan dua orang), ke **log berantai**, dan ke **deteksi anomali**.
+- Tiap pembayaran tercatat sebagai `donation.paid` oleh "Sistem (otomatis)".
 
-### 4.2 Pemisahan Tugas pada Persetujuan Dana (Maker Checker)
+### 4.2 Activity Log dengan Hash Chain
 
-- Bendahara yang mengajukan penyaluran dana tidak bisa menjadi orang yang menyetujuinya sendiri, walaupun dia login sebagai Admin di akun lain.
-- Ini prinsip **segregation of duties**, salah satu materi inti pengendalian internal dalam audit sistem informasi, dan sistem menegakkannya di level backend (bukan cuma disembunyikan di tampilan).
+- Setiap aksi penting dicatat sebagai satu baris di `activity_logs`. Hash tiap baris dihitung dari datanya ditambah hash baris sebelumnya, prinsip yang sama dengan blockchain.
+- Halaman khusus Auditor menghitung ulang seluruh rantai. Hasilnya menyebut jumlah catatan yang cocok, atau persis di catatan mana dan oleh siapa rantai pertama kali terputus.
+- Di homepage publik ada "pita buku kas": catatan asli terbaru (jenis kejadian dan waktu, tanpa data pribadi). Itu bukti, bukan klaim.
+- **Kenapa penting buat audit**: auditor selalu bertanya "bagaimana saya tahu log ini tidak dipalsukan setelah kejadian". Hash chain menjawabnya secara teknis.
 
-### 4.3 Dashboard Deteksi Anomali
+### 4.3 Pemisahan Tugas pada Penyaluran Dana (Maker-Checker)
 
-- Sistem otomatis menandai tiga jenis kejanggalan: donasi dengan nominal jauh di atas rata rata program, penyaluran dana yang disetujui kurang dari 60 detik setelah diajukan (indikasi tidak ditinjau sungguh sungguh), dan tiga kali atau lebih percobaan login gagal dalam 15 menit.
-- Ini menunjukkan sistem tidak cuma pasif mencatat, tapi aktif membantu auditor menemukan hal yang perlu diperiksa lebih lanjut.
+- Yang mengajukan penyaluran tidak boleh menyetujuinya, **termasuk Super Admin**. Ditegakkan di backend, bukan hanya disembunyikan di tampilan.
+- Saat persetujuan, saldo dicek ulang dengan penguncian transaksi supaya dua pengajuan serentak tidak membuat saldo minus.
+- Tabel penyaluran menunjukkan **dampak ke saldo** sebelum diputuskan: saldo sekarang dan sesudahnya.
+- Prinsip ini adalah *segregation of duties*, materi inti pengendalian internal.
 
-### 4.4 Laporan PDF Berchecksum
+### 4.4 Dashboard Deteksi Anomali
 
-- Laporan keuangan (donasi, penyaluran, saldo) bisa diexport ke PDF yang menyertakan checksum SHA256 di footernya.
-- Ada halaman khusus untuk mengunggah ulang PDF tersebut dan memverifikasi apakah checksum-nya masih cocok, membuktikan file itu belum diedit sejak pertama kali diunduh.
+- Tiga jenis temuan otomatis: donasi nominal jauh di atas rata-rata program, penyaluran disetujui kurang dari 60 detik setelah diajukan, dan tiga kali atau lebih login gagal dalam 15 menit.
+- Auditor membuka Detail tiap temuan, lalu **Tandai diperiksa**. Penandaan tercatat di log dengan nama pemeriksa dan waktunya. Jadi pemeriksaan temuan pun bisa diaudit.
+
+### 4.5 Laporan PDF Berchecksum
+
+- Laporan donasi, penyaluran, dan saldo diunduh sebagai PDF dengan checksum SHA256 di footer. Halaman Cek Keaslian membuktikan PDF belum diedit dan menunjukkan siapa pembuat aslinya.
+
+### 4.6 Pengajuan program oleh publik, dengan penjagaan
+
+- Tamu bisa mengajukan program, tetapi tidak langsung tayang: email pengaju harus terkonfirmasi dulu, baru admin bisa menyetujui. Ada batas laju dan kolom jebakan bot.
+- Pengaju mendapat kode pelacakan dan, setelah disetujui, tautan pantau pribadi yang menampilkan donasi dan penyaluran programnya (baca saja). Tanpa akun dan tanpa kata sandi baru.
+
+### 4.7 Tiket bantuan dan kelola pengguna
+
+- Tiket bantuan punya balasan otomatis yang membaca status kode donasi atau pengajuan, percakapan yang diperbarui otomatis, dan pelacakan lewat kode plus email.
+- Super Admin mengelola akun staf: peran, kata sandi, dan penonaktifan (akun tidak dihapus, supaya jejak audit tetap utuh).
 
 ---
 
 ## 5. Skrip Demo Langsung
 
-Siapkan dulu: jalankan `php artisan migrate:fresh --seed` sebelum presentasi supaya data bersih. Buka browser dengan beberapa tab siap login sebagai role berbeda.
+Siapkan: `php artisan migrate:fresh --seed`, lalu `php artisan serve`. Siapkan beberapa tab untuk peran berbeda (kata sandi semua akun `password`).
 
-Ikuti urutan ini sambil bicara, jangan cuma klik diam:
+**Langkah 1, sebagai tamu**
+> "Saya donatur tanpa akun."
+- Buka `/program`, pilih program, pilih nominal, isi data, centang persetujuan, lanjut bayar, tekan simulasi.
+> "Donasi langsung sah dan kuitansi terbit. Tidak ada yang perlu menyetujui. Pembayaran di sini simulasi, tapi alur setelahnya sama persis dengan gateway sungguhan."
+- Kirim satu tiket di `/bantuan` dan tunjukkan balasan otomatisnya.
 
-**Langkah 1, sebagai Bendahara** (`bendahara1@sidona.test` / `password`)
-> "Saya login sebagai Bendahara. Di sini saya bisa melihat donasi yang masuk dan menunggu verifikasi."
-- Buka `/donasi`, tunjukkan satu donasi berstatus menunggu, klik verifikasi.
-> "Begitu saya verifikasi, sistem otomatis mencatat aksi ini ke activity log, dan kalau kontak donatur berupa email, sistem kirim notifikasi otomatis."
-- Buka `/campaigns/{id}/penyaluran/ajukan`, ajukan satu penyaluran dana.
+**Langkah 2, sebagai Bendahara** (`bendahara1@sidona.test`)
+- Buka Penyaluran Dana, ajukan penyaluran dari satu program yang punya saldo.
 
-**Langkah 2, sebagai Admin** (`admin@sidona.test` / `password`)
-> "Sekarang saya login sebagai Admin untuk menyetujui pengajuan penyaluran dana tadi."
-- Buka `/penyaluran`, setujui pengajuan dari Bendahara.
-> "Yang menarik, kalau saya coba ajukan penyaluran dana sendiri sebagai Admin, lalu coba setujui sendiri..."
-- Tunjukkan tombol setuju tidak muncul atau ditolak sistem untuk pengajuan milik sendiri.
-> "...sistem menolak. Ini penerapan pemisahan tugas yang saya jelaskan tadi."
+**Langkah 3, sebagai Admin** (`admin@sidona.test`)
+- Buka Penyaluran Dana, tunjukkan kolom "Dampak ke saldo", dan setujui pengajuan Bendahara.
+> "Kalau saya ajukan sendiri lalu coba setujui sendiri, sistem menolak. Itu pemisahan tugas."
+- Buka Program Donasi, setujui satu pengajuan program dari tamu, dan balas tiket di Tiket Bantuan.
 
-**Langkah 3, sebagai Auditor** (`auditor1@sidona.test` / `password`)
-> "Sekarang saya login sebagai Auditor, yang aksesnya read only, tapi punya halaman khusus untuk audit."
-- Buka `/audit/anomali`, tunjukkan tiga anomali yang sudah otomatis terdeteksi dari data uji.
-- Buka `/audit/integritas`, klik Verifikasi, tunjukkan status chain valid.
+**Langkah 4, sebagai Auditor** (`auditor1@sidona.test`)
+- Buka Dashboard Anomali, tunjukkan tiga jenis temuan, buka Detail, dan tandai satu diperiksa.
+- Buka Verifikasi Integritas, klik Verifikasi: rantai utuh.
 
-**Langkah 4, demo manipulasi data (bagian paling dramatis, simpan untuk penutup demo)**
-> "Sekarang saya akan simulasikan kalau ada orang yang mengubah data log langsung lewat database, melewati aplikasi."
-- Buka terminal, jalankan `php artisan demo:tamper-log`.
-> "Perintah ini sengaja mengubah satu baris log paling baru langsung di database."
-- Kembali ke browser, buka lagi `/audit/integritas`, klik Verifikasi.
-> "Dan sistem langsung mendeteksi ada baris yang datanya sudah tidak cocok dengan hash-nya. Inilah yang saya maksud sistem ini bisa dipakai untuk audit: bukan cuma mencatat, tapi bisa membuktikan keutuhan datanya sendiri."
+**Langkah 5, demo manipulasi data (penutup yang dramatis)**
+> "Sekarang saya simulasikan orang yang mengubah log langsung di database, melewati aplikasi."
+- Terminal: `php artisan demo:tamper-log`.
+- Kembali ke Verifikasi Integritas dan klik lagi.
+> "Sistem langsung menyebut catatan nomor berapa yang tidak cocok, kejadiannya, waktunya, dan pelakunya. Inilah maksud saya sistem ini bisa dipakai untuk audit: bukan cuma mencatat, tapi bisa membuktikan keutuhan datanya."
 
-**Langkah 5, laporan (penutup demo)**
-- Buka salah satu laporan, misalnya `/laporan/saldo`, export ke PDF.
-- Buka `/laporan/cek-keaslian`, unggah PDF yang baru diunduh, tunjukkan hasilnya cocok/asli.
+**Langkah 6, laporan dan super admin**
+- Unduh PDF dari Ringkasan Saldo, lalu unggah di Cek Keaslian Laporan.
+- Login `superadmin@sidona.test`, buka Kelola Pengguna, nonaktifkan satu akun, dan coba masuk dengan akun itu.
 
 ---
 
 ## 6. Antisipasi Pertanyaan Dosen
 
-**"Kenapa bukan pakai package activity log yang sudah ada, seperti Spatie Activitylog?"**
-> "Package seperti itu memang bagus untuk mencatat, tapi tidak dirancang untuk membuktikan keutuhan data setelah dicatat. Saya sengaja membangun mekanisme hash chain sendiri supaya bisa mendemonstrasikan konsep integritas data secara langsung, bukan hanya memakai fitur jadi."
+**"Kenapa tidak ada verifikasi donasi oleh admin atau bendahara?"**
+> "Itu keputusan desain. Konfirmasi pembayaran otomatis dari gateway lebih cepat bagi donatur dan menghilangkan satu titik di mana staf bisa salah atau curang. Kendali tidak hilang, tapi pindah ke tiga tempat: persetujuan dua orang untuk uang keluar, hash chain untuk membuktikan keutuhan catatan, dan deteksi anomali untuk nominal yang janggal."
 
-**"Kalau orang yang menyerang punya akses penuh ke server dan tahu cara kerja hash chain-nya, bukannya bisa dihitung ulang semua dan disesuaikan?"**
-> "Betul, itu keterbatasan yang jujur saya akui. Hash chain melindungi dari manipulasi diam diam yang parsial atau tidak disadari, bukan dari penyerang yang punya akses penuh ke server dan waktu untuk menghitung ulang seluruh chain. Solusi untuk skenario itu butuh penyimpanan log di luar sistem yang independen, atau tanda tangan digital eksternal, yang di luar cakupan tugas ini tapi bisa jadi pengembangan lanjutan."
+**"Pembayarannya sungguhan?"**
+> "Belum, dan itu dinyatakan jelas di halaman bayar. Pembayaran saat ini simulasi. Seluruh alur setelah konfirmasi sudah lengkap dan teruji, dan titik penyambung ke Midtrans atau Xendit sudah disiapkan, jadi memasang gateway tinggal memanggil fungsi konfirmasi yang sama."
 
-**"Kenapa pilih topik donasi, bukan yang lain?"**
-> "Karena topik donasi punya kebutuhan transparansi yang nyata di dunia nyata, jadi kebutuhan audit trail-nya tidak terasa dipaksakan, melainkan memang masuk akal secara bisnis."
+**"Kenapa tidak memakai package activity log seperti Spatie?"**
+> "Package itu bagus untuk mencatat, tapi tidak dirancang untuk membuktikan keutuhan data setelah dicatat. Saya membangun hash chain sendiri supaya bisa mendemonstrasikan konsep integritas data secara langsung."
 
-**"Bagaimana keamanan data donatur, misalnya bukti transfer yang diupload?"**
-> "File disimpan di disk penyimpanan Laravel dengan validasi tipe dan ukuran file saat upload. Untuk cakupan tugas ini saya fokus ke integritas data transaksi dan log, sementara enkripsi penyimpanan file bisa jadi pengembangan lanjutan."
+**"Kalau penyerang punya akses penuh ke server dan tahu cara kerja hash chain, bukankah bisa dihitung ulang semuanya?"**
+> "Betul, itu keterbatasan yang jujur saya akui. Hash chain melindungi dari manipulasi diam-diam yang parsial, bukan dari penyerang dengan akses penuh yang menghitung ulang seluruh rantai. Untuk skenario itu perlu penyimpanan log independen di luar sistem atau tanda tangan digital eksternal, yang di luar cakupan tugas ini tapi bisa menjadi pengembangan lanjutan."
 
-**"Apakah sistem ini bisa dipakai di dunia nyata / production?"**
-> "Secara arsitektur bisa dikembangkan ke sana, tapi untuk tugas ini saya fokus mendemonstrasikan konsep dan penerapannya, bukan kesiapan production seperti skalabilitas, gateway pembayaran otomatis, atau notifikasi real time."
+**"Bagaimana keamanan data donatur?"**
+> "Sistem tidak meminta dan tidak menyimpan nomor kartu atau data login bank. Yang disimpan hanya nama, kontak, nominal, metode, dan waktu, dan itu dijelaskan di Kebijakan Privasi. Donatur bisa menyamarkan nama di halaman publik, sementara nama asli hanya terlihat staf. Kata sandi disimpan ter-hash, dan akun staf bisa dinonaktifkan oleh Super Admin."
+
+**"Super Admin punya semua hak, apakah tidak berbahaya?"**
+> "Itu risiko yang saya batasi. Super Admin tetap tidak bisa menyetujui penyaluran yang ia ajukan sendiri dan tidak bisa menghapus program yang sudah punya riwayat uang. Semua tindakannya, termasuk kelola pengguna, tercatat di log berantai yang bisa diperiksa Auditor."
+
+**"Kenapa pengaju program tidak perlu akun?"**
+> "Supaya hambatan masuknya rendah, tetapi tetap ada penjagaan: email harus terkonfirmasi sebelum admin bisa menyetujui, ada batas laju dan jebakan bot, dan pemantauan lewat tautan pribadi yang hanya baca. Mengubah program tetap lewat admin."
+
+**"Apakah bisa dipakai di dunia nyata?"**
+> "Arsitekturnya bisa dikembangkan ke sana, tetapi ada hal yang jujur belum ada: gateway pembayaran sungguhan, pengiriman email sungguhan (saat ini ditulis ke log), dan koneksi real-time sungguhan. Percakapan tiket diperbarui lewat polling beberapa detik, bukan websocket."
+
+**"Kenapa topik donasi?"**
+> "Karena donasi punya kebutuhan transparansi yang nyata, jadi audit trail-nya masuk akal secara bisnis, tidak terasa dipaksakan."
 
 ---
 
 ## 7. Penutup
 
-> "Jadi kesimpulannya, SIDONA adalah sistem donasi yang fitur utamanya pengelolaan program dan transaksi donasi, tapi dirancang dengan prinsip prinsip audit sistem informasi sejak awal: jejak transaksi yang lengkap, pemisahan tugas, deteksi anomali otomatis, dan yang paling utama, mekanisme untuk membuktikan bahwa data historisnya belum pernah diutak atik. Terima kasih."
+> "Jadi kesimpulannya, SIDONA adalah sistem donasi yang fitur utamanya galang dana dan transaksi, tetapi dirancang dengan prinsip audit sistem informasi sejak awal: jejak transaksi lengkap, pemisahan tugas, deteksi anomali otomatis, dan yang paling utama, mekanisme untuk membuktikan bahwa data historisnya belum pernah diutak-atik. Terima kasih."
