@@ -48,6 +48,7 @@
                     <tr>
                         <th>Program</th>
                         <th class="num">Jumlah</th>
+                        <th>Dampak ke saldo</th>
                         <th>Keterangan</th>
                         <th>Diajukan Oleh</th>
                         <th>Status</th>
@@ -71,6 +72,23 @@
                                 @endif
                             </td>
                             <td class="num whitespace-nowrap">Rp&nbsp;{{ number_format($disbursement->amount, 0, ',', '.') }}</td>
+                            <td class="min-w-[11rem]">
+                                @if ($disbursement->status === \App\Enums\DisbursementStatus::Submitted)
+                                    @php
+                                        $balance = $disbursement->campaign->availableBalance();
+                                        $share = $balance > 0 ? min(100, (int) round($disbursement->amount / $balance * 100)) : 100;
+                                        $over = $disbursement->amount > $balance;
+                                    @endphp
+                                    <div class="thermo-h !h-3" style="--level: {{ $share }}" role="img" aria-label="{{ $share }} persen dari saldo program"><i @class(['!bg-ink' => ! $over])></i></div>
+                                    @if ($over)
+                                        <p class="mt-1.5 text-xs font-bold text-paint-dark">Melebihi saldo Rp&nbsp;{{ number_format($balance, 0, ',', '.') }}</p>
+                                    @else
+                                        <p class="mt-1.5 text-xs text-ink-soft">Saldo Rp&nbsp;{{ number_format($balance, 0, ',', '.') }} &rarr; <span class="font-bold text-ink">Rp&nbsp;{{ number_format($balance - $disbursement->amount, 0, ',', '.') }}</span></p>
+                                    @endif
+                                @else
+                                    <span class="text-sm text-ink-faint">&mdash;</span>
+                                @endif
+                            </td>
                             <td>{{ $disbursement->description }}</td>
                             <td class="whitespace-nowrap">{{ $disbursement->submitter->name }}</td>
                             <td class="whitespace-nowrap">
@@ -110,7 +128,7 @@
                         @if ($detailId === $disbursement->id)
                             @php $campaign = $disbursement->campaign; @endphp
                             <tr>
-                                <td colspan="6" class="!bg-desk !p-0">
+                                <td colspan="7" class="!bg-desk !p-0">
                                     <div class="grid gap-x-10 gap-y-6 px-5 py-5 md:grid-cols-2">
                                         <dl class="space-y-2 text-sm">
                                             <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Program</dt><dd>{{ $campaign->name }}</dd></div>
@@ -146,7 +164,7 @@
                         @endif
                         @if ($rejectingId === $disbursement->id)
                             <tr>
-                                <td colspan="6" class="bg-board-wash">
+                                <td colspan="7" class="bg-board-wash">
                                     <form wire:submit="confirmReject" class="flex flex-wrap items-start gap-2">
                                         <div class="min-w-[16rem] flex-1">
                                             <textarea wire:model="rejectionReason" class="field @error('rejectionReason') field-error @enderror" placeholder="Alasan penolakan"></textarea>
@@ -160,7 +178,7 @@
                         @endif
                     @empty
                         <tr>
-                            <td colspan="6" class="py-6 text-center text-ink-soft">Tidak ada penyaluran.</td>
+                            <td colspan="7" class="py-6 text-center text-ink-soft">Tidak ada penyaluran.</td>
                         </tr>
                     @endforelse
                 </tbody>

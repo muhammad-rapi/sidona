@@ -38,7 +38,16 @@ class DisbursementSeeder extends Seeder
                 $disbursement = Disbursement::create([
                     'campaign_id' => $campaign->id,
                     'amount' => $amount,
-                    'description' => fake()->sentence(),
+                    'description' => fake()->randomElement([
+                        'Pembelian terpal, selimut, dan tikar untuk hunian sementara',
+                        'Paket sembako untuk 40 keluarga terdampak',
+                        'Biaya pengiriman logistik ke lokasi',
+                        'Pembayaran biaya sekolah semester berjalan',
+                        'Perbaikan atap dan kamar mandi',
+                        'Obat-obatan dan perlengkapan kesehatan dasar',
+                        'Pembelian air bersih dan perlengkapan bayi',
+                        'Honor relawan lapangan selama seminggu',
+                    ]),
                     'status' => DisbursementStatus::Submitted,
                     'submitted_by' => $bendahara->id,
                 ]);

@@ -15,7 +15,7 @@ class DisbursementFactory extends Factory
         return [
             'campaign_id' => Campaign::factory(),
             'amount' => fake()->numberBetween(50_000, 500_000),
-            'description' => fake()->sentence(),
+            'description' => fake()->randomElement(['Pembelian logistik untuk warga terdampak', 'Biaya sekolah dan perlengkapan belajar', 'Perbaikan fasilitas yang rusak']),
             'status' => DisbursementStatus::Submitted,
             'submitted_by' => User::factory()->state(['role' => UserRole::Bendahara]),
         ];

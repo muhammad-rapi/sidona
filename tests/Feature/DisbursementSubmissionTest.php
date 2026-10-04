@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\CampaignStatus;
+use App\Enums\DisbursementStatus;
 use App\Enums\DonationStatus;
 use App\Enums\UserRole;
 use App\Livewire\Disbursements\DisbursementForm;
@@ -108,4 +109,18 @@ it('opens a disbursement detail with balance context and the audit trail', funct
         ->assertSee('disbursement.submitted')
         ->call('toggleDetail', $disbursement->id)
         ->assertDontSee('Saldo tersedia');
+});
+
+it('shows the balance impact of a pending disbursement in the table', function () {
+    $campaign = Campaign::factory()->create();
+    Donation::factory()->for($campaign)->create(['amount' => 1000000, 'status' => DonationStatus::Verified]);
+    $bendahara = User::factory()->create(['role' => UserRole::Bendahara]);
+    Disbursement::factory()->for($campaign)->create(['amount' => 250000, 'status' => DisbursementStatus::Submitted, 'submitted_by' => $bendahara->id]);
+    Disbursement::factory()->for($campaign)->create(['amount' => 5000000, 'status' => DisbursementStatus::Submitted, 'submitted_by' => $bendahara->id]);
+
+    Livewire::actingAs($bendahara)->test(DisbursementIndex::class)
+        ->assertSee('Dampak ke saldo')
+        ->assertSee('1.000.000')
+        ->assertSee('750.000')
+        ->assertSee('Melebihi saldo');
 });
