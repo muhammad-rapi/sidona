@@ -33,9 +33,7 @@
 
     <div x-ref="end"></div>
 
-    <p class="mt-6 flex items-center gap-2 text-xs text-ink-faint"><span class="h-2 w-2 bg-paid" aria-hidden="true"></span>Percakapan diperbarui otomatis. Balasan tim muncul di sini tanpa perlu memuat ulang.</p>
-
-    <form wire:submit="reply" class="mt-4" novalidate>
+    <form wire:submit="reply" class="mt-8" novalidate>
         <label for="t-reply" class="label">{{ $ticket->status->value === 'closed' ? 'Masih ada yang mau ditanyakan? Balasan Anda membuka kembali tiket ini.' : 'Balas' }}</label>
         <textarea id="t-reply" wire:model="body" rows="4" class="field @error('body') field-error @enderror"></textarea>
         @error('body') <p class="error-text" role="alert">{{ $message }}</p> @enderror
