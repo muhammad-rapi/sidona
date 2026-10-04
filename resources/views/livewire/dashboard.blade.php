@@ -27,6 +27,13 @@
         </div>
     </div>
 
+    @if ($pendingProposals > 0 && auth()->user()->isAdmin())
+        <a href="{{ route('campaigns.index') }}" wire:navigate class="mb-4 flex items-center justify-between gap-4 border-2 border-ink bg-board px-5 py-4 transition-colors hover:bg-board-deep">
+            <p class="font-bold">{{ $pendingProposals }} pengajuan program baru menunggu tinjauan</p>
+            <span class="text-sm font-bold">Tinjau</span>
+        </a>
+    @endif
+
     @if ($pendingDisbursements > 0)
         <a href="{{ route('disbursements.index') }}" wire:navigate class="mb-8 flex items-center justify-between gap-4 border-2 border-ink bg-board px-5 py-4 transition-colors hover:bg-board-deep">
             <p class="font-bold">{{ $pendingDisbursements }} pengajuan penyaluran menunggu keputusan</p>

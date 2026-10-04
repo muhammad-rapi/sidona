@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Campaigns;
 
+use App\Enums\CampaignStatus;
+use App\Livewire\Concerns\HasRejectionWorkflow;
 use App\Models\Campaign;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\Gate;
@@ -12,6 +14,7 @@ use Livewire\WithPagination;
 #[Layout('components.layouts.app')]
 class CampaignIndex extends Component
 {
+    use HasRejectionWorkflow;
     use WithPagination;
 
     public function delete(Campaign $campaign, AuditLogger $logger): void
@@ -25,10 +28,57 @@ class CampaignIndex extends Component
         session()->flash('status', 'Program donasi dihapus.');
     }
 
+    public function approve(int $campaignId, AuditLogger $logger): void
+    {
+        $campaign = Campaign::query()->findOrFail($campaignId);
+        Gate::authorize('review', $campaign);
+
+        $before = $campaign->only(['status', 'starts_on', 'ends_on']);
+        $days = max(1, (int) $campaign->starts_on->diffInDays($campaign->ends_on));
+
+        $campaign->update([
+            'status' => CampaignStatus::Active,
+            'starts_on' => today(),
+            'ends_on' => today()->addDays($days),
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+            'rejection_reason' => null,
+        ]);
+
+        $logger->log('campaign.approved', auth()->user(), $campaign, $before, $campaign->only(['status', 'starts_on', 'ends_on']));
+
+        session()->flash('status', 'Program disetujui dan sekarang tayang.');
+    }
+
+    public function confirmReject(AuditLogger $logger): void
+    {
+        $this->validate(['rejectionReason' => ['required', 'string', 'min:3', 'max:255']]);
+
+        $campaign = Campaign::query()->findOrFail($this->rejectingId);
+        Gate::authorize('review', $campaign);
+
+        $before = $campaign->only(['status', 'rejection_reason']);
+
+        $campaign->update([
+            'status' => CampaignStatus::Rejected,
+            'rejection_reason' => $this->rejectionReason,
+            'reviewed_by' => auth()->id(),
+            'reviewed_at' => now(),
+        ]);
+
+        $logger->log('campaign.rejected', auth()->user(), $campaign, $before, $campaign->only(['status', 'rejection_reason']));
+
+        $this->cancelReject();
+        session()->flash('status', 'Pengajuan program ditolak.');
+    }
+
     public function render()
     {
         return view('livewire.campaigns.campaign-index', [
-            'campaigns' => Campaign::query()->latest()->paginate(10),
+            'campaigns' => Campaign::query()
+                ->orderByRaw("case when status = 'pending' then 0 else 1 end")
+                ->latest()
+                ->paginate(10),
         ]);
     }
 }

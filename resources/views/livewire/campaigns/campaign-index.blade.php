@@ -40,11 +40,20 @@
                             $statusBadge = match ($campaign->status->value) {
                                 'active' => 'badge-paid',
                                 'completed' => 'badge-ink',
+                                'rejected' => 'badge-fail',
                                 default => 'badge-wait',
                             };
                         @endphp
                         <tr>
-                            <td class="font-bold">{{ $campaign->name }}</td>
+                            <td class="font-bold">
+                                {{ $campaign->name }}
+                                @if ($campaign->proposer_name)
+                                    <p class="text-xs font-normal text-ink-soft">Diajukan {{ $campaign->proposer_name }} ({{ $campaign->proposer_contact }})</p>
+                                @endif
+                                @if ($campaign->status === \App\Enums\CampaignStatus::Rejected && $campaign->rejection_reason)
+                                    <p class="text-xs font-normal text-paint-dark">Alasan ditolak: {{ $campaign->rejection_reason }}</p>
+                                @endif
+                            </td>
                             <td class="num whitespace-nowrap">Rp&nbsp;{{ number_format($campaign->target_amount, 0, ',', '.') }}</td>
                             <td class="whitespace-nowrap">
                                 @if ($campaign->bank_name && $campaign->account_number)
@@ -60,18 +69,38 @@
                             </td>
                             <td class="whitespace-nowrap">
                                 <div class="flex flex-wrap gap-2">
+                                    @can('review', $campaign)
+                                        <button type="button" wire:click="approve({{ $campaign->id }})" wire:confirm="Setujui dan tayangkan program ini?" class="btn btn-sm btn-ink">Setujui</button>
+                                        <button type="button" wire:click="startReject({{ $campaign->id }})" class="btn btn-sm btn-line text-paint-dark">Tolak</button>
+                                    @endcan
                                     @can('update', $campaign)
                                         <a href="{{ route('campaigns.edit', $campaign) }}" wire:navigate class="btn btn-sm btn-line">Ubah</a>
                                     @endcan
+                                    @if ($campaign->status === \App\Enums\CampaignStatus::Active)
                                     @can('create', App\Models\Disbursement::class)
                                         <a href="{{ route('disbursements.create', $campaign) }}" wire:navigate class="btn btn-sm btn-ink">Ajukan Penyaluran</a>
                                     @endcan
+                                    @endif
                                     @can('delete', $campaign)
                                         <button type="button" @click="confirmId = {{ $campaign->id }}; confirmName = '{{ addslashes($campaign->name) }}'" class="btn btn-sm btn-line text-paint-dark">Hapus</button>
                                     @endcan
                                 </div>
                             </td>
                         </tr>
+                        @if ($rejectingId === $campaign->id)
+                            <tr>
+                                <td colspan="6" class="bg-board-wash">
+                                    <form wire:submit="confirmReject" class="flex flex-wrap items-start gap-2">
+                                        <div class="min-w-[16rem] flex-1">
+                                            <input type="text" wire:model="rejectionReason" class="field @error('rejectionReason') field-error @enderror" placeholder="Alasan penolakan" aria-label="Alasan penolakan">
+                                            @error('rejectionReason') <p class="error-text">{{ $message }}</p> @enderror
+                                        </div>
+                                        <button type="submit" class="btn btn-paint">Kirim</button>
+                                        <button type="button" wire:click="cancelReject" class="btn btn-line">Batal</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        @endif
                     @empty
                         <tr>
                             <td colspan="6" class="py-6 text-center text-ink-soft">Belum ada program donasi.</td>

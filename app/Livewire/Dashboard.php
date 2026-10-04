@@ -27,6 +27,7 @@ class Dashboard extends Component
             'todayCount' => (clone $paid)->whereDate('paid_at', today())->count(),
             'todayTotal' => (int) (clone $paid)->whereDate('paid_at', today())->sum('amount'),
             'activeCampaigns' => Campaign::where('status', CampaignStatus::Active)->count(),
+            'pendingProposals' => Campaign::where('status', CampaignStatus::Pending)->count(),
             'pendingDisbursements' => Disbursement::where('status', DisbursementStatus::Submitted)->count(),
             'recentDonations' => Donation::query()->with('campaign')
                 ->where('status', DonationStatus::Verified)
