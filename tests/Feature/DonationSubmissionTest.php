@@ -17,6 +17,7 @@ it('creates a pending donation and sends the donor to the payment page', functio
     $campaign = activeCampaign();
 
     $component = Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
+        ->set('agree', true)
         ->set('donor_name', 'Budi Santoso')
         ->set('donor_contact', '08123456789')
         ->set('amount', 50000)
@@ -34,6 +35,7 @@ it('creates a pending donation and sends the donor to the payment page', functio
 
 it('rejects a donation below the minimum amount', function () {
     Livewire::test(CampaignDetail::class, ['campaign' => activeCampaign()])
+        ->set('agree', true)
         ->set('donor_name', 'Budi')
         ->set('donor_contact', '08123456789')
         ->set('amount', 5000)
@@ -45,6 +47,7 @@ it('rejects a donation below the minimum amount', function () {
 
 it('rejects an unknown payment method', function () {
     Livewire::test(CampaignDetail::class, ['campaign' => activeCampaign()])
+        ->set('agree', true)
         ->set('donor_name', 'Budi')
         ->set('donor_contact', '08123456789')
         ->set('amount', 50000)
@@ -57,6 +60,7 @@ it('keeps the donor name for staff but shows an alias publicly when anonymous', 
     $campaign = activeCampaign();
 
     Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
+        ->set('agree', true)
         ->set('donor_name', 'Budi Rahasia')
         ->set('donor_contact', '08123456789')
         ->set('is_anonymous', true)
@@ -88,6 +92,7 @@ it('refuses to load the donation form for a campaign that has not started yet', 
 
 it('writes an activity log entry for a submitted donation without a user', function () {
     Livewire::test(CampaignDetail::class, ['campaign' => activeCampaign()])
+        ->set('agree', true)
         ->set('donor_name', 'Budi')
         ->set('donor_contact', '08123456789')
         ->set('amount', 50000)
@@ -102,6 +107,7 @@ it('writes an activity log entry for a submitted donation without a user', funct
 
 it('validates donor name, contact and amount boundaries', function (string $field, mixed $value) {
     Livewire::test(CampaignDetail::class, ['campaign' => activeCampaign()])
+        ->set('agree', true)
         ->set('donor_name', 'Budi')
         ->set('donor_contact', 'budi@example.com')
         ->set('amount', 50000)
@@ -123,6 +129,7 @@ it('validates donor name, contact and amount boundaries', function (string $fiel
 
 it('accepts valid email and Indonesian phone formats', function (string $contact) {
     Livewire::test(CampaignDetail::class, ['campaign' => activeCampaign()])
+        ->set('agree', true)
         ->set('donor_name', "Siti Nur'aini-Putri")
         ->set('donor_contact', $contact)
         ->set('amount', 10000)
@@ -133,6 +140,7 @@ it('accepts valid email and Indonesian phone formats', function (string $contact
 it('refuses a donation when the campaign closed after the page loaded', function () {
     $campaign = activeCampaign();
     $component = Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
+        ->set('agree', true)
         ->set('donor_name', 'Budi')
         ->set('donor_contact', 'budi@example.com')
         ->set('amount', 50000);
@@ -140,5 +148,16 @@ it('refuses a donation when the campaign closed after the page loaded', function
     $campaign->update(['status' => CampaignStatus::Completed]);
 
     $component->call('submit')->assertForbidden();
+    expect(Donation::count())->toBe(0);
+});
+
+it('requires the donor to accept the terms and privacy policy before paying', function () {
+    Livewire::test(CampaignDetail::class, ['campaign' => activeCampaign()])
+        ->set('donor_name', 'Budi')
+        ->set('donor_contact', '08123456789')
+        ->set('amount', 50000)
+        ->call('submit')
+        ->assertHasErrors('agree');
+
     expect(Donation::count())->toBe(0);
 });

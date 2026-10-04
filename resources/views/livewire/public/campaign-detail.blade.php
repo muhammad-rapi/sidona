@@ -103,6 +103,14 @@
                     @error('payment_method') <p class="error-text" role="alert">{{ $message }}</p> @enderror
                 </fieldset>
 
+                <div>
+                    <label class="flex cursor-pointer items-start gap-3 text-sm">
+                        <input type="checkbox" wire:model="agree" class="mt-0.5 h-5 w-5 shrink-0 border-2 border-ink @error('agree') border-paint @enderror">
+                        <span>Saya menyetujui <a href="{{ route('terms') }}" target="_blank" rel="noopener" class="font-bold underline underline-offset-2 hover:text-paint-dark">Syarat dan Ketentuan</a> serta <a href="{{ route('privacy') }}" target="_blank" rel="noopener" class="font-bold underline underline-offset-2 hover:text-paint-dark">Kebijakan Privasi</a>.</span>
+                    </label>
+                    @error('agree') <p class="error-text" role="alert">{{ $message }}</p> @enderror
+                </div>
+
                 <button type="submit" class="btn btn-paint btn-lg w-full" wire:loading.attr="disabled" wire:target="submit">
                     <span wire:loading.remove wire:target="submit">Lanjut bayar<span x-show="amount >= 10000" x-cloak> &middot; Rp&nbsp;<span x-text="fmt(amount)"></span></span></span>
                     <span wire:loading wire:target="submit">Menyiapkan pembayaran&hellip;</span>

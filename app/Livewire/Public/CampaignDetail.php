@@ -23,6 +23,8 @@ class CampaignDetail extends Component
 
     public bool $is_anonymous = false;
 
+    public bool $agree = false;
+
     public int $amount = 0;
 
     public string $payment_method = 'qris';
@@ -53,6 +55,7 @@ class CampaignDetail extends Component
                 }
             }],
             'is_anonymous' => ['boolean'],
+            'agree' => ['accepted'],
             'amount' => ['required', 'integer', 'min:10000', 'max:1000000000'],
             'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
         ];
@@ -66,6 +69,7 @@ class CampaignDetail extends Component
             'donor_name.min' => 'Nama minimal 2 huruf.',
             'donor_name.regex' => 'Nama hanya boleh berisi huruf, spasi, titik, atau tanda hubung.',
             'payment_method.required' => 'Pilih metode pembayaran.',
+            'agree.accepted' => 'Centang persetujuan syarat dan kebijakan privasi untuk melanjutkan.',
             'amount.required' => 'Pilih atau isi nominal donasi.',
             'donor_name.required' => 'Nama wajib diisi (boleh disamarkan di bawah).',
             'donor_contact.required' => 'Isi email atau nomor WhatsApp untuk kuitansi.',
@@ -102,7 +106,7 @@ class CampaignDetail extends Component
 
         $logger->log('donation.created', null, $donation, [], $donation->only([
             'campaign_id', 'donor_name', 'donor_contact', 'amount', 'payment_method', 'status',
-        ]));
+        ]) + ['terms_accepted' => true]);
 
         return $this->redirectRoute('donations.pay', $donation->reference_code, navigate: true);
     }
