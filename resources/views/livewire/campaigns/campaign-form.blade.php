@@ -83,17 +83,43 @@
             @error('gallery_uploads.*') <p class="error-text">{{ $message }}</p> @enderror
         </div>
 
-        <div>
-            <label for="pic" class="label">Penanggung jawab (PIC)</label>
-            <select id="pic" wire:model="pic_user_id" class="field @error('pic_user_id') field-error @enderror">
-                <option value="">Pilih penanggung jawab</option>
-                @foreach ($picOptions as $option)
-                    <option value="{{ $option->id }}">{{ $option->name }} ({{ $option->role->label() }})</option>
-                @endforeach
-            </select>
-            <p class="hint">Nama ini tampil di halaman program publik. Kontaknya tidak ditampilkan.@if ($campaign?->proposer_name) Dikosongkan, PIC-nya tetap pengaju: {{ $campaign->proposer_name }}.@endif</p>
-            @error('pic_user_id') <p class="error-text">{{ $message }}</p> @enderror
-        </div>
+        <fieldset>
+            <legend class="label">Penanggung jawab (PIC)</legend>
+            <div class="mb-3 grid grid-cols-2 gap-2">
+                <label class="cursor-pointer">
+                    <input type="radio" wire:model.live="pic_mode" value="staff" class="peer sr-only">
+                    <span class="block border-2 border-ink px-3 py-2.5 text-center text-sm font-bold peer-checked:bg-ink peer-checked:text-board peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-paint">Staf SIDONA</span>
+                </label>
+                <label class="cursor-pointer">
+                    <input type="radio" wire:model.live="pic_mode" value="external" class="peer sr-only">
+                    <span class="block border-2 border-ink px-3 py-2.5 text-center text-sm font-bold peer-checked:bg-ink peer-checked:text-board peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-paint">Pihak luar</span>
+                </label>
+            </div>
+
+            @if ($pic_mode === 'external')
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <div>
+                        <label for="pic_name" class="sr-only">Nama PIC</label>
+                        <input id="pic_name" type="text" wire:model="pic_name" placeholder="Nama PIC, mis. Ibu Ratna" class="field @error('pic_name') field-error @enderror">
+                        @error('pic_name') <p class="error-text">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label for="pic_contact" class="sr-only">Kontak PIC</label>
+                        <input id="pic_contact" type="text" wire:model="pic_contact" placeholder="Email atau WhatsApp" class="field @error('pic_contact') field-error @enderror">
+                        @error('pic_contact') <p class="error-text">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+            @else
+                <select id="pic" wire:model="pic_user_id" aria-label="Staf penanggung jawab" class="field @error('pic_user_id') field-error @enderror">
+                    <option value="">Pilih staf</option>
+                    @foreach ($picOptions as $option)
+                        <option value="{{ $option->id }}">{{ $option->name }} ({{ $option->role->label() }})</option>
+                    @endforeach
+                </select>
+                @error('pic_user_id') <p class="error-text">{{ $message }}</p> @enderror
+            @endif
+            <p class="hint">Nama PIC tampil di halaman program publik. Kontaknya hanya terlihat oleh staf.@if ($campaign?->proposer_name && $pic_mode === 'staff') Dikosongkan, PIC-nya tetap pengaju: {{ $campaign->proposer_name }}.@endif</p>
+        </fieldset>
 
         <div>
             <label class="label">Target Dana</label>

@@ -26,6 +26,8 @@ class Campaign extends Model
         'ends_on',
         'status',
         'pic_user_id',
+        'pic_name',
+        'pic_contact',
         'proposal_code',
         'proposer_name',
         'proposer_contact',
@@ -55,11 +57,19 @@ class Campaign extends Model
     }
 
     /**
+     * Kontak PIC (hanya untuk staf, tidak pernah ditampilkan di publik).
+     */
+    public function picContact(): ?string
+    {
+        return $this->pic_name ? $this->pic_contact : ($this->pic?->email ?? $this->proposer_contact);
+    }
+
+    /**
      * Nama penanggung jawab: staf yang ditunjuk, atau pengaju untuk program dari tamu.
      */
     public function picName(): ?string
     {
-        return $this->pic?->name ?? $this->proposer_name;
+        return $this->pic_name ?: ($this->pic?->name ?? $this->proposer_name);
     }
 
     public function photos(): HasMany

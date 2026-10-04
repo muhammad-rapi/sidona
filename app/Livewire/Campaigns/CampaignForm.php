@@ -38,7 +38,13 @@ class CampaignForm extends Component
 
     public int $target_amount = 0;
 
+    public string $pic_mode = 'staff';
+
     public ?int $pic_user_id = null;
+
+    public string $pic_name = '';
+
+    public string $pic_contact = '';
 
     public string $bank_name = '';
 
@@ -59,6 +65,9 @@ class CampaignForm extends Component
 
         if ($campaign) {
             $this->pic_user_id = $campaign->pic_user_id ?? ($campaign->proposer_name ? null : auth()->id());
+            $this->pic_mode = $campaign->pic_name ? 'external' : 'staff';
+            $this->pic_name = (string) $campaign->pic_name;
+            $this->pic_contact = (string) $campaign->pic_contact;
             $this->name = $campaign->name;
             $this->description = (string) $campaign->description;
             $this->target_amount = $campaign->target_amount;
@@ -79,7 +88,13 @@ class CampaignForm extends Component
             'cover_image_upload' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'gallery_uploads' => ['array', 'max:'.self::MAX_PHOTOS],
             'gallery_uploads.*' => ['image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'pic_user_id' => [$this->campaign?->proposer_name ? 'nullable' : 'required', Rule::exists('users', 'id')->where('is_active', true)],
+            'pic_mode' => ['required', 'in:staff,external'],
+            'pic_user_id' => [
+                $this->pic_mode === 'staff' && ! $this->campaign?->proposer_name ? 'required' : 'nullable',
+                Rule::exists('users', 'id')->where('is_active', true),
+            ],
+            'pic_name' => [$this->pic_mode === 'external' ? 'required' : 'nullable', 'string', 'min:2', 'max:100'],
+            'pic_contact' => [$this->pic_mode === 'external' ? 'required' : 'nullable', 'string', 'max:255'],
             'bank_name' => ['required', Rule::in(Banks::with($this->campaign?->bank_name))],
             'account_number' => ['required', 'string', 'regex:/^[0-9][0-9\\s-]{4,29}$/'],
             'account_holder' => ['required', 'string', 'max:255'],
@@ -94,7 +109,14 @@ class CampaignForm extends Component
 
         $data = $this->validate();
 
-        unset($data['cover_image_upload'], $data['gallery_uploads']);
+        unset($data['cover_image_upload'], $data['gallery_uploads'], $data['pic_mode']);
+
+        if ($this->pic_mode === 'external') {
+            $data['pic_user_id'] = null;
+        } else {
+            $data['pic_name'] = null;
+            $data['pic_contact'] = null;
+        }
 
         $existingPhotos = $this->campaign?->photos()->count() ?? 0;
         if ($existingPhotos + count($this->gallery_uploads) > self::MAX_PHOTOS) {

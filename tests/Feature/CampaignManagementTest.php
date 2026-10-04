@@ -214,3 +214,30 @@ it('shows the proposer as PIC for guest proposals', function () {
 
     expect($campaign->picName())->toBe('Siti Aminah');
 });
+
+it('lets the PIC be an outside person with a private contact', function () {
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+
+    $form = Livewire::actingAs($admin)->test(CampaignForm::class)
+        ->set('name', 'Program PIC Luar')
+        ->set('description', 'Deskripsi program yang cukup panjang.')
+        ->set('target_amount', 5000000)
+        ->set('bank_name', 'BCA')
+        ->set('account_number', '1234567890')
+        ->set('account_holder', 'Panti Contoh')
+        ->set('starts_on', now()->toDateString())
+        ->set('ends_on', now()->addDays(30)->toDateString())
+        ->set('pic_mode', 'external');
+
+    $form->call('save')->assertHasErrors(['pic_name', 'pic_contact']);
+
+    $form->set('pic_name', 'Ibu Ratna')->set('pic_contact', '081234567890')->call('save')->assertHasNoErrors();
+
+    $campaign = Campaign::where('name', 'Program PIC Luar')->first();
+    expect($campaign->pic_user_id)->toBeNull();
+    expect($campaign->picName())->toBe('Ibu Ratna');
+
+    $this->get(route('program.show', $campaign))
+        ->assertSee('Penanggung jawab: Ibu Ratna')
+        ->assertDontSee('081234567890');
+});
