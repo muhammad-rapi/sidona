@@ -17,8 +17,8 @@ it('lets an auditor filter the activity log by action', function () {
     Livewire::actingAs($auditor)
         ->test(ActivityLogIndex::class)
         ->set('action', 'campaign.deleted')
-        ->assertSee('campaign.deleted')
-        ->assertDontSee('campaign.created');
+        ->assertSee('Program dihapus')
+        ->assertDontSee('Program dibuat');
 });
 
 it('shows human readable before/after values instead of raw json when a row is expanded', function () {
@@ -39,4 +39,16 @@ it('blocks non auditors from the activity log viewer', function () {
     $bendahara = User::factory()->create(['role' => UserRole::Bendahara]);
 
     $this->actingAs($bendahara)->get(route('audit.activity'))->assertForbidden();
+});
+
+it('shows readable event names, the subject and the hash chain link', function () {
+    $auditor = User::factory()->create(['role' => UserRole::Auditor]);
+    $campaign = Campaign::factory()->create(['name' => 'Program Contoh']);
+    $log = app(AuditLogger::class)->log('campaign.updated', $auditor, $campaign, [], []);
+
+    Livewire::actingAs($auditor)->test(ActivityLogIndex::class)
+        ->assertSee('Program diubah')
+        ->assertSee('Program: Program Contoh')
+        ->assertSee(substr($log->hash, 0, 10))
+        ->assertSee(substr($log->prev_hash, 0, 6));
 });

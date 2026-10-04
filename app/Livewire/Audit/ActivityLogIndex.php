@@ -3,7 +3,9 @@
 namespace App\Livewire\Audit;
 
 use App\Models\ActivityLog;
+use App\Models\User;
 use App\Services\ReportChecksum;
+use App\Support\ActivityLabels;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -35,7 +37,7 @@ class ActivityLogIndex extends Component
 
     protected function filteredQuery()
     {
-        return ActivityLog::query()->with('user')->latest()
+        return ActivityLog::query()->with(['user', 'subject'])->latest('id')
             ->when($this->action !== '', fn ($q) => $q->where('action', 'like', "%{$this->action}%"))
             ->when($this->user_id !== '', fn ($q) => $q->where('user_id', $this->user_id))
             ->when($this->from !== '', fn ($q) => $q->whereDate('created_at', '>=', $this->from))
@@ -65,6 +67,8 @@ class ActivityLogIndex extends Component
     {
         return view('livewire.audit.activity-log-index', [
             'entries' => $this->filteredQuery()->paginate(15),
+            'actionOptions' => ActivityLabels::all(),
+            'userOptions' => User::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
 }
