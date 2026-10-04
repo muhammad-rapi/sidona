@@ -30,19 +30,53 @@
         </p>
     </section>
 
-    @if ($pendingProposals > 0 && auth()->user()->hasAdminPowers())
-        <a href="{{ route('campaigns.index') }}" wire:navigate class="mb-4 flex items-center justify-between gap-4 border-2 border-ink bg-board px-5 py-4 transition-colors hover:bg-board-deep">
-            <p class="font-bold">{{ $pendingProposals }} pengajuan program baru menunggu tinjauan</p>
-            <span class="text-sm font-bold">Tinjau</span>
-        </a>
-    @endif
+    <div class="mb-12 grid gap-x-12 gap-y-10 xl:grid-cols-2">
+        <section aria-labelledby="antrean">
+            <div class="mb-3 flex items-baseline justify-between gap-4">
+                <h2 id="antrean" class="text-xl font-extrabold tracking-tight">Menunggu keputusan</h2>
+                <p class="text-sm text-ink-soft">{{ $pendingProposals + $pendingDisbursements }} item</p>
+            </div>
+            <div class="border-t-2 border-ink">
+                @forelse ($queue as $item)
+                    <a href="{{ $item['url'] }}" wire:navigate class="group flex items-center justify-between gap-4 border-b border-ink/15 py-3.5 hover:bg-board-wash/60">
+                        <div class="min-w-0">
+                            <p class="text-xs font-bold uppercase tracking-wider text-ink-soft">{{ $item['kind'] }} &middot; {{ $item['at']->locale('id')->diffForHumans() }}</p>
+                            <p class="truncate font-bold group-hover:text-paint-dark">{{ $item['title'] }}</p>
+                            <p class="truncate text-sm text-ink-soft">{{ $item['meta'] }}</p>
+                        </div>
+                        <p class="shrink-0 text-right text-sm"><span class="block font-bold">Rp&nbsp;{{ number_format($item['amount'], 0, ',', '.') }}</span><span class="text-ink-soft">{{ $item['amount_label'] }}</span></p>
+                    </a>
+                @empty
+                    <p class="py-6 text-sm text-ink-soft">Tidak ada yang menunggu. Semua sudah diputuskan.</p>
+                @endforelse
+            </div>
+        </section>
 
-    @if ($pendingDisbursements > 0)
-        <a href="{{ route('disbursements.index') }}" wire:navigate class="mb-8 flex items-center justify-between gap-4 border-2 border-ink bg-board px-5 py-4 transition-colors hover:bg-board-deep">
-            <p class="font-bold">{{ $pendingDisbursements }} pengajuan penyaluran menunggu keputusan</p>
-            <span class="text-sm font-bold">Tinjau</span>
-        </a>
-    @endif
+        <section aria-labelledby="program-berjalan">
+            <div class="mb-3 flex items-baseline justify-between gap-4">
+                <h2 id="program-berjalan" class="text-xl font-extrabold tracking-tight">Program berjalan</h2>
+                <a href="{{ route('campaigns.index') }}" wire:navigate class="text-sm font-bold underline underline-offset-4 hover:text-paint-dark">Semua program</a>
+            </div>
+            <div class="border-t-2 border-ink">
+                @forelse ($runningCampaigns as $campaign)
+                    @php
+                        $raised = (int) $campaign->raised_sum;
+                        $percent = $campaign->progressPercent($raised);
+                    @endphp
+                    <div class="border-b border-ink/15 py-3.5">
+                        <div class="flex items-baseline justify-between gap-4">
+                            <p class="truncate font-bold">{{ $campaign->name }}</p>
+                            <p class="shrink-0 text-sm font-bold">{{ $percent }}%</p>
+                        </div>
+                        <div class="thermo-h mt-2 !h-3" style="--level: {{ $percent }}" role="img" aria-label="{{ $percent }} persen dari target"><i></i></div>
+                        <p class="mt-1.5 text-sm text-ink-soft">Rp&nbsp;{{ number_format($raised, 0, ',', '.') }} dari Rp&nbsp;{{ number_format($campaign->target_amount, 0, ',', '.') }}@if ($campaign->picName()) &middot; PIC {{ $campaign->picName() }}@endif</p>
+                    </div>
+                @empty
+                    <p class="py-6 text-sm text-ink-soft">Belum ada program yang berjalan.</p>
+                @endforelse
+            </div>
+        </section>
+    </div>
 
     <section aria-labelledby="terbaru">
         <div class="mb-3 flex items-baseline justify-between gap-4">

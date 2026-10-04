@@ -113,13 +113,11 @@ it('rejects a proposal with a required reason and cannot review it twice', funct
     Livewire::actingAs($admin)->test(CampaignIndex::class)->call('approve', $campaign->id)->assertForbidden();
 });
 
-it('tells admins about proposals waiting for review on the dashboard', function () {
-    Campaign::factory()->create(['status' => CampaignStatus::Pending]);
+it('lists proposals waiting for review in the dashboard queue', function () {
+    Campaign::factory()->create(['status' => CampaignStatus::Pending, 'name' => 'Musala Menunggu', 'proposer_name' => 'Siti']);
 
     $this->actingAs(User::factory()->create(['role' => UserRole::Admin]))
-        ->get(route('dashboard'))->assertSee('pengajuan program baru menunggu tinjauan');
-    $this->actingAs(User::factory()->create(['role' => UserRole::Auditor]))
-        ->get(route('dashboard'))->assertDontSee('pengajuan program baru menunggu tinjauan');
+        ->get(route('dashboard'))->assertSee('Menunggu keputusan')->assertSee('Musala Menunggu')->assertSee('Pengajuan program');
 });
 
 it('gives the proposer a tracking code and a status page that follows the decision', function () {

@@ -1,6 +1,8 @@
 <?php
 
+use App\Enums\CampaignStatus;
 use App\Enums\UserRole;
+use App\Models\Campaign;
 use App\Models\User;
 
 it('does not link to the staff login anywhere on the public site', function () {
@@ -34,4 +36,14 @@ it('shows audit and report links only to auditors', function () {
         ->get(route('dashboard'))
         ->assertSee('Log Aktivitas')
         ->assertSee('Laporan Donasi');
+});
+
+it('lists items waiting for a decision on the dashboard, oldest first', function () {
+    $campaign = Campaign::factory()->create(['status' => CampaignStatus::Pending, 'name' => 'Pengajuan Menunggu', 'proposer_name' => 'Rina']);
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+
+    $this->actingAs($admin)->get(route('dashboard'))
+        ->assertSee('Menunggu keputusan')
+        ->assertSee('Pengajuan Menunggu')
+        ->assertSee('Program berjalan');
 });
