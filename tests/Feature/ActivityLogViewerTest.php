@@ -17,8 +17,7 @@ it('lets an auditor filter the activity log by action', function () {
     Livewire::actingAs($auditor)
         ->test(ActivityLogIndex::class)
         ->set('action', 'campaign.deleted')
-        ->assertSee('Program dihapus')
-        ->assertDontSee('Program dibuat');
+        ->assertViewHas('entries', fn ($entries) => $entries->count() === 1 && $entries->first()->action === 'campaign.deleted');
 });
 
 it('shows human readable before/after values instead of raw json when a row is expanded', function () {
