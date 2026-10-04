@@ -53,6 +53,10 @@
         outline-offset: 2px;
     }
 
+    [data-pointer] :is(button, a, summary, [role='button']):focus-visible {
+        outline: none;
+    }
+
     .on-board :focus-visible,
     .on-ink :focus-visible {
         outline-color: var(--color-ink);
@@ -80,7 +84,7 @@
     }
 
     .btn {
-        @apply inline-flex min-h-11 items-center justify-center gap-2 border-2 border-ink px-5 py-2.5 text-sm font-bold uppercase tracking-wider transition-[background-color,color,transform] duration-150;
+        @apply inline-flex min-h-11 items-center justify-center gap-2 border-2 border-ink px-5 py-2.5 text-[0.95rem] font-bold transition-[background-color,color,transform] duration-150;
     }
 
     .btn:active {
@@ -105,12 +109,10 @@
 
     .btn-lg {
         @apply min-h-14 px-7 py-3.5 text-lg;
-        font-family: var(--font-display);
-        letter-spacing: 0.06em;
     }
 
     .btn-sm {
-        @apply min-h-9 px-3.5 py-1.5 text-xs;
+        @apply min-h-9 px-3.5 py-1.5 text-sm;
     }
 
     .field {
@@ -209,7 +211,7 @@
     }
 
     .stat-label {
-        @apply text-xs font-bold uppercase tracking-wider text-ink-soft;
+        @apply text-sm font-semibold text-ink-soft;
     }
 
     .stat-value {
@@ -372,9 +374,4 @@
         }
     }
 
-    /* Hazard stripe: painted caution border used as a divider on the board */
-    .stripe {
-        height: 0.75rem;
-        background: repeating-linear-gradient(-45deg, var(--color-ink) 0 14px, var(--color-board) 14px 28px);
-    }
 }

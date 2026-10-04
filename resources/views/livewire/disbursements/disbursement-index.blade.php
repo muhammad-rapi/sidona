@@ -85,6 +85,25 @@
                                     <button type="button" wire:click="startReject({{ $disbursement->id }})" class="btn btn-sm btn-line text-paint-dark">Tolak</button>
                                 @endcan
                                 </div>
+                                @cannot('approve', $disbursement)
+                                    @if ($disbursement->status === \App\Enums\DisbursementStatus::Submitted)
+                                        <p class="max-w-[13rem] whitespace-normal text-sm text-ink-soft">
+                                            @if (auth()->user()->isAdmin())
+                                                Anda yang mengajukan. Perlu admin lain untuk memutuskan.
+                                            @else
+                                                Menunggu keputusan admin.
+                                            @endif
+                                        </p>
+                                    @else
+                                        <p class="max-w-[13rem] whitespace-normal text-sm text-ink-soft">
+                                            {{ $disbursement->status === \App\Enums\DisbursementStatus::Approved ? 'Disetujui' : 'Ditolak' }}
+                                            {{ $disbursement->reviewer?->name ? 'oleh '.$disbursement->reviewer->name : '' }}
+                                            @if ($disbursement->reviewed_at)
+                                                <span class="block">{{ $disbursement->reviewed_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}</span>
+                                            @endif
+                                        </p>
+                                    @endif
+                                @endcannot
                             </td>
                         </tr>
                         @if ($rejectingId === $disbursement->id)

@@ -46,7 +46,7 @@
                                         @if ($beforeValue !== $afterValue)
                                             <div class="flex gap-2">
                                                 <dt class="font-semibold w-32 shrink-0">{{ $key }}</dt>
-                                                <dd class="break-all">{{ is_scalar($beforeValue) ? $beforeValue : json_encode($beforeValue) }} &rarr; {{ is_scalar($afterValue) ? $afterValue : json_encode($afterValue) }}</dd>
+                                                <dd class="[overflow-wrap:anywhere]">{{ is_scalar($beforeValue) ? $beforeValue : json_encode($beforeValue) }} &rarr; {{ is_scalar($afterValue) ? $afterValue : json_encode($afterValue) }}</dd>
                                             </div>
                                         @endif
                                     @endforeach

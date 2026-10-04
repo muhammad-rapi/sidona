@@ -23,7 +23,7 @@
             <p class="mt-3 text-lg font-semibold text-ink">{{ $donation->campaign->name }}</p>
             <p class="paint-type mt-6 text-6xl leading-none text-paint sm:text-8xl">Rp&nbsp;{{ number_format($donation->amount, 0, ',', '.') }}</p>
         </div>
-        <div class="stripe"></div>
+        <div class="h-1 bg-ink"></div>
     </section>
 
     <div class="mx-auto max-w-3xl space-y-8 px-5 py-10">

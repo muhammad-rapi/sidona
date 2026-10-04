@@ -6,7 +6,7 @@
 <div>
     <section class="on-board bg-board" aria-labelledby="campaign-title">
         <div class="mx-auto max-w-6xl px-5 pb-10 pt-6 md:pb-14">
-            <a href="{{ route('program.index') }}" wire:navigate class="inline-flex min-h-11 items-center gap-2 text-sm font-bold uppercase tracking-wider text-ink hover:text-paint-dark">
+            <a href="{{ route('program.index') }}" wire:navigate class="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-ink hover:text-paint-dark">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
                 Semua program
             </a>
@@ -14,7 +14,7 @@
             <div class="mt-4 grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-6 sm:gap-x-12">
                 <div class="rise-in min-w-0">
                     <h1 id="campaign-title" class="paint-type text-[2.5rem] leading-[0.95] text-ink sm:text-6xl lg:text-7xl">{{ $campaign->name }}</h1>
-                    <p class="mt-2 text-sm font-bold uppercase tracking-wider text-ink-soft">{{ $campaign->account_holder ?: 'Program SIDONA' }}</p>
+                    <p class="mt-2 text-sm font-semibold text-ink-soft">{{ $campaign->account_holder ?: 'Program SIDONA' }}</p>
 
                     <p class="paint-type mt-8 text-[2.2rem] leading-none text-paint sm:text-7xl">Rp&nbsp;{{ number_format($raised, 0, ',', '.') }}</p>
                     <p class="mt-2 font-semibold text-ink">terkumpul dari target Rp&nbsp;{{ number_format($campaign->target_amount, 0, ',', '.') }}</p>
@@ -24,7 +24,7 @@
                 <x-thermometer :percent="$percent" rise class="[--thermo-h:15rem] sm:[--thermo-h:20rem]" />
             </div>
         </div>
-        <div class="stripe"></div>
+        <div class="h-1 bg-ink"></div>
     </section>
 
     <div class="mx-auto grid max-w-6xl gap-x-14 gap-y-10 px-5 py-10 lg:grid-cols-[1fr_25rem] lg:items-start">

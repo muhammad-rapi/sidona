@@ -85,7 +85,7 @@ class DisbursementIndex extends Component
 
     public function render()
     {
-        $query = Disbursement::query()->with(['campaign', 'submitter'])->latest();
+        $query = Disbursement::query()->with(['campaign', 'submitter', 'reviewer'])->latest();
 
         if ($this->status !== 'all') {
             $query->where('status', $this->status);

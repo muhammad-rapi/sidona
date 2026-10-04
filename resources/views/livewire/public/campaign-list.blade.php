@@ -9,27 +9,35 @@
             $raised = (int) $featured->raised_sum;
             $percent = $featured->progressPercent($raised);
         @endphp
-        <section class="on-board bg-board" aria-labelledby="featured-title">
-            <div class="mx-auto grid max-w-6xl grid-cols-[1fr_auto] items-center gap-x-6 gap-y-8 px-5 py-10 sm:gap-x-12 md:py-16 lg:gap-x-16">
-                <div class="rise-in min-w-0">
-                    <p class="text-sm font-bold uppercase tracking-wider text-ink-soft">{{ $featured->account_holder ?: 'Program SIDONA' }}</p>
-                    <h1 id="featured-title" class="paint-type mt-2 text-[2.6rem] leading-[0.95] text-ink sm:text-6xl lg:text-7xl">{{ $featured->name }}</h1>
+        <section class="on-board border-b-4 border-ink bg-board" aria-labelledby="featured-title">
+            <div class="mx-auto grid max-w-6xl lg:grid-cols-[1.05fr_1fr]">
+                <a href="{{ route('program.show', $featured) }}" wire:navigate class="relative block aspect-[4/3] overflow-hidden bg-ink lg:aspect-auto lg:min-h-[34rem]" aria-label="Lihat program {{ $featured->name }}">
+                    @if ($featured->cover_image)
+                        <img src="{{ Illuminate\Support\Facades\Storage::url($featured->cover_image) }}" alt="" class="absolute inset-0 h-full w-full object-cover">
+                    @else
+                        <div class="paint-type absolute inset-0 flex items-center justify-center text-[10rem] text-board/30">{{ mb_substr($featured->name, 8, 1) }}</div>
+                    @endif
+                </a>
 
-                    <p class="mt-8 text-sm font-bold uppercase tracking-wider text-ink-soft">Terkumpul</p>
-                    <p class="paint-type text-[2.2rem] leading-none text-paint sm:text-7xl lg:text-8xl">Rp&nbsp;{{ number_format($raised, 0, ',', '.') }}</p>
-                    <p class="mt-3 text-base font-semibold text-ink">dari target Rp&nbsp;{{ number_format($featured->target_amount, 0, ',', '.') }}</p>
+                <div class="flex flex-col justify-center px-5 py-10 lg:px-12 lg:py-14">
+                    <p class="text-sm font-semibold text-ink-soft">{{ $featured->account_holder ?: 'Program SIDONA' }}</p>
+                    <h1 id="featured-title" class="paint-type mt-1 text-5xl leading-[0.95] text-ink sm:text-6xl">{{ $featured->name }}</h1>
+                    <p class="mt-4 line-clamp-3 max-w-md text-base leading-relaxed text-ink">{{ $featured->description }}</p>
 
-                    <p class="mt-2 text-sm text-ink-soft">{{ number_format($featured->donor_count, 0, ',', '.') }} donatur &middot; sisa {{ $featured->daysLeft() }} hari</p>
-
-                    <div class="mt-8 flex flex-wrap items-center gap-4">
-                        <a href="{{ route('program.show', $featured) }}" wire:navigate class="btn btn-paint btn-lg">Donasi sekarang</a>
-                        <a href="#semua-program" class="text-sm font-bold uppercase tracking-wider text-ink underline decoration-2 underline-offset-4 hover:text-paint-dark">Lihat program lain</a>
+                    <div class="mt-8">
+                        <p class="paint-type text-[2.6rem] leading-none text-ink sm:text-6xl">Rp&nbsp;{{ number_format($raised, 0, ',', '.') }}</p>
+                        <p class="mt-1 text-sm font-semibold text-ink">terkumpul dari Rp&nbsp;{{ number_format($featured->target_amount, 0, ',', '.') }}</p>
+                        <div class="thermo-h thermo-h-rise mt-4 !h-5" style="--level: {{ $percent }}" role="img" aria-label="Terkumpul {{ $percent }} persen"><i></i></div>
+                        <p class="mt-2 text-sm text-ink-soft">{{ number_format($featured->donor_count, 0, ',', '.') }} donatur &middot; sisa {{ $featured->daysLeft() }} hari</p>
                     </div>
-                </div>
 
-                <x-thermometer :percent="$percent" rise class="[--thermo-h:16rem] sm:[--thermo-h:22rem] lg:[--thermo-h:28rem]" />
+                    <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+                        <a href="{{ route('program.show', $featured) }}" wire:navigate class="btn btn-paint btn-lg">Donasi sekarang</a>
+                        <a href="#semua-program" class="text-sm font-semibold underline decoration-2 underline-offset-4 hover:text-paint-dark">Program lain</a>
+                    </div>
+                    <p class="mt-5 text-sm text-ink-soft">Bayar lewat QRIS, VA, atau e-wallet. Kuitansi langsung terbit.</p>
+                </div>
             </div>
-            <div class="stripe"></div>
         </section>
     @else
         <section class="on-board bg-board">
@@ -37,17 +45,11 @@
                 <h1 class="paint-type text-6xl text-ink sm:text-8xl">Belum ada papan terpasang</h1>
                 <p class="mt-4 max-w-md text-lg text-ink">Program donasi aktif akan tampil di sini begitu dibuka.</p>
             </div>
-            <div class="stripe"></div>
+            <div class="h-1 bg-ink"></div>
         </section>
     @endif
 
     <section id="semua-program" class="mx-auto max-w-6xl px-5 py-14">
-        <ol class="mb-12 grid gap-px border-2 border-ink bg-ink text-ink sm:grid-cols-3" aria-label="Cara berdonasi">
-            <li class="flex items-baseline gap-3 bg-board-wash px-5 py-4"><span class="paint-type text-4xl text-paint">1</span><span class="font-bold">Pilih program dan nominal</span></li>
-            <li class="flex items-baseline gap-3 bg-board-wash px-5 py-4"><span class="paint-type text-4xl text-paint">2</span><span class="font-bold">Bayar lewat QRIS, VA, atau e-wallet</span></li>
-            <li class="flex items-baseline gap-3 bg-board-wash px-5 py-4"><span class="paint-type text-4xl text-paint">3</span><span class="font-bold">Kuitansi langsung terbit, tanpa menunggu</span></li>
-        </ol>
-
         @if ($others->isNotEmpty())
             <h2 class="paint-type text-4xl text-ink sm:text-5xl">Program lain yang sedang berjalan</h2>
 

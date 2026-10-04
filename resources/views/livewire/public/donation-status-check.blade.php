@@ -4,7 +4,7 @@
             <h1 id="check-title" class="paint-type rise-in text-6xl text-ink sm:text-8xl">Cek donasi</h1>
             <p class="mt-4 max-w-md text-lg font-semibold text-ink">Masukkan kode kuitansi untuk membuka lagi kuitansi dan status donasi Anda.</p>
         </div>
-        <div class="stripe"></div>
+        <div class="h-1 bg-ink"></div>
     </section>
 
     <div class="mx-auto max-w-3xl px-5 py-10">

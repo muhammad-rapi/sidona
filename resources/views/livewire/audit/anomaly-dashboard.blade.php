@@ -58,7 +58,7 @@
                                 @elseif ($section['type'] === 'login')
                                     <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Email</dt><dd>{{ $item->email }}</dd></div>
                                     <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Alamat IP</dt><dd class="font-mono">{{ $item->ip_address }}</dd></div>
-                                    <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Perangkat</dt><dd class="break-all text-xs">{{ $item->user_agent ?? '-' }}</dd></div>
+                                    <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Perangkat</dt><dd>{{ $item->deviceLabel() }}</dd></div>
                                 @else
                                     <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Program</dt><dd>{{ $item->campaign->name }}</dd></div>
                                     <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Jumlah</dt><dd class="font-bold">Rp&nbsp;{{ number_format($item->amount, 0, ',', '.') }}</dd></div>

@@ -21,6 +21,7 @@
                 <th>Waktu</th>
                 <th>Email</th>
                 <th>Alamat IP</th>
+                <th>Perangkat</th>
                 <th>Status</th>
             </tr>
         </thead>
@@ -30,10 +31,11 @@
                     <td>{{ $entry->created_at->format('d/m/Y H:i') }}</td>
                     <td>{{ $entry->email }}</td>
                     <td>{{ $entry->ip_address }}</td>
+                    <td>{{ $entry->deviceLabel() }}</td>
                     <td>{{ $entry->status === 'success' ? 'Berhasil' : 'Gagal' }}</td>
                 </tr>
             @empty
-                <tr><td colspan="4">Tidak ada catatan login.</td></tr>
+                <tr><td colspan="5">Tidak ada catatan login.</td></tr>
             @endforelse
         </tbody>
     </table>

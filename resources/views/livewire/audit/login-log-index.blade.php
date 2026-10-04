@@ -26,6 +26,7 @@
                     <th>Waktu</th>
                     <th>Email</th>
                     <th>Alamat IP</th>
+                    <th>Perangkat</th>
                     <th>Status</th>
                 </tr>
             </thead>
@@ -35,13 +36,14 @@
                         <td class="font-mono text-xs">{{ $entry->created_at->format('d/m/Y H:i') }}</td>
                         <td>{{ $entry->email }}</td>
                         <td class="font-mono text-xs">{{ $entry->ip_address }}</td>
+                        <td title="{{ $entry->user_agent }}">{{ $entry->deviceLabel() }}</td>
                         <td>
                             <span class="badge {{ $entry->status === 'success' ? 'badge-paid' : 'badge-fail' }}">{{ $entry->status === 'success' ? 'Berhasil' : 'Gagal' }}</span>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="text-center text-ink-soft py-6">Tidak ada catatan login.</td>
+                        <td colspan="5" class="text-center text-ink-soft py-6">Tidak ada catatan login.</td>
                     </tr>
                 @endforelse
             </tbody>

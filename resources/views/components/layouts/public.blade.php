@@ -14,8 +14,9 @@
                 </span>
                 <span class="paint-type text-3xl leading-none tracking-wide text-board">Sidona</span>
             </a>
-            <div class="flex items-center gap-1 text-sm font-bold uppercase tracking-wider sm:gap-3">
+            <div class="flex items-center gap-1 text-[0.95rem] font-semibold sm:gap-3">
                 <a href="{{ route('program.index') }}" wire:navigate @class(['px-3 py-2 transition-colors hover:text-board', 'text-board' => request()->routeIs('program.*')])>Program</a>
+                <a href="{{ route('program.submit') }}" wire:navigate @class(['px-3 py-2 transition-colors hover:text-board', 'text-board' => request()->routeIs('program.submit')])>Ajukan Program</a>
                 <a href="{{ route('donations.check') }}" wire:navigate @class(['px-3 py-2 transition-colors hover:text-board', 'text-board' => request()->routeIs('donations.check', 'donations.receipt')])>Cek Donasi</a>
             </div>
         </nav>

@@ -24,6 +24,11 @@ class Campaign extends Model
         'starts_on',
         'ends_on',
         'status',
+        'proposer_name',
+        'proposer_contact',
+        'rejection_reason',
+        'reviewed_by',
+        'reviewed_at',
     ];
 
     protected function casts(): array
@@ -32,6 +37,7 @@ class Campaign extends Model
             'starts_on' => 'date',
             'ends_on' => 'date',
             'status' => CampaignStatus::class,
+            'reviewed_at' => 'datetime',
         ];
     }
 
