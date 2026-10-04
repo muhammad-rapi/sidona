@@ -9,6 +9,7 @@
     </div>
 
     <form class="panel p-4 mb-4 flex flex-wrap gap-3 items-end">
+        <input type="search" wire:model.live.debounce.300ms="search" placeholder="Cari nama, kontak, atau kode" aria-label="Cari donasi" class="field field-sm w-full sm:w-64">
         <select wire:model.live="campaign_id" class="field field-sm w-auto">
             <option value="">Semua Program</option>
             @foreach ($campaigns as $campaign)

@@ -25,6 +25,9 @@ class DonationReport extends Component
     public string $status = '';
 
     #[Url]
+    public string $search = '';
+
+    #[Url]
     public string $from = '';
 
     #[Url]
@@ -35,6 +38,10 @@ class DonationReport extends Component
         return Donation::query()->with('campaign')
             ->when($this->campaign_id !== '', fn ($q) => $q->where('campaign_id', $this->campaign_id))
             ->when($this->status !== '', fn ($q) => $q->where('status', $this->status))
+            ->when(trim($this->search) !== '', fn ($q) => $q->where(fn ($q) => $q
+                ->where('donor_name', 'like', '%'.trim($this->search).'%')
+                ->orWhere('donor_contact', 'like', '%'.trim($this->search).'%')
+                ->orWhere('reference_code', 'like', '%'.trim($this->search).'%')))
             ->when($this->from !== '', fn ($q) => $q->whereDate('created_at', '>=', $this->from))
             ->when($this->to !== '', fn ($q) => $q->whereDate('created_at', '<=', $this->to));
     }

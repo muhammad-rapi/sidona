@@ -21,3 +21,10 @@ it('states the real behaviour of the product in the FAQ', function () {
         ->assertSee('Tidak ada admin yang perlu menyetujui donasi')
         ->assertSee('mode simulasi');
 });
+
+it('shows a short FAQ on the homepage that links to the full FAQ', function () {
+    $this->get(route('program.index'))
+        ->assertSee('Sebelum berdonasi')
+        ->assertSee('Kapan donasi saya dianggap berhasil?')
+        ->assertSee('Lihat semua pertanyaan');
+});

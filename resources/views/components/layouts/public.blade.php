@@ -5,7 +5,15 @@
     <title>{{ $title ?? 'SIDONA — Sumbangan yang tercatat' }}</title>
 </head>
 <body class="flex min-h-screen flex-col bg-paper">
-    <header class="on-ink print:hidden sticky top-0 z-30 border-b-4 border-board bg-ink text-white">
+    @php
+        $links = [
+            ['label' => 'Program', 'route' => 'program.index', 'active' => ['program.index', 'program.show']],
+            ['label' => 'Ajukan Program', 'route' => 'program.submit', 'active' => ['program.submit', 'program.proposal']],
+            ['label' => 'FAQ', 'route' => 'faq', 'active' => ['faq', 'terms', 'privacy']],
+            ['label' => 'Cek Donasi', 'route' => 'donations.check', 'active' => ['donations.check', 'donations.receipt']],
+        ];
+    @endphp
+    <header class="on-ink print:hidden sticky top-0 z-30 border-b-4 border-board bg-ink text-white" x-data="{ menu: false }" @keydown.escape.window="menu = false">
         <nav class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-5" aria-label="Navigasi utama">
             <a href="{{ route('program.index') }}" wire:navigate class="flex items-center gap-2.5" aria-label="SIDONA, beranda">
                 <span class="relative block h-8 w-3.5 border-2 border-board bg-ink" aria-hidden="true">
@@ -14,13 +22,24 @@
                 </span>
                 <span class="paint-type text-3xl leading-none tracking-wide text-board">Sidona</span>
             </a>
-            <div class="flex items-center gap-1 text-[0.95rem] font-semibold sm:gap-3">
-                <a href="{{ route('program.index') }}" wire:navigate @class(['px-3 py-2 transition-colors hover:text-board', 'text-board' => request()->routeIs('program.*')])>Program</a>
-                <a href="{{ route('program.submit') }}" wire:navigate @class(['px-3 py-2 transition-colors hover:text-board', 'text-board' => request()->routeIs('program.submit')])>Ajukan Program</a>
-                <a href="{{ route('faq') }}" wire:navigate @class(['px-3 py-2 transition-colors hover:text-board', 'text-board' => request()->routeIs('faq')])>FAQ</a>
-                <a href="{{ route('donations.check') }}" wire:navigate @class(['px-3 py-2 transition-colors hover:text-board', 'text-board' => request()->routeIs('donations.check', 'donations.receipt')])>Cek Donasi</a>
+
+            <div class="hidden items-center gap-3 text-[0.95rem] font-semibold md:flex">
+                @foreach ($links as $link)
+                    <a href="{{ route($link['route']) }}" wire:navigate @class(['whitespace-nowrap px-3 py-2 transition-colors hover:text-board', 'text-board' => request()->routeIs($link['active'])])>{{ $link['label'] }}</a>
+                @endforeach
             </div>
+
+            <button type="button" class="flex h-11 w-11 items-center justify-center md:hidden" @click="menu = !menu" :aria-expanded="menu" aria-controls="menu-publik" aria-label="Menu">
+                <svg x-show="!menu" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="square"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+                <svg x-show="menu" x-cloak class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="square"><path d="M6 6l12 12M18 6 6 18"/></svg>
+            </button>
         </nav>
+
+        <div id="menu-publik" x-show="menu" x-cloak @click="menu = false" class="border-t border-white/15 bg-ink md:hidden">
+            @foreach ($links as $link)
+                <a href="{{ route($link['route']) }}" wire:navigate @class(['block border-b border-white/10 px-5 py-4 text-lg font-semibold', 'text-board' => request()->routeIs($link['active'])])>{{ $link['label'] }}</a>
+            @endforeach
+        </div>
     </header>
 
     <main class="flex-1">

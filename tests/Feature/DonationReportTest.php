@@ -63,3 +63,14 @@ it('opens a donation detail with its audit trail and closes it again', function 
         ->call('toggleDetail', $donation->id)
         ->assertDontSee('detail@example.com');
 });
+
+it('searches the donation report by donor name, contact or reference code', function () {
+    $auditor = User::factory()->create(['role' => UserRole::Auditor]);
+    $budi = Donation::factory()->create(['donor_name' => 'Budi Santoso', 'donor_contact' => 'budi@example.com']);
+    Donation::factory()->create(['donor_name' => 'Siti Aminah', 'donor_contact' => '081111111111']);
+
+    Livewire::actingAs($auditor)->test(DonationReport::class)
+        ->set('search', 'budi')->assertSee('Budi Santoso')->assertDontSee('Siti Aminah')
+        ->set('search', '081111111111')->assertSee('Siti Aminah')->assertDontSee('Budi Santoso')
+        ->set('search', $budi->reference_code)->assertSee('Budi Santoso')->assertDontSee('Siti Aminah');
+});
