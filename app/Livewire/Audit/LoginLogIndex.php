@@ -3,6 +3,7 @@
 namespace App\Livewire\Audit;
 
 use App\Models\LoginLog;
+use App\Services\AnomalyDetector;
 use App\Services\ReportChecksum;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -56,8 +57,15 @@ class LoginLogIndex extends Component
 
     public function render()
     {
+        $dayStart = now('Asia/Jakarta')->startOfDay()->utc();
+
         return view('livewire.audit.login-log-index', [
-            'entries' => $this->filteredQuery()->paginate(15),
+            'entries' => $this->filteredQuery()->with('user')->paginate(15),
+            'flaggedEmails' => app(AnomalyDetector::class)->failedLoginStreaks()->pluck('email')->all(),
+            'today' => [
+                'total' => LoginLog::query()->where('created_at', '>=', $dayStart)->count(),
+                'failed' => LoginLog::query()->where('created_at', '>=', $dayStart)->where('status', 'failed')->count(),
+            ],
         ]);
     }
 }

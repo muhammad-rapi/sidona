@@ -33,3 +33,25 @@ it('summarises the device from the user agent', function () {
     expect($ua('Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0'))->toBe('Firefox di Windows');
     expect(LoginLog::factory()->make(['user_agent' => null])->deviceLabel())->toBe('Tidak diketahui');
 });
+
+it('summarises today and flags accounts with consecutive failed logins', function () {
+    $auditor = User::factory()->create(['role' => UserRole::Auditor]);
+    foreach ([3, 2, 1] as $minutesAgo) {
+        LoginLog::factory()->create(['email' => 'korban@test.com', 'status' => 'failed', 'created_at' => now()->subMinutes($minutesAgo)]);
+    }
+    LoginLog::factory()->create(['email' => 'aman@test.com', 'status' => 'success', 'created_at' => now()]);
+
+    Livewire::actingAs($auditor)->test(LoginLogIndex::class)
+        ->assertSee('Hari ini 4 percobaan masuk, 3 gagal')
+        ->assertSee('1 akun menunjukkan pola gagal berturut-turut')
+        ->assertSee('Pola gagal berturut-turut');
+});
+
+it('shows the account name and role for successful logins', function () {
+    $auditor = User::factory()->create(['role' => UserRole::Auditor]);
+    $staff = User::factory()->create(['role' => UserRole::Bendahara, 'name' => 'Bendahara Contoh', 'email' => 'bend@test.com']);
+    LoginLog::factory()->create(['email' => 'bend@test.com', 'user_id' => $staff->id, 'status' => 'success']);
+
+    Livewire::actingAs($auditor)->test(LoginLogIndex::class)
+        ->assertSee('Bendahara Contoh')->assertSee('Bendahara');
+});
