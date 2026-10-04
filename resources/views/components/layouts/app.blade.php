@@ -56,6 +56,14 @@
                 </a>
             @endforeach
 
+            @if ($user->isSuperAdmin())
+                <p class="nav-heading">Sistem</p>
+                <a href="{{ route('users.index') }}" wire:navigate class="nav-link" @if (request()->routeIs('users.*')) aria-current="page" @endif>
+                    <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" stroke-linejoin="round"><path d="M16 20v-1a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v1M9.5 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM21 20v-1a4 4 0 0 0-3-3.87M16 4.13a3.5 3.5 0 0 1 0 6.74"/></svg>
+                    Pengguna
+                </a>
+            @endif
+
             @if ($user->isAuditor())
                 <p class="nav-heading">Audit</p>
                 @foreach ($audit as $item)

@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Auth;
 
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -21,7 +23,15 @@ class LoginForm extends Component
             'password' => ['required', 'string'],
         ]);
 
-        if (! Auth::attempt($credentials)) {
+        $candidate = User::query()->where('email', $credentials['email'])->first();
+
+        if ($candidate && ! $candidate->is_active && Hash::check($credentials['password'], $candidate->password)) {
+            throw ValidationException::withMessages([
+                'email' => 'Akun ini dinonaktifkan. Hubungi super admin.',
+            ]);
+        }
+
+        if (! Auth::attempt($credentials + ['is_active' => true])) {
             throw ValidationException::withMessages([
                 'email' => 'Email atau kata sandi salah.',
             ]);

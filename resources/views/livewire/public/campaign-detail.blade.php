@@ -4,8 +4,14 @@
 @endphp
 
 <div>
+    @if ($campaign->cover_image)
+        <div class="h-56 overflow-hidden border-b-4 border-ink bg-ink sm:h-80 lg:h-[26rem]">
+            <img src="{{ Illuminate\Support\Facades\Storage::url($campaign->cover_image) }}" alt="{{ $campaign->name }}" class="h-full w-full object-cover">
+        </div>
+    @endif
+
     <section class="on-board bg-board" aria-labelledby="campaign-title">
-        <div class="mx-auto max-w-6xl px-5 pb-10 pt-6 md:pb-14">
+        <div class="mx-auto max-w-6xl px-5 pb-8 pt-4 md:pb-12">
             <a href="{{ route('program.index') }}" wire:navigate class="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-ink hover:text-paint-dark">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
                 Semua program
@@ -106,12 +112,6 @@
         </form>
 
         <div class="min-w-0 space-y-12">
-            @if ($campaign->cover_image)
-                <div class="aspect-[16/9] overflow-hidden border-2 border-ink bg-board">
-                    <img src="{{ Illuminate\Support\Facades\Storage::url($campaign->cover_image) }}" alt="{{ $campaign->name }}" class="h-full w-full object-cover">
-                </div>
-            @endif
-
             <section aria-labelledby="tentang">
                 <h2 id="tentang" class="paint-type text-4xl text-ink">Tentang program ini</h2>
                 <p class="mt-4 max-w-prose whitespace-pre-line text-lg leading-relaxed text-ink">{{ $campaign->description }}</p>

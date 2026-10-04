@@ -23,6 +23,7 @@ use App\Livewire\Reports\BalanceSummary;
 use App\Livewire\Reports\DisbursementReport;
 use App\Livewire\Reports\DonationReport;
 use App\Livewire\Reports\VerifyReport;
+use App\Livewire\Users\UserIndex;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -49,10 +50,11 @@ Route::post('/logout', function () {
     return redirect()->route('program.index')->with('status', 'Anda sudah keluar.');
 })->middleware('auth')->name('logout');
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
     Route::get('/profil', ProfilePage::class)->name('profile');
+    Route::get('/pengguna', UserIndex::class)->middleware('role:super_admin')->name('users.index');
 
     Route::get('/campaigns', CampaignIndex::class)->name('campaigns.index');
     Route::get('/campaigns/create', CampaignForm::class)
