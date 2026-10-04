@@ -116,7 +116,12 @@
 
             <div>
                 <label class="label">Nama Bank / E-Wallet</label>
-                <input type="text" wire:model="bank_name" placeholder="mis. BCA, Mandiri, GoPay" class="field">
+                <select wire:model="bank_name" class="field @error('bank_name') field-error @enderror">
+                    <option value="">Pilih bank</option>
+                    @foreach (App\Support\Banks::with($campaign?->bank_name) as $bank)
+                        <option value="{{ $bank }}">{{ $bank }}</option>
+                    @endforeach
+                </select>
                 @error('bank_name') <p class="error-text">{{ $message }}</p> @enderror
             </div>
 

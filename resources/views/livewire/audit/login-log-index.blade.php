@@ -4,7 +4,7 @@
             <h1 class="page-title">Log Login</h1>
         </div>
         <div>
-            <button type="button" wire:click="exportPdf" class="btn btn-paint">Unduh PDF</button>
+            <button type="button" wire:click="exportPdf" class="btn btn-paint"><x-icon name="download" />Unduh PDF</button>
         </div>
     </div>
 

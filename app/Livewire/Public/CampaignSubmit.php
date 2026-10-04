@@ -5,7 +5,9 @@ namespace App\Livewire\Public;
 use App\Enums\CampaignStatus;
 use App\Models\Campaign;
 use App\Services\AuditLogger;
+use App\Support\Banks;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -57,7 +59,7 @@ class CampaignSubmit extends Component
                     $fail('Isi email yang valid atau nomor WhatsApp, contoh 08123456789.');
                 }
             }],
-            'bank_name' => ['required', 'string', 'max:100'],
+            'bank_name' => ['required', Rule::in(Banks::all())],
             'account_number' => ['required', 'string', 'regex:/^[0-9][0-9\\s-]{4,29}$/'],
             'account_holder' => ['required', 'string', 'max:255'],
             'cover_image_upload' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
@@ -71,6 +73,8 @@ class CampaignSubmit extends Component
             'description.min' => 'Ceritakan program minimal 50 karakter agar tim bisa menilainya.',
             'target_amount.min' => 'Target dana minimal Rp 100.000.',
             'proposer_name.regex' => 'Nama hanya boleh berisi huruf, spasi, titik, atau tanda hubung.',
+            'bank_name.required' => 'Pilih bank penerima.',
+            'bank_name.in' => 'Pilih bank dari daftar.',
             'account_number.regex' => 'Nomor rekening hanya boleh berisi angka (5 sampai 30 digit).',
         ];
     }

@@ -5,6 +5,7 @@ namespace App\Livewire\Disbursements;
 use App\Enums\CampaignStatus;
 use App\Enums\DisbursementStatus;
 use App\Livewire\Concerns\HasRejectionWorkflow;
+use App\Models\ActivityLog;
 use App\Models\Campaign;
 use App\Models\Disbursement;
 use App\Services\AuditLogger;
@@ -24,6 +25,13 @@ class DisbursementIndex extends Component
 
     #[Url]
     public string $status = 'submitted';
+
+    public ?int $detailId = null;
+
+    public function toggleDetail(int $disbursementId): void
+    {
+        $this->detailId = $this->detailId === $disbursementId ? null : $disbursementId;
+    }
 
     public function approve(int $disbursementId, AuditLogger $logger): void
     {
@@ -99,6 +107,11 @@ class DisbursementIndex extends Component
 
         return view('livewire.disbursements.disbursement-index', [
             'eligibleCampaigns' => $eligibleCampaigns,
+            'trail' => $this->detailId
+                ? ActivityLog::query()->with('user')
+                    ->where('subject_type', Disbursement::class)->where('subject_id', $this->detailId)
+                    ->orderBy('id')->get()
+                : collect(),
             'disbursements' => $query->paginate(15),
         ]);
     }

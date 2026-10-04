@@ -50,6 +50,7 @@ it('validates the proposal fields', function (string $field, mixed $value) {
     'bad name' => ['proposer_name', 'Siti123'],
     'account letters' => ['account_number', 'abcde'],
     'no bank' => ['bank_name', ''],
+    'bank not in list' => ['bank_name', 'Bank Abal-Abal'],
 ]);
 
 it('silently drops honeypot submissions and rate limits repeated ones', function () {

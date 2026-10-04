@@ -73,7 +73,12 @@
                     <div class="grid gap-5 sm:grid-cols-2">
                         <div>
                             <label for="bank_name" class="label">Nama bank</label>
-                            <input id="bank_name" type="text" wire:model="bank_name" class="field @error('bank_name') field-error @enderror">
+                            <select id="bank_name" wire:model="bank_name" class="field @error('bank_name') field-error @enderror">
+                                <option value="">Pilih bank</option>
+                                @foreach (App\Support\Banks::all() as $bank)
+                                    <option value="{{ $bank }}">{{ $bank }}</option>
+                                @endforeach
+                            </select>
                             @error('bank_name') <p class="error-text" role="alert">{{ $message }}</p> @enderror
                         </div>
                         <div>

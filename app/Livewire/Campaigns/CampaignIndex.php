@@ -4,6 +4,7 @@ namespace App\Livewire\Campaigns;
 
 use App\Enums\CampaignStatus;
 use App\Livewire\Concerns\HasRejectionWorkflow;
+use App\Models\ActivityLog;
 use App\Models\Campaign;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\Gate;
@@ -26,6 +27,13 @@ class CampaignIndex extends Component
         $logger->log('campaign.deleted', auth()->user(), $campaign, $before, []);
 
         session()->flash('status', 'Program donasi dihapus.');
+    }
+
+    public ?int $detailId = null;
+
+    public function toggleDetail(int $campaignId): void
+    {
+        $this->detailId = $this->detailId === $campaignId ? null : $campaignId;
     }
 
     public function approve(int $campaignId, AuditLogger $logger): void
@@ -74,7 +82,14 @@ class CampaignIndex extends Component
 
     public function render()
     {
+        $trail = $this->detailId
+            ? ActivityLog::query()->with('user')
+                ->where('subject_type', Campaign::class)->where('subject_id', $this->detailId)
+                ->orderBy('id')->get()
+            : collect();
+
         return view('livewire.campaigns.campaign-index', [
+            'trail' => $trail,
             'campaigns' => Campaign::query()
                 ->orderByRaw("case when status = 'pending' then 0 else 1 end")
                 ->latest()

@@ -40,7 +40,7 @@
                     <th>Metode</th>
                     <th>Waktu</th>
                     <th>Status</th>
-                    <th><span class="sr-only">Aksi</span></th>
+                    <th class="sticky-col"><span class="sr-only">Aksi</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -63,8 +63,8 @@
                         <td>{{ $donation->payment_method?->label() ?? '-' }}</td>
                         <td class="whitespace-nowrap text-ink-soft">{{ ($donation->paid_at ?? $donation->created_at)->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}</td>
                         <td><span class="badge {{ $badge }}">{{ $donation->status->label() }}</span></td>
-                        <td class="text-right">
-                            <button type="button" wire:click="toggleDetail({{ $donation->id }})" aria-expanded="{{ $detailId === $donation->id ? 'true' : 'false' }}" class="btn btn-line btn-sm">{{ $detailId === $donation->id ? 'Tutup' : 'Detail' }}</button>
+                        <td class="sticky-col text-right">
+                            <x-action :icon="$detailId === $donation->id ? 'close' : 'detail'" :label="$detailId === $donation->id ? 'Tutup detail' : 'Lihat detail'" wire:click="toggleDetail({{ $donation->id }})" aria-expanded="{{ $detailId === $donation->id ? 'true' : 'false' }}" />
                         </td>
                     </tr>
                     @if ($detailId === $donation->id)

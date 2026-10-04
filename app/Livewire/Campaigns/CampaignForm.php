@@ -5,6 +5,7 @@ namespace App\Livewire\Campaigns;
 use App\Enums\CampaignStatus;
 use App\Models\Campaign;
 use App\Services\AuditLogger;
+use App\Support\Banks;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -73,7 +74,7 @@ class CampaignForm extends Component
             'cover_image_upload' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'gallery_uploads' => ['array', 'max:'.self::MAX_PHOTOS],
             'gallery_uploads.*' => ['image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'bank_name' => ['required', 'string', 'max:255'],
+            'bank_name' => ['required', Rule::in(Banks::with($this->campaign?->bank_name))],
             'account_number' => ['required', 'string', 'regex:/^[0-9][0-9\\s-]{4,29}$/'],
             'account_holder' => ['required', 'string', 'max:255'],
             'starts_on' => ['required', 'date'],

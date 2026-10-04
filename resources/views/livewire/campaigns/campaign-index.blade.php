@@ -5,7 +5,7 @@
         </div>
         <div>
             @can('create', App\Models\Campaign::class)
-                <a href="{{ route('campaigns.create') }}" wire:navigate class="btn btn-paint">Tambah Program</a>
+                <a href="{{ route('campaigns.create') }}" wire:navigate class="btn btn-paint"><x-icon name="plus" />Tambah Program</a>
             @endcan
         </div>
     </div>
@@ -28,10 +28,9 @@
                     <tr>
                         <th>Nama</th>
                         <th class="num">Target</th>
-                        <th>Rekening Tujuan</th>
                         <th>Periode</th>
                         <th>Status</th>
-                        <th>Aksi</th>
+                        <th class="sticky-col">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -55,41 +54,83 @@
                                 @endif
                             </td>
                             <td class="num whitespace-nowrap">Rp&nbsp;{{ number_format($campaign->target_amount, 0, ',', '.') }}</td>
-                            <td class="whitespace-nowrap">
-                                @if ($campaign->bank_name && $campaign->account_number)
-                                    <span class="text-ink-soft">{{ $campaign->bank_name }}</span>
-                                    <span class="font-mono">{{ $campaign->account_number }}</span>
-                                @else
-                                    <span class="text-xs font-bold text-paint-dark">Belum diisi</span>
-                                @endif
-                            </td>
                             <td class="whitespace-nowrap text-ink-soft">{{ $campaign->starts_on->format('d/m/Y') }} &ndash; {{ $campaign->ends_on->format('d/m/Y') }}</td>
                             <td class="whitespace-nowrap">
                                 <span class="badge {{ $statusBadge }}">{{ $campaign->status->label() }}</span>
                             </td>
-                            <td class="whitespace-nowrap">
-                                <div class="flex flex-wrap gap-2">
+                            <td class="sticky-col whitespace-nowrap">
+                                <div class="flex flex-nowrap items-center gap-1.5">
+                                    <x-action :icon="$detailId === $campaign->id ? 'close' : 'detail'" :label="$detailId === $campaign->id ? 'Tutup detail' : 'Lihat detail'" wire:click="toggleDetail({{ $campaign->id }})" aria-expanded="{{ $detailId === $campaign->id ? 'true' : 'false' }}" />
+                                    @if ($campaign->status === \App\Enums\CampaignStatus::Active)
+                                        <x-action icon="view" label="Buka halaman publik" :href="route('program.show', $campaign)" target="_blank" rel="noopener" />
+                                    @else
+                                        @cannot('update', $campaign)
+                                            
+                                        @endcannot
+                                    @endif
                                     @can('review', $campaign)
-                                        <button type="button" wire:click="approve({{ $campaign->id }})" wire:confirm="Setujui dan tayangkan program ini?" class="btn btn-sm btn-ink">Setujui</button>
-                                        <button type="button" wire:click="startReject({{ $campaign->id }})" class="btn btn-sm btn-line text-paint-dark">Tolak</button>
+                                        <x-action icon="approve" variant="ink" label="Setujui dan tayangkan" wire:click="approve({{ $campaign->id }})" wire:confirm="Setujui dan tayangkan program ini?" />
+                                        <x-action icon="reject" variant="danger" label="Tolak pengajuan" wire:click="startReject({{ $campaign->id }})" />
                                     @endcan
                                     @can('update', $campaign)
-                                        <a href="{{ route('campaigns.edit', $campaign) }}" wire:navigate class="btn btn-sm btn-line">Ubah</a>
+                                        <x-action icon="edit" label="Ubah program" :href="route('campaigns.edit', $campaign)" wire:navigate />
                                     @endcan
                                     @if ($campaign->status === \App\Enums\CampaignStatus::Active)
                                     @can('create', App\Models\Disbursement::class)
-                                        <a href="{{ route('disbursements.create', $campaign) }}" wire:navigate class="btn btn-sm btn-ink">Ajukan Penyaluran</a>
+                                        <x-action icon="send" variant="ink" label="Ajukan penyaluran dana" :href="route('disbursements.create', $campaign)" wire:navigate />
                                     @endcan
                                     @endif
                                     @can('delete', $campaign)
-                                        <button type="button" @click="confirmId = {{ $campaign->id }}; confirmName = '{{ addslashes($campaign->name) }}'" class="btn btn-sm btn-line text-paint-dark">Hapus</button>
+                                        <x-action icon="trash" variant="danger" label="Hapus program" @click="confirmId = {{ $campaign->id }}; confirmName = '{{ addslashes($campaign->name) }}'" />
                                     @endcan
                                 </div>
                             </td>
                         </tr>
+                        @if ($detailId === $campaign->id)
+                            @php
+                                $raised = $campaign->verifiedDonationsTotal();
+                                $donorCount = $campaign->donations()->where('status', \App\Enums\DonationStatus::Verified)->count();
+                            @endphp
+                            <tr>
+                                <td colspan="5" class="!bg-desk !p-0">
+                                    <div class="grid gap-x-10 gap-y-6 px-5 py-5 md:grid-cols-2">
+                                        <dl class="space-y-2 text-sm">
+                                            <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Deskripsi</dt><dd class="whitespace-pre-line">{{ $campaign->description ?: '-' }}</dd></div>
+                                            <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Rekening tujuan</dt><dd>@if ($campaign->bank_name){{ $campaign->bank_name }} <span class="font-mono">{{ $campaign->account_number }}</span> a.n. {{ $campaign->account_holder }}@else<span class="font-bold text-paint-dark">Belum diisi</span>@endif</dd></div>
+                                            <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Target</dt><dd>Rp&nbsp;{{ number_format($campaign->target_amount, 0, ',', '.') }}</dd></div>
+                                            <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Terkumpul</dt><dd>Rp&nbsp;{{ number_format($raised, 0, ',', '.') }} ({{ $campaign->progressPercent($raised) }}%) dari {{ $donorCount }} donasi</dd></div>
+                                            <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Sudah disalurkan</dt><dd>Rp&nbsp;{{ number_format($campaign->approvedDisbursementsTotal(), 0, ',', '.') }}</dd></div>
+                                            <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Saldo tersedia</dt><dd class="font-bold">Rp&nbsp;{{ number_format($campaign->availableBalance(), 0, ',', '.') }}</dd></div>
+                                            <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Foto</dt><dd>{{ $campaign->cover_image ? 'Ada sampul' : 'Tanpa sampul' }}, {{ $campaign->photos()->count() }} foto galeri</dd></div>
+                                            @if ($campaign->proposer_name)
+                                                <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Pengaju</dt><dd>{{ $campaign->proposer_name }}, {{ $campaign->proposer_contact }}</dd></div>
+                                            @endif
+                                            @if ($campaign->reviewed_at)
+                                                <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Ditinjau</dt><dd>{{ $campaign->reviewed_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</dd></div>
+                                            @endif
+                                            @if ($campaign->rejection_reason)
+                                                <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Alasan ditolak</dt><dd class="text-paint-dark">{{ $campaign->rejection_reason }}</dd></div>
+                                            @endif
+                                        </dl>
+
+                                        <div>
+                                            <p class="mb-2 text-sm font-bold text-ink-soft">Jejak audit program ini</p>
+                                            @forelse ($trail as $entry)
+                                                <div class="flex items-baseline justify-between gap-4 border-b border-rule py-1.5 text-sm">
+                                                    <span><span class="font-mono text-xs">{{ $entry->action }}</span> oleh {{ $entry->user?->name ?? 'Tamu' }}</span>
+                                                    <span class="shrink-0 text-ink-soft">{{ $entry->created_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}</span>
+                                                </div>
+                                            @empty
+                                                <p class="text-sm text-ink-soft">Belum ada catatan audit.</p>
+                                            @endforelse
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endif
                         @if ($rejectingId === $campaign->id)
                             <tr>
-                                <td colspan="6" class="bg-board-wash">
+                                <td colspan="5" class="bg-board-wash">
                                     <form wire:submit="confirmReject" class="flex flex-wrap items-start gap-2">
                                         <div class="min-w-[16rem] flex-1">
                                             <input type="text" wire:model="rejectionReason" class="field @error('rejectionReason') field-error @enderror" placeholder="Alasan penolakan" aria-label="Alasan penolakan">
@@ -103,7 +144,7 @@
                         @endif
                     @empty
                         <tr>
-                            <td colspan="6" class="py-6 text-center text-ink-soft">Belum ada program donasi.</td>
+                            <td colspan="5" class="py-6 text-center text-ink-soft">Belum ada program donasi.</td>
                         </tr>
                     @endforelse
                 </tbody>

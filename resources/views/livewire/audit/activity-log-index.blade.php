@@ -4,7 +4,7 @@
             <h1 class="page-title">Log Aktivitas</h1>
         </div>
         <div>
-            <button type="button" wire:click="exportPdf" class="btn btn-paint">Unduh PDF</button>
+            <button type="button" wire:click="exportPdf" class="btn btn-paint"><x-icon name="download" />Unduh PDF</button>
         </div>
     </div>
 
@@ -22,7 +22,7 @@
                     <th>Pengguna</th>
                     <th>Aksi</th>
                     <th>Objek</th>
-                    <th></th>
+                    <th class="sticky-col"><span class="sr-only">Aksi</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -32,8 +32,8 @@
                         <td>{{ $entry->user?->name ?? ($entry->action === 'donation.paid' ? 'Sistem (otomatis)' : 'Tamu') }}</td>
                         <td class="font-mono text-xs">{{ $entry->action }}</td>
                         <td>{{ $entry->subject_type ? class_basename($entry->subject_type).' #'.$entry->subject_id : '-' }}</td>
-                        <td>
-                            <button type="button" wire:click="toggle({{ $entry->id }})" class="btn btn-line btn-sm">Detail</button>
+                        <td class="sticky-col">
+                            <x-action icon="detail" label="Lihat perubahan data" wire:click="toggle({{ $entry->id }})" />
                         </td>
                     </tr>
                     @if ($expandedId === $entry->id)

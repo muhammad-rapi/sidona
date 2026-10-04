@@ -38,7 +38,7 @@
                         @if ($review)
                             <span class="badge badge-paid">Diperiksa {{ $review->reviewer->name }}, {{ $review->reviewed_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}</span>
                         @endif
-                        <button type="button" wire:click="toggleDetail('{{ $section['type'] }}', {{ $item->id }})" aria-expanded="{{ $detailKey === $section['type'].':'.$item->id ? 'true' : 'false' }}" class="btn btn-line btn-sm">{{ $detailKey === $section['type'].':'.$item->id ? 'Tutup' : 'Detail' }}</button>
+                        <x-action :icon="$detailKey === $section['type'].':'.$item->id ? 'close' : 'detail'" :label="$detailKey === $section['type'].':'.$item->id ? 'Tutup detail' : 'Lihat detail'" wire:click="toggleDetail('{{ $section['type'] }}', {{ $item->id }})" aria-expanded="{{ $detailKey === $section['type'].':'.$item->id ? 'true' : 'false' }}" />
                     </div>
                 </div>
 

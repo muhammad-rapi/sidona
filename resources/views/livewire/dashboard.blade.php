@@ -5,7 +5,7 @@
             <p class="page-sub">Posisi dana hari ini. Donasi masuk otomatis; yang perlu keputusan manusia hanya penyaluran.</p>
         </div>
         @if (auth()->user()->isBendahara() || auth()->user()->isAdmin())
-            <a href="{{ route('campaigns.create') }}" wire:navigate class="btn btn-paint">Program baru</a>
+            <a href="{{ route('campaigns.create') }}" wire:navigate class="btn btn-paint"><x-icon name="plus" />Program baru</a>
         @endif
     </div>
 

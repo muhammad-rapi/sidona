@@ -10,6 +10,7 @@ use App\Models\Campaign;
 use App\Models\Disbursement;
 use App\Models\Donation;
 use App\Models\User;
+use App\Services\AuditLogger;
 use Livewire\Livewire;
 
 it('lets a bendahara submit a disbursement within the available balance', function () {
@@ -86,4 +87,25 @@ it('offers the submit action on the disbursement page only to bendahara with eli
 
     Livewire::actingAs($admin)->test(DisbursementIndex::class)
         ->assertDontSee('Ajukan penyaluran');
+});
+
+it('opens a disbursement detail with balance context and the audit trail', function () {
+    $campaign = Campaign::factory()->create(['name' => 'Program Detail']);
+    Donation::factory()->for($campaign)->create(['amount' => 900000, 'status' => DonationStatus::Verified]);
+    $bendahara = User::factory()->create(['role' => UserRole::Bendahara]);
+    $disbursement = Disbursement::factory()->for($campaign)->create([
+        'amount' => 200000,
+        'description' => 'Beli terpal dan selimut',
+        'submitted_by' => $bendahara->id,
+    ]);
+    app(AuditLogger::class)->log('disbursement.submitted', $bendahara, $disbursement, [], []);
+
+    Livewire::actingAs($bendahara)->test(DisbursementIndex::class)
+        ->assertDontSee('Saldo tersedia')
+        ->call('toggleDetail', $disbursement->id)
+        ->assertSee('Saldo tersedia')
+        ->assertSee('Beli terpal dan selimut')
+        ->assertSee('disbursement.submitted')
+        ->call('toggleDetail', $disbursement->id)
+        ->assertDontSee('Saldo tersedia');
 });

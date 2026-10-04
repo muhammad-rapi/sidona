@@ -6,6 +6,7 @@ use App\Livewire\Campaigns\CampaignIndex;
 use App\Models\ActivityLog;
 use App\Models\Campaign;
 use App\Models\User;
+use App\Services\AuditLogger;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -147,4 +148,27 @@ it('rejects non-image gallery files and more than twelve photos', function () {
         ->set('gallery_uploads', array_map(fn ($i) => UploadedFile::fake()->image("p{$i}.jpg"), range(1, 13)))
         ->call('save')
         ->assertHasErrors('gallery_uploads');
+});
+
+it('gives every role a view link for active programs so the action column is never empty', function () {
+    $auditor = User::factory()->create(['role' => UserRole::Auditor]);
+    $campaign = Campaign::factory()->create(['name' => 'Program Terlihat']);
+
+    Livewire::actingAs($auditor)->test(CampaignIndex::class)
+        ->assertSee(route('program.show', $campaign));
+});
+
+it('opens a program detail with its money position and audit trail', function () {
+    $auditor = User::factory()->create(['role' => UserRole::Auditor]);
+    $campaign = Campaign::factory()->create(['name' => 'Program Rincian', 'bank_name' => 'BCA', 'account_number' => '1234567890']);
+    app(AuditLogger::class)->log('campaign.created', null, $campaign, [], []);
+
+    Livewire::actingAs($auditor)->test(CampaignIndex::class)
+        ->assertDontSee('Saldo tersedia')
+        ->call('toggleDetail', $campaign->id)
+        ->assertSee('Saldo tersedia')
+        ->assertSee('1234567890')
+        ->assertSee('campaign.created')
+        ->call('toggleDetail', $campaign->id)
+        ->assertDontSee('Saldo tersedia');
 });

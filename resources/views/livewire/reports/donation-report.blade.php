@@ -4,7 +4,7 @@
             <h1 class="page-title">Laporan Donasi</h1>
         </div>
         <div>
-            <button type="button" wire:click="exportPdf" class="btn btn-paint">Unduh PDF</button>
+            <button type="button" wire:click="exportPdf" class="btn btn-paint"><x-icon name="download" />Unduh PDF</button>
         </div>
     </div>
 
@@ -34,7 +34,7 @@
                     <th>Donatur</th>
                     <th class="num">Nominal</th>
                     <th>Status</th>
-                    <th><span class="sr-only">Aksi</span></th>
+                    <th class="sticky-col"><span class="sr-only">Aksi</span></th>
                 </tr>
             </thead>
             <tbody>
@@ -45,8 +45,8 @@
                         <td>{{ $donation->donor_name }}</td>
                         <td class="num">Rp&nbsp;{{ number_format($donation->amount, 0, ',', '.') }}</td>
                         <td><span class="badge badge-ink">{{ $donation->status->label() }}</span></td>
-                        <td class="text-right">
-                            <button type="button" wire:click="toggleDetail({{ $donation->id }})" aria-expanded="{{ $detailId === $donation->id ? 'true' : 'false' }}" class="btn btn-line btn-sm">{{ $detailId === $donation->id ? 'Tutup' : 'Detail' }}</button>
+                        <td class="sticky-col text-right">
+                            <x-action :icon="$detailId === $donation->id ? 'close' : 'detail'" :label="$detailId === $donation->id ? 'Tutup detail' : 'Lihat detail'" wire:click="toggleDetail({{ $donation->id }})" aria-expanded="{{ $detailId === $donation->id ? 'true' : 'false' }}" />
                         </td>
                     </tr>
                     @if ($detailId === $donation->id)
