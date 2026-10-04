@@ -46,6 +46,9 @@
                         <tr>
                             <td class="font-bold">
                                 {{ $campaign->name }}
+                                @if ($campaign->picName())
+                                    <p class="text-xs font-normal text-ink-soft">PIC: {{ $campaign->picName() }}</p>
+                                @endif
                                 @if ($campaign->proposer_name)
                                     <p class="text-xs font-normal text-ink-soft">Diajukan {{ $campaign->proposer_name }} ({{ $campaign->proposer_contact }})</p>
                                 @endif
@@ -96,6 +99,7 @@
                                     <div class="grid gap-x-10 gap-y-6 px-5 py-5 md:grid-cols-2">
                                         <dl class="space-y-2 text-sm">
                                             <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Deskripsi</dt><dd class="whitespace-pre-line">{{ $campaign->description ?: '-' }}</dd></div>
+                                            <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Penanggung jawab</dt><dd>{{ $campaign->picName() ?: '-' }}@if ($campaign->pic) <span class="text-ink-soft">({{ $campaign->pic->email }})</span>@elseif ($campaign->proposer_contact) <span class="text-ink-soft">({{ $campaign->proposer_contact }})</span>@endif</dd></div>
                                             <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Rekening tujuan</dt><dd>@if ($campaign->bank_name){{ $campaign->bank_name }} <span class="font-mono">{{ $campaign->account_number }}</span> a.n. {{ $campaign->account_holder }}@else<span class="font-bold text-paint-dark">Belum diisi</span>@endif</dd></div>
                                             <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Target</dt><dd>Rp&nbsp;{{ number_format($campaign->target_amount, 0, ',', '.') }}</dd></div>
                                             <div class="flex gap-4"><dt class="w-36 shrink-0 font-bold text-ink-soft">Terkumpul</dt><dd>Rp&nbsp;{{ number_format($raised, 0, ',', '.') }} ({{ $campaign->progressPercent($raised) }}%) dari {{ $donorCount }} donasi</dd></div>

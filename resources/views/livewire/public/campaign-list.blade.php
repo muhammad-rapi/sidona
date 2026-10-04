@@ -21,7 +21,7 @@
                 </a>
 
                 <div class="flex flex-col justify-center px-5 py-10 lg:px-12 lg:py-14">
-                    <p class="text-sm font-semibold text-ink-soft">{{ $featured->account_holder ?: 'Program SIDONA' }}</p>
+                    <p class="text-sm font-semibold text-ink-soft">Penanggung jawab: {{ $featured->picName() ?: 'SIDONA' }}</p>
                     <h1 id="featured-title" class="paint-type mt-1 text-5xl leading-[0.95] text-ink sm:text-6xl">{{ $featured->name }}</h1>
                     <p class="mt-4 line-clamp-3 max-w-md text-base leading-relaxed text-ink">{{ $featured->description }}</p>
 

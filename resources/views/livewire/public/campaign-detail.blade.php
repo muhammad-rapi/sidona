@@ -20,7 +20,7 @@
             <div class="mt-4 grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-6 sm:gap-x-12">
                 <div class="rise-in min-w-0">
                     <h1 id="campaign-title" class="paint-type text-[2.5rem] leading-[0.95] text-ink sm:text-6xl lg:text-7xl">{{ $campaign->name }}</h1>
-                    <p class="mt-2 text-sm font-semibold text-ink-soft">{{ $campaign->account_holder ?: 'Program SIDONA' }}</p>
+                    <p class="mt-2 text-sm font-semibold text-ink-soft">Penanggung jawab: {{ $campaign->picName() ?: 'SIDONA' }}</p>
 
                     <p class="paint-type mt-8 text-[2.2rem] leading-none text-paint sm:text-7xl">Rp&nbsp;{{ number_format($raised, 0, ',', '.') }}</p>
                     <p class="mt-2 font-semibold text-ink">terkumpul dari target Rp&nbsp;{{ number_format($campaign->target_amount, 0, ',', '.') }}</p>

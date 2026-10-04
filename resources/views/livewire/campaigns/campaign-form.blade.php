@@ -84,6 +84,18 @@
         </div>
 
         <div>
+            <label for="pic" class="label">Penanggung jawab (PIC)</label>
+            <select id="pic" wire:model="pic_user_id" class="field @error('pic_user_id') field-error @enderror">
+                <option value="">Pilih penanggung jawab</option>
+                @foreach ($picOptions as $option)
+                    <option value="{{ $option->id }}">{{ $option->name }} ({{ $option->role->label() }})</option>
+                @endforeach
+            </select>
+            <p class="hint">Nama ini tampil di halaman program publik. Kontaknya tidak ditampilkan.@if ($campaign?->proposer_name) Dikosongkan, PIC-nya tetap pengaju: {{ $campaign->proposer_name }}.@endif</p>
+            @error('pic_user_id') <p class="error-text">{{ $message }}</p> @enderror
+        </div>
+
+        <div>
             <label class="label">Target Dana</label>
             <div
                 x-data="{

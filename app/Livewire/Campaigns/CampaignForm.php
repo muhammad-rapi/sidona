@@ -4,6 +4,7 @@ namespace App\Livewire\Campaigns;
 
 use App\Enums\CampaignStatus;
 use App\Models\Campaign;
+use App\Models\User;
 use App\Services\AuditLogger;
 use App\Support\Banks;
 use Illuminate\Support\Carbon;
@@ -37,6 +38,8 @@ class CampaignForm extends Component
 
     public int $target_amount = 0;
 
+    public ?int $pic_user_id = null;
+
     public string $bank_name = '';
 
     public string $account_number = '';
@@ -52,8 +55,10 @@ class CampaignForm extends Component
         Gate::authorize($campaign ? 'update' : 'create', $campaign ?? Campaign::class);
 
         $this->campaign = $campaign;
+        $this->pic_user_id = auth()->id();
 
         if ($campaign) {
+            $this->pic_user_id = $campaign->pic_user_id ?? ($campaign->proposer_name ? null : auth()->id());
             $this->name = $campaign->name;
             $this->description = (string) $campaign->description;
             $this->target_amount = $campaign->target_amount;
@@ -74,6 +79,7 @@ class CampaignForm extends Component
             'cover_image_upload' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
             'gallery_uploads' => ['array', 'max:'.self::MAX_PHOTOS],
             'gallery_uploads.*' => ['image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'pic_user_id' => [$this->campaign?->proposer_name ? 'nullable' : 'required', Rule::exists('users', 'id')->where('is_active', true)],
             'bank_name' => ['required', Rule::in(Banks::with($this->campaign?->bank_name))],
             'account_number' => ['required', 'string', 'regex:/^[0-9][0-9\\s-]{4,29}$/'],
             'account_holder' => ['required', 'string', 'max:255'],
@@ -167,6 +173,7 @@ class CampaignForm extends Component
     public function render()
     {
         return view('livewire.campaigns.campaign-form', [
+            'picOptions' => User::query()->where('is_active', true)->orderBy('name')->get(['id', 'name', 'role']),
             'photos' => $this->campaign?->photos()->get() ?? collect(),
         ]);
     }

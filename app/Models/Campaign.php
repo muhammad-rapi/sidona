@@ -7,6 +7,7 @@ use App\Enums\DisbursementStatus;
 use App\Enums\DonationStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Campaign extends Model
@@ -24,6 +25,7 @@ class Campaign extends Model
         'starts_on',
         'ends_on',
         'status',
+        'pic_user_id',
         'proposal_code',
         'proposer_name',
         'proposer_contact',
@@ -45,6 +47,19 @@ class Campaign extends Model
     public function donations(): HasMany
     {
         return $this->hasMany(Donation::class);
+    }
+
+    public function pic(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'pic_user_id');
+    }
+
+    /**
+     * Nama penanggung jawab: staf yang ditunjuk, atau pengaju untuk program dari tamu.
+     */
+    public function picName(): ?string
+    {
+        return $this->pic?->name ?? $this->proposer_name;
     }
 
     public function photos(): HasMany

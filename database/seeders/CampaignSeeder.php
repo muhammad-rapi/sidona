@@ -24,12 +24,15 @@ class CampaignSeeder extends Seeder
             ['Donasi Bantuan Pangan Lansia', null, 'Paket pangan bulanan untuk lansia yang hidup sendiri. Program ini sudah selesai.'],
         ];
 
+        $pics = User::query()->whereIn('role', ['bendahara', 'admin'])->orderBy('id')->get();
+
         foreach ($programs as $index => [$name, $slug, $description]) {
             $status = $index < 4 ? CampaignStatus::Active : CampaignStatus::Completed;
 
             $campaign = Campaign::factory()->create([
                 'name' => $name,
                 'description' => $description,
+                'pic_user_id' => $pics[$index % max(1, $pics->count())]->id ?? $admin->id,
                 'status' => $status,
             ]);
 

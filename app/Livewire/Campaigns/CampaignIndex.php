@@ -103,6 +103,7 @@ class CampaignIndex extends Component
         return view('livewire.campaigns.campaign-index', [
             'trail' => $trail,
             'campaigns' => Campaign::query()
+                ->with('pic')
                 ->orderByRaw("case when status = 'pending' then 0 else 1 end")
                 ->latest()
                 ->paginate(10),

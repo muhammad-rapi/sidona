@@ -27,6 +27,7 @@ class CampaignList extends Component
     {
         return view('livewire.public.campaign-list', [
             'campaigns' => Campaign::query()
+                ->with('pic')
                 ->where('status', CampaignStatus::Active)
                 ->when(trim($this->search) !== '', fn ($q) => $q->where(fn ($q) => $q
                     ->where('name', 'like', '%'.trim($this->search).'%')

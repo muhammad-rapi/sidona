@@ -172,3 +172,45 @@ it('opens a program detail with its money position and audit trail', function ()
         ->call('toggleDetail', $campaign->id)
         ->assertDontSee('Saldo tersedia');
 });
+
+it('assigns a PIC to a program and shows the name publicly without any contact', function () {
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+    $pic = User::factory()->create(['role' => UserRole::Bendahara, 'name' => 'Rahmat Hidayat', 'email' => 'rahmat@sidona.test']);
+
+    Livewire::actingAs($admin)->test(CampaignForm::class)
+        ->set('name', 'Program Dengan PIC')
+        ->set('description', 'Deskripsi program yang cukup panjang.')
+        ->set('target_amount', 5000000)
+        ->set('pic_user_id', $pic->id)
+        ->set('bank_name', 'BCA')
+        ->set('account_number', '1234567890')
+        ->set('account_holder', 'Yayasan Contoh')
+        ->set('starts_on', now()->toDateString())
+        ->set('ends_on', now()->addDays(30)->toDateString())
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $campaign = Campaign::where('name', 'Program Dengan PIC')->first();
+    expect($campaign->pic_user_id)->toBe($pic->id);
+
+    $this->get(route('program.show', $campaign))
+        ->assertSee('Penanggung jawab: Rahmat Hidayat')
+        ->assertDontSee('rahmat@sidona.test');
+});
+
+it('defaults the PIC to the creator and rejects an inactive or unknown PIC', function () {
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+    $inactive = User::factory()->create(['role' => UserRole::Bendahara, 'is_active' => false]);
+
+    $form = Livewire::actingAs($admin)->test(CampaignForm::class);
+    $form->assertSet('pic_user_id', $admin->id);
+
+    $form->set('pic_user_id', $inactive->id)->call('save')->assertHasErrors('pic_user_id');
+    $form->set('pic_user_id', 99999)->call('save')->assertHasErrors('pic_user_id');
+});
+
+it('shows the proposer as PIC for guest proposals', function () {
+    $campaign = Campaign::factory()->create(['proposer_name' => 'Siti Aminah', 'pic_user_id' => null]);
+
+    expect($campaign->picName())->toBe('Siti Aminah');
+});
