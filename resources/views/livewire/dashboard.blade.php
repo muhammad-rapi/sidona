@@ -4,7 +4,7 @@
             <h1 class="page-title">Ringkasan</h1>
             <p class="page-sub">Donasi masuk dan tercatat sendiri. Yang menunggu keputusan manusia hanya penyaluran dan pengajuan program.</p>
         </div>
-        @if (auth()->user()->isBendahara() || auth()->user()->isAdmin())
+        @if (auth()->user()->canManageCampaigns())
             <a href="{{ route('campaigns.create') }}" wire:navigate class="btn btn-paint"><x-icon name="plus" />Program baru</a>
         @endif
     </div>
@@ -30,7 +30,7 @@
         </p>
     </section>
 
-    @if ($pendingProposals > 0 && auth()->user()->isAdmin())
+    @if ($pendingProposals > 0 && auth()->user()->hasAdminPowers())
         <a href="{{ route('campaigns.index') }}" wire:navigate class="mb-4 flex items-center justify-between gap-4 border-2 border-ink bg-board px-5 py-4 transition-colors hover:bg-board-deep">
             <p class="font-bold">{{ $pendingProposals }} pengajuan program baru menunggu tinjauan</p>
             <span class="text-sm font-bold">Tinjau</span>

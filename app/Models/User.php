@@ -38,6 +38,24 @@ class User extends Authenticatable
         return $this->role === UserRole::SuperAdmin;
     }
 
+    /** Auditor atau Super Admin. */
+    public function canAudit(): bool
+    {
+        return in_array($this->role, [UserRole::Auditor, UserRole::SuperAdmin], true);
+    }
+
+    /** Admin atau Super Admin. */
+    public function hasAdminPowers(): bool
+    {
+        return in_array($this->role, [UserRole::Admin, UserRole::SuperAdmin], true);
+    }
+
+    /** Bendahara, Admin, atau Super Admin. */
+    public function canManageCampaigns(): bool
+    {
+        return in_array($this->role, [UserRole::Bendahara, UserRole::Admin, UserRole::SuperAdmin], true);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === UserRole::Admin;

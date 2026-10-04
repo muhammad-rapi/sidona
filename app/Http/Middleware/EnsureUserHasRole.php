@@ -12,7 +12,7 @@ class EnsureUserHasRole
     {
         $user = $request->user();
 
-        if (! $user || ! in_array($user->role->value, $roles, true)) {
+        if (! $user || ! ($user->isSuperAdmin() || in_array($user->role->value, $roles, true))) {
             abort(403);
         }
 

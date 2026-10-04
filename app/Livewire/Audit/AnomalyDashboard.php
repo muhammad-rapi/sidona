@@ -25,7 +25,7 @@ class AnomalyDashboard extends Component
 
     public function markChecked(string $type, int $subjectId, AnomalyDetector $detector, AuditLogger $logger): void
     {
-        abort_unless(auth()->user()->isAuditor(), 403);
+        abort_unless(auth()->user()->canAudit(), 403);
 
         $flaggedIds = match ($type) {
             'donation' => $detector->extremeDonations()->pluck('id'),

@@ -16,12 +16,12 @@ class DisbursementPolicy
 
     public function create(User $user): bool
     {
-        return $user->role === UserRole::Bendahara;
+        return $user->role === UserRole::Bendahara || $user->isSuperAdmin();
     }
 
     public function approve(User $user, Disbursement $disbursement): bool
     {
-        return $user->role === UserRole::Admin
+        return $user->hasAdminPowers()
             && $disbursement->status === DisbursementStatus::Submitted
             && $disbursement->submitted_by !== $user->id;
     }

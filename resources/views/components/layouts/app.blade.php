@@ -64,7 +64,7 @@
                 </a>
             @endif
 
-            @if ($user->isAuditor())
+            @if ($user->canAudit())
                 <p class="nav-heading">Audit</p>
                 @foreach ($audit as $item)
                     <a href="{{ route($item['route']) }}" wire:navigate class="nav-link" @if (request()->routeIs($item['route'])) aria-current="page" @endif>{{ $item['label'] }}</a>

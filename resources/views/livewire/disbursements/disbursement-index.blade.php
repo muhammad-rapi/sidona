@@ -89,7 +89,7 @@
                                 @cannot('approve', $disbursement)
                                     @if ($disbursement->status === \App\Enums\DisbursementStatus::Submitted)
                                         <p class="max-w-[13rem] whitespace-normal text-sm text-ink-soft">
-                                            @if (auth()->user()->isAdmin())
+                                            @if (auth()->user()->hasAdminPowers())
                                                 Anda yang mengajukan. Perlu admin lain untuk memutuskan.
                                             @else
                                                 Menunggu keputusan admin.
