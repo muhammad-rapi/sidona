@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DownloadReportExportController;
+use App\Http\Controllers\VerifyProposalController;
 use App\Livewire\Audit\ActivityLogIndex;
 use App\Livewire\Audit\AnomalyDashboard;
 use App\Livewire\Audit\LoginLogIndex;
@@ -19,6 +20,7 @@ use App\Livewire\Public\CampaignSubmit;
 use App\Livewire\Public\DonationPay;
 use App\Livewire\Public\DonationReceipt;
 use App\Livewire\Public\DonationStatusCheck;
+use App\Livewire\Public\MonitorProposal;
 use App\Livewire\Public\ProposalStatus;
 use App\Livewire\Reports\BalanceSummary;
 use App\Livewire\Reports\DisbursementReport;
@@ -39,7 +41,9 @@ Route::view('/kebijakan-privasi', 'pages.privacy')->name('privacy');
 Route::get('/program', CampaignList::class)->name('program.index');
 Route::get('/program/{campaign}', CampaignDetail::class)->name('program.show');
 Route::get('/ajukan-program', CampaignSubmit::class)->name('program.submit');
+Route::get('/ajukan-program/verifikasi/{code}/{hash}', VerifyProposalController::class)->middleware('signed')->name('program.verify');
 Route::get('/ajukan-program/{code}', ProposalStatus::class)->name('program.proposal');
+Route::get('/pantau/{token}', MonitorProposal::class)->name('program.monitor');
 Route::get('/donasi/cek', DonationStatusCheck::class)->name('donations.check');
 Route::get('/donasi/{reference}/bayar', DonationPay::class)->name('donations.pay');
 Route::get('/donasi/{reference}', DonationReceipt::class)->name('donations.receipt');

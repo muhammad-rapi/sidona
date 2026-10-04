@@ -26,6 +26,10 @@
             @endswitch
         </p>
 
+        @if ($status->value === 'pending' && $campaign->proposerNeedsVerification())
+            <p class="mt-4 border-t-2 border-ink pt-3 text-sm font-semibold text-paint-dark">Email Anda belum dikonfirmasi. Buka email dari SIDONA dan tekan tombol konfirmasi, supaya admin bisa menyetujui.</p>
+        @endif
+
         @if ($status->value === 'active')
             <a href="{{ route('program.show', $campaign) }}" wire:navigate class="btn btn-ink mt-5">Buka halaman program</a>
         @elseif ($status->value === 'rejected')

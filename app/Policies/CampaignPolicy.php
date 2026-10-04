@@ -25,6 +25,11 @@ class CampaignPolicy
 
     public function review(User $user, Campaign $campaign): bool
     {
+        return $this->reject($user, $campaign) && ! $campaign->proposerNeedsVerification();
+    }
+
+    public function reject(User $user, Campaign $campaign): bool
+    {
         return $user->hasAdminPowers() && $campaign->status === CampaignStatus::Pending;
     }
 

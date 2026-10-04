@@ -3,9 +3,11 @@
 namespace App\Livewire\Public;
 
 use App\Enums\CampaignStatus;
+use App\Mail\ProposalVerifyMail;
 use App\Models\Campaign;
 use App\Services\AuditLogger;
 use App\Support\Banks;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -28,7 +30,9 @@ class CampaignSubmit extends Component
 
     public string $proposer_name = '';
 
-    public string $proposer_contact = '';
+    public string $proposer_email = '';
+
+    public string $proposer_phone = '';
 
     public string $bank_name = '';
 
@@ -53,15 +57,8 @@ class CampaignSubmit extends Component
             'target_amount' => ['required', 'integer', 'min:100000', 'max:100000000000'],
             'duration_days' => ['required', 'integer', 'in:14,30,60,90'],
             'proposer_name' => ['required', 'string', 'min:2', 'max:100', "regex:/^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s.'\\-]*$/u"],
-            'proposer_contact' => ['required', 'string', 'max:255', function (string $attribute, mixed $value, \Closure $fail) {
-                $value = trim($value);
-                $isEmail = filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
-                $isPhone = preg_match('/^(\\+62|62|0)8[0-9]{8,12}$/', preg_replace('/[\\s-]/', '', $value)) === 1;
-
-                if (! $isEmail && ! $isPhone) {
-                    $fail('Isi email yang valid atau nomor WhatsApp, contoh 08123456789.');
-                }
-            }],
+            'proposer_email' => ['required', 'email', 'max:255'],
+            'proposer_phone' => ['nullable', 'string', 'regex:/^(\\+62|62|0)8[0-9]{8,12}$/'],
             'bank_name' => ['required', Rule::in(Banks::all())],
             'account_number' => ['required', 'string', 'regex:/^[0-9][0-9\\s-]{4,29}$/'],
             'account_holder' => ['required', 'string', 'max:255'],
@@ -75,6 +72,8 @@ class CampaignSubmit extends Component
             'name.min' => 'Judul program minimal 5 karakter.',
             'description.min' => 'Ceritakan program minimal 50 karakter agar tim bisa menilainya.',
             'target_amount.min' => 'Target dana minimal Rp 100.000.',
+            'proposer_email.required' => 'Email wajib diisi untuk konfirmasi dan kabar pengajuan.',
+            'proposer_phone.regex' => 'Nomor WhatsApp tidak valid, contoh 08123456789.',
             'proposer_name.regex' => 'Nama hanya boleh berisi huruf, spasi, titik, atau tanda hubung.',
             'bank_name.required' => 'Pilih bank penerima.',
             'bank_name.in' => 'Pilih bank dari daftar.',
@@ -84,7 +83,7 @@ class CampaignSubmit extends Component
 
     public function updated(string $property): void
     {
-        if (in_array($property, ['proposer_name', 'proposer_contact', 'account_number'], true)) {
+        if (in_array($property, ['proposer_name', 'proposer_email', 'proposer_phone', 'account_number'], true)) {
             $this->validateOnly($property);
         }
     }
@@ -118,7 +117,9 @@ class CampaignSubmit extends Component
             'account_number' => trim($data['account_number']),
             'account_holder' => trim($data['account_holder']),
             'proposer_name' => trim($data['proposer_name']),
-            'proposer_contact' => trim($data['proposer_contact']),
+            'proposer_contact' => strtolower(trim($data['proposer_email'])),
+            'proposer_phone' => filled($data['proposer_phone'] ?? null) ? preg_replace('/[\\s-]/', '', $data['proposer_phone']) : null,
+            'monitor_token' => Str::random(40),
             'starts_on' => today(),
             'ends_on' => today()->addDays($data['duration_days']),
             'cover_image' => $this->cover_image_upload?->store('campaign-covers', 'public'),
@@ -128,6 +129,8 @@ class CampaignSubmit extends Component
         $logger->log('campaign.proposed', null, $campaign, [], $campaign->only([
             'name', 'target_amount', 'proposer_name', 'proposer_contact', 'status',
         ]));
+
+        Mail::to($campaign->proposer_contact)->send(new ProposalVerifyMail($campaign));
 
         $this->trackingCode = $campaign->proposal_code;
         $this->submitted = true;

@@ -14,7 +14,7 @@
         @if ($submitted)
             <div class="border-2 border-paid bg-paid-wash p-6" role="status">
                 <h2 class="paint-type text-4xl text-paid">Sudah kami terima</h2>
-                <p class="mt-3 max-w-xl text-ink">Cerita Anda sudah masuk ke meja admin. Kami baca dulu, lalu menghubungi Anda lewat kontak yang tadi diisi. Programnya baru tampil di situs setelah disetujui.</p>
+                <p class="mt-3 max-w-xl text-ink">Cerita Anda sudah masuk. Cek email Anda dan tekan tautan konfirmasi: admin baru bisa menyetujui setelah email terkonfirmasi. Programnya tampil di situs setelah disetujui.</p>
                 @if ($trackingCode)
                     <p class="mt-5 text-sm font-semibold text-ink-soft">Simpan kode pengajuan Anda</p>
                     <p class="font-mono text-2xl font-bold text-ink">{{ $trackingCode }}</p>
@@ -111,10 +111,16 @@
                             @error('proposer_name') <p class="error-text" role="alert">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label for="proposer_contact" class="label">Email atau WhatsApp</label>
-                            <input id="proposer_contact" type="text" wire:model.blur="proposer_contact" class="field @error('proposer_contact') field-error @enderror">
-                            @error('proposer_contact') <p class="error-text" role="alert">{{ $message }}</p> @enderror
+                            <label for="proposer_email" class="label">Email</label>
+                            <input id="proposer_email" type="email" wire:model.blur="proposer_email" autocomplete="email" class="field @error('proposer_email') field-error @enderror">
+                            <p class="hint">Kami kirim tautan konfirmasi ke sini.</p>
+                            @error('proposer_email') <p class="error-text" role="alert">{{ $message }}</p> @enderror
                         </div>
+                    </div>
+                <div class="sm:max-w-xs">
+                        <label for="proposer_phone" class="label">WhatsApp (opsional)</label>
+                        <input id="proposer_phone" type="text" inputmode="tel" wire:model.blur="proposer_phone" placeholder="08123456789" class="field @error('proposer_phone') field-error @enderror">
+                        @error('proposer_phone') <p class="error-text" role="alert">{{ $message }}</p> @enderror
                     </div>
                 </fieldset>
 

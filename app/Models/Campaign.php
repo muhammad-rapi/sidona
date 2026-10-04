@@ -31,6 +31,9 @@ class Campaign extends Model
         'proposal_code',
         'proposer_name',
         'proposer_contact',
+        'proposer_phone',
+        'proposer_verified_at',
+        'monitor_token',
         'rejection_reason',
         'reviewed_by',
         'reviewed_at',
@@ -43,12 +46,23 @@ class Campaign extends Model
             'ends_on' => 'date',
             'status' => CampaignStatus::class,
             'reviewed_at' => 'datetime',
+            'proposer_verified_at' => 'datetime',
         ];
     }
 
     public function donations(): HasMany
     {
         return $this->hasMany(Donation::class);
+    }
+
+    /**
+     * Pengajuan dengan kontak email harus terverifikasi sebelum disetujui.
+     * Pengajuan lama yang hanya berkontak telepon tidak bisa diverifikasi, jadi tidak diblokir.
+     */
+    public function proposerNeedsVerification(): bool
+    {
+        return $this->proposer_verified_at === null
+            && filter_var($this->proposer_contact, FILTER_VALIDATE_EMAIL) !== false;
     }
 
     public function pic(): BelongsTo

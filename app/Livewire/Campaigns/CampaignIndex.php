@@ -67,7 +67,7 @@ class CampaignIndex extends Component
         $this->validate(['rejectionReason' => ['required', 'string', 'min:3', 'max:255']]);
 
         $campaign = Campaign::query()->findOrFail($this->rejectingId);
-        Gate::authorize('review', $campaign);
+        Gate::authorize('reject', $campaign);
 
         $before = $campaign->only(['status', 'rejection_reason']);
 

@@ -18,6 +18,10 @@
                     @if ($campaign->status->value === 'active')
                         <p style="margin:0 0 14px;">Program <strong>{{ $campaign->name }}</strong> sudah disetujui dan sekarang bisa menerima donasi sampai {{ $campaign->ends_on->translatedFormat('j F Y') }}.</p>
                         <a href="{{ route('program.show', $campaign) }}" style="display:inline-block; background-color:#17130a; color:#ffc61a; font-weight:bold; font-size:14px; text-decoration:none; padding:14px 22px;">Lihat program</a>
+                        @if ($campaign->monitor_token)
+                            <p style="margin:18px 0 0;">Pantau donasi dan penyaluran program Anda lewat tautan pribadi ini (jangan dibagikan):</p>
+                            <p style="margin:6px 0 0; word-break:break-all;"><a href="{{ route('program.monitor', $campaign->monitor_token) }}" style="color:#17130a;">{{ route('program.monitor', $campaign->monitor_token) }}</a></p>
+                        @endif
                     @else
                         <p style="margin:0 0 14px;">Program <strong>{{ $campaign->name }}</strong> belum bisa kami tayangkan.</p>
                         <p style="margin:0 0 14px;"><strong>Alasan:</strong> {{ $campaign->rejection_reason }}</p>

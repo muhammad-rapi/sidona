@@ -50,7 +50,10 @@
                                     <p class="text-xs font-normal text-ink-soft">PIC: {{ $campaign->picName() }}</p>
                                 @endif
                                 @if ($campaign->proposer_name)
-                                    <p class="text-xs font-normal text-ink-soft">Diajukan {{ $campaign->proposer_name }} ({{ $campaign->proposer_contact }})</p>
+                                    <p class="text-xs font-normal text-ink-soft">Diajukan {{ $campaign->proposer_name }} ({{ $campaign->proposer_contact }}@if ($campaign->proposer_phone), {{ $campaign->proposer_phone }}@endif)</p>
+                                    @if ($campaign->status === \App\Enums\CampaignStatus::Pending && $campaign->proposerNeedsVerification())
+                                        <p class="text-xs font-bold text-paint-dark">Email pengaju belum dikonfirmasi, belum bisa disetujui.</p>
+                                    @endif
                                 @endif
                                 @if ($campaign->status === \App\Enums\CampaignStatus::Rejected && $campaign->rejection_reason)
                                     <p class="text-xs font-normal text-paint-dark">Alasan ditolak: {{ $campaign->rejection_reason }}</p>
@@ -73,6 +76,8 @@
                                     @endif
                                     @can('review', $campaign)
                                         <x-action icon="approve" variant="ink" label="Setujui dan tayangkan" wire:click="approve({{ $campaign->id }})" wire:confirm="Setujui dan tayangkan program ini?" />
+                                    @endcan
+                                    @can('reject', $campaign)
                                         <x-action icon="reject" variant="danger" label="Tolak pengajuan" wire:click="startReject({{ $campaign->id }})" />
                                     @endcan
                                     @can('update', $campaign)
