@@ -91,6 +91,8 @@ class TicketShow extends Component
 
     public function render()
     {
+        $this->ticket->refresh();
+
         return view('livewire.tickets.ticket-show', [
             'messages' => $this->ticket->messages()->get(),
             'canHandle' => auth()->user()->canManageCampaigns(),

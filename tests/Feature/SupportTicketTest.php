@@ -4,6 +4,7 @@ use App\Enums\TicketStatus;
 use App\Enums\UserRole;
 use App\Livewire\Public\TicketCreate;
 use App\Livewire\Public\TicketThread;
+use App\Livewire\Public\TicketTrack;
 use App\Livewire\Tickets\TicketIndex;
 use App\Livewire\Tickets\TicketShow;
 use App\Mail\TicketMail;
@@ -121,4 +122,64 @@ it('keeps the staff inbox behind login and filters by status', function () {
         ->set('status', 'all')->set('search', 'BBBB')->assertSee('Sudah selesai')->assertDontSee('Masih terbuka');
 
     $this->actingAs($admin)->get(route('dashboard'))->assertSee('Tiket bantuan');
+});
+
+it('shows the number of open tickets in the sidebar', function () {
+    Ticket::create(['code' => 'TKT-CCCC3333', 'token' => 'c', 'name' => 'C', 'email' => 'c@x.com', 'category' => 'other', 'subject' => 'Satu', 'status' => 'open', 'last_activity_at' => now()]);
+    Ticket::create(['code' => 'TKT-DDDD4444', 'token' => 'd', 'name' => 'D', 'email' => 'd@x.com', 'category' => 'other', 'subject' => 'Dua', 'status' => 'open', 'last_activity_at' => now()]);
+
+    $this->actingAs(User::factory()->create(['role' => UserRole::Admin]))
+        ->get(route('dashboard'))
+        ->assertSee('aria-label="2 tiket terbuka"', false);
+});
+
+it('polls the conversation and picks up new replies and status changes without a reload', function () {
+    Mail::fake();
+    fillTicket(Livewire::test(TicketCreate::class))->call('submit');
+    $ticket = Ticket::first();
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+
+    $thread = Livewire::test(TicketThread::class, ['token' => $ticket->token]);
+    $thread->assertSee('wire:poll.visible.4s', false)->assertDontSee('Kami sudah cek');
+
+    $ticket->messages()->create(['user_id' => $admin->id, 'author_name' => 'Admin SIDONA', 'is_staff' => true, 'body' => 'Kami sudah cek dan donasi Anda masuk.']);
+    $ticket->update(['status' => TicketStatus::Closed]);
+
+    $thread->call('$refresh')->assertSee('Kami sudah cek')->assertSee('Selesai');
+
+    $staff = Livewire::actingAs($admin)->test(TicketShow::class, ['ticket' => $ticket]);
+    $staff->assertSee('wire:poll.visible.4s', false);
+    $ticket->messages()->create(['author_name' => 'Budi Santoso', 'is_staff' => false, 'body' => 'Terima kasih, sudah jelas.']);
+    $staff->call('$refresh')->assertSee('Terima kasih, sudah jelas.');
+});
+
+it('resends the private link only when code and email match, with the same answer either way', function () {
+    Mail::fake();
+    RateLimiter::clear('ticket-track:127.0.0.1');
+    fillTicket(Livewire::test(TicketCreate::class))->call('submit');
+    $ticket = Ticket::first();
+    Mail::fake();
+
+    Livewire::test(TicketTrack::class)
+        ->set('code', strtolower($ticket->code))->set('email', 'BUDI@example.com')->call('track')
+        ->assertSet('sent', true);
+    Mail::assertSent(TicketMail::class, fn ($m) => $m->kind === 'link' && $m->hasTo('budi@example.com'));
+
+    Mail::fake();
+    Livewire::test(TicketTrack::class)
+        ->set('code', $ticket->code)->set('email', 'orang-lain@example.com')->call('track')
+        ->assertSet('sent', true);
+    Mail::assertNothingSent();
+
+    $this->get(route('support.track'))->assertOk()->assertSee('Lacak tiket');
+});
+
+it('rate limits ticket tracking attempts', function () {
+    RateLimiter::clear('ticket-track:127.0.0.1');
+
+    foreach (range(1, 5) as $i) {
+        Livewire::test(TicketTrack::class)->set('code', 'TKT-AAAA1111')->set('email', 'a@example.com')->call('track');
+    }
+
+    Livewire::test(TicketTrack::class)->set('code', 'TKT-AAAA1111')->set('email', 'a@example.com')->call('track')->assertHasErrors('code');
 });

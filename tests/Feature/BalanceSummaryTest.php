@@ -45,3 +45,17 @@ it('blocks non auditors from the balance summary report', function () {
 
     $this->actingAs($bendahara)->get(route('reports.balance'))->assertForbidden();
 });
+
+it('shows totals across all programs in the balance summary', function () {
+    $auditor = User::factory()->create(['role' => UserRole::Auditor]);
+    $a = Campaign::factory()->create();
+    $b = Campaign::factory()->create();
+    Donation::factory()->for($a)->create(['amount' => 600000, 'status' => DonationStatus::Verified]);
+    Donation::factory()->for($b)->create(['amount' => 400000, 'status' => DonationStatus::Verified]);
+    Disbursement::factory()->for($a)->create(['amount' => 100000, 'status' => DisbursementStatus::Approved, 'submitted_by' => $auditor->id]);
+
+    Livewire::actingAs($auditor)->test(BalanceSummary::class)
+        ->assertSee('Jumlah semua program')
+        ->assertSee('1.000.000')
+        ->assertSee('900.000');
+});

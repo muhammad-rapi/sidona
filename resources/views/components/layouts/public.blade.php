@@ -61,6 +61,7 @@
                 <p class="mt-4 flex flex-wrap gap-x-5 gap-y-1 md:justify-end">
                     <a href="{{ route('faq') }}" wire:navigate class="underline-offset-4 hover:text-board hover:underline">FAQ</a>
                     <a href="{{ route('support.new') }}" wire:navigate class="underline-offset-4 hover:text-board hover:underline">Hubungi kami</a>
+                    <a href="{{ route('support.track') }}" wire:navigate class="underline-offset-4 hover:text-board hover:underline">Lacak tiket</a>
                     <a href="{{ route('terms') }}" wire:navigate class="underline-offset-4 hover:text-board hover:underline">Syarat dan ketentuan</a>
                     <a href="{{ route('privacy') }}" wire:navigate class="underline-offset-4 hover:text-board hover:underline">Kebijakan privasi</a>
                 </p>

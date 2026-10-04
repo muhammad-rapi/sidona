@@ -6,7 +6,7 @@
     };
 @endphp
 
-<div class="mx-auto max-w-3xl px-5 py-14">
+<div class="mx-auto max-w-3xl px-5 py-14" wire:poll.visible.4s x-data="{ count: {{ $messages->count() }} }" x-effect="if ($el.dataset.count && Number($el.dataset.count) < {{ $messages->count() }}) { $nextTick(() => $refs.end?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })) }; $el.dataset.count = {{ $messages->count() }}">
     @if (session('status'))
         <div class="flash" role="status">{{ session('status') }}</div>
     @endif
@@ -17,7 +17,7 @@
         @if ($ticket->related_code) &middot; <span class="font-mono">{{ $ticket->related_code }}</span>@endif
         &middot; <span class="font-bold {{ $tone }}">{{ $ticket->status->label() }}</span>
     </p>
-    <p class="mt-1 text-xs text-ink-faint">Halaman ini pribadi. Jangan bagikan tautannya.</p>
+    <p class="mt-1 text-xs text-ink-faint">Halaman ini pribadi. Jangan bagikan tautannya. Kehilangan tautan? Gunakan <a href="{{ route('support.track') }}" wire:navigate class="underline underline-offset-2">Lacak tiket</a>.</p>
 
     <ol class="mt-8 space-y-5" aria-label="Percakapan">
         @foreach ($messages as $message)
@@ -31,7 +31,11 @@
         @endforeach
     </ol>
 
-    <form wire:submit="reply" class="mt-8" novalidate>
+    <div x-ref="end"></div>
+
+    <p class="mt-6 flex items-center gap-2 text-xs text-ink-faint"><span class="h-2 w-2 bg-paid" aria-hidden="true"></span>Percakapan diperbarui otomatis. Balasan tim muncul di sini tanpa perlu memuat ulang.</p>
+
+    <form wire:submit="reply" class="mt-4" novalidate>
         <label for="t-reply" class="label">{{ $ticket->status->value === 'closed' ? 'Masih ada yang mau ditanyakan? Balasan Anda membuka kembali tiket ini.' : 'Balas' }}</label>
         <textarea id="t-reply" wire:model="body" rows="4" class="field @error('body') field-error @enderror"></textarea>
         @error('body') <p class="error-text" role="alert">{{ $message }}</p> @enderror

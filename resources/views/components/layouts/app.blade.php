@@ -1,5 +1,6 @@
 @php
     $user = auth()->user();
+    $openTickets = \App\Models\Ticket::where('status', \App\Enums\TicketStatus::Open)->count();
     $nav = [
         ['label' => 'Ringkasan', 'route' => 'dashboard', 'match' => 'dashboard', 'icon' => 'home'],
         ['label' => 'Program Donasi', 'route' => 'campaigns.index', 'match' => 'campaigns.*', 'icon' => 'programs'],
@@ -54,6 +55,9 @@
                 <a href="{{ route($item['route']) }}" wire:navigate class="nav-link" @if (request()->routeIs($item['match'])) aria-current="page" @endif>
                     <x-icon :name="$item['icon']" class="h-5 w-5" />
                     {{ $item['label'] }}
+                    @if ($item['route'] === 'tickets.index' && $openTickets > 0)
+                        <span class="ml-auto min-w-6 bg-paint px-1.5 py-0.5 text-center text-xs font-bold text-white" aria-label="{{ $openTickets }} tiket terbuka">{{ $openTickets }}</span>
+                    @endif
                 </a>
             @endforeach
 

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Reports;
 
+use App\Enums\DisbursementStatus;
 use App\Models\Campaign;
 use App\Models\Disbursement;
 use App\Services\ReportChecksum;
@@ -59,6 +60,11 @@ class DisbursementReport extends Component
     {
         return view('livewire.reports.disbursement-report', [
             'disbursements' => $this->filteredQuery()->latest()->paginate(15),
+            'summary' => [
+                'count' => $this->filteredQuery()->count(),
+                'approved_sum' => (int) $this->filteredQuery()->where('status', DisbursementStatus::Approved)->sum('amount'),
+                'submitted_sum' => (int) $this->filteredQuery()->where('status', DisbursementStatus::Submitted)->sum('amount'),
+            ],
             'campaigns' => Campaign::all(),
         ]);
     }

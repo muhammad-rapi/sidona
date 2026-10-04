@@ -24,6 +24,7 @@ use App\Livewire\Public\MonitorProposal;
 use App\Livewire\Public\ProposalStatus;
 use App\Livewire\Public\TicketCreate;
 use App\Livewire\Public\TicketThread;
+use App\Livewire\Public\TicketTrack;
 use App\Livewire\Reports\BalanceSummary;
 use App\Livewire\Reports\DisbursementReport;
 use App\Livewire\Reports\DonationReport;
@@ -49,6 +50,7 @@ Route::get('/ajukan-program/verifikasi/{code}/{hash}', VerifyProposalController:
 Route::get('/ajukan-program/{code}', ProposalStatus::class)->name('program.proposal');
 Route::get('/pantau/{token}', MonitorProposal::class)->name('program.monitor');
 Route::get('/bantuan', TicketCreate::class)->name('support.new');
+Route::get('/bantuan/lacak', TicketTrack::class)->name('support.track');
 Route::get('/bantuan/{token}', TicketThread::class)->name('support.thread');
 Route::get('/donasi/cek', DonationStatusCheck::class)->name('donations.check');
 Route::get('/donasi/{reference}/bayar', DonationPay::class)->name('donations.pay');

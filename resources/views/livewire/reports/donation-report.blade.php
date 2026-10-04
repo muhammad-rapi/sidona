@@ -26,6 +26,8 @@
         <input type="date" wire:model.live="to" class="field field-sm w-auto">
     </form>
 
+    <p class="mb-3 text-sm text-ink-soft">{{ number_format($summary['count'], 0, ',', '.') }} donasi cocok dengan filter. Yang berhasil bernilai <strong class="text-ink">Rp&nbsp;{{ number_format($summary['paid_sum'], 0, ',', '.') }}</strong>.</p>
+
     <div class="panel overflow-x-auto">
         <table class="ledger">
             <thead>
@@ -45,7 +47,7 @@
                         <td>{{ $donation->campaign->name }}</td>
                         <td>{{ $donation->donor_name }}</td>
                         <td class="num">Rp&nbsp;{{ number_format($donation->amount, 0, ',', '.') }}</td>
-                        <td><span class="badge badge-ink">{{ $donation->status->label() }}</span></td>
+                        <td><span class="badge {{ match ($donation->status) { \App\Enums\DonationStatus::Verified => 'badge-paid', \App\Enums\DonationStatus::Rejected => 'badge-fail', default => 'badge-wait' } }}">{{ $donation->status->label() }}</span></td>
                         <td class="sticky-col text-right">
                             <x-action :icon="$detailId === $donation->id ? 'close' : 'detail'" :label="$detailId === $donation->id ? 'Tutup detail' : 'Lihat detail'" wire:click="toggleDetail({{ $donation->id }})" aria-expanded="{{ $detailId === $donation->id ? 'true' : 'false' }}" />
                         </td>

@@ -18,9 +18,11 @@ class TicketMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: $this->kind === 'reply'
-            ? "Balasan untuk tiket {$this->ticket->code} - SIDONA"
-            : "Tiket bantuan {$this->ticket->code} sudah kami terima - SIDONA");
+        return new Envelope(subject: match ($this->kind) {
+            'reply' => "Balasan untuk tiket {$this->ticket->code} - SIDONA",
+            'link' => "Tautan tiket {$this->ticket->code} - SIDONA",
+            default => "Tiket bantuan {$this->ticket->code} sudah kami terima - SIDONA",
+        });
     }
 
     public function content(): Content

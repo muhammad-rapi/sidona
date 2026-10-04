@@ -85,6 +85,10 @@ class DonationReport extends Component
         return view('livewire.reports.donation-report', [
             'donations' => $this->filteredQuery()->latest()->paginate(15),
             'trail' => $this->detailTrail(),
+            'summary' => [
+                'count' => $this->filteredQuery()->count(),
+                'paid_sum' => (int) $this->filteredQuery()->where('status', DonationStatus::Verified)->sum('amount'),
+            ],
             'campaigns' => Campaign::all(),
         ]);
     }

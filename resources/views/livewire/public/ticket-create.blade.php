@@ -2,7 +2,8 @@
     <aside class="lg:sticky lg:top-24 lg:self-start">
         <h1 class="paint-type text-5xl text-ink sm:text-6xl">Hubungi kami</h1>
         <p class="mt-5 text-lg text-ink">Ada donasi yang bermasalah, pembayaran yang macet, atau pertanyaan soal pengajuan program? Tulis di sini. Kami balas lewat email.</p>
-        <p class="mt-4 border-t-2 border-ink pt-4 text-sm text-ink-soft">Cek dulu <a href="{{ route('faq') }}" wire:navigate class="font-bold text-ink underline underline-offset-4">pertanyaan umum</a>, mungkin jawabannya sudah ada.</p>
+        <p class="mt-4 border-t-2 border-ink pt-4 text-sm text-ink-soft">Sudah pernah menulis? <a href="{{ route('support.track') }}" wire:navigate class="font-bold text-ink underline underline-offset-4">Lacak tiket Anda</a>.</p>
+        <p class="mt-3 text-sm text-ink-soft">Cek dulu <a href="{{ route('faq') }}" wire:navigate class="font-bold text-ink underline underline-offset-4">pertanyaan umum</a>, mungkin jawabannya sudah ada.</p>
     </aside>
 
     <form wire:submit="submit" class="max-w-2xl space-y-6" novalidate>

@@ -25,6 +25,8 @@
         <input type="date" wire:model.live="to" class="field field-sm w-auto">
     </form>
 
+    <p class="mb-3 text-sm text-ink-soft">{{ number_format($summary['count'], 0, ',', '.') }} penyaluran cocok dengan filter. Disetujui <strong class="text-ink">Rp&nbsp;{{ number_format($summary['approved_sum'], 0, ',', '.') }}</strong>, masih menunggu keputusan Rp&nbsp;{{ number_format($summary['submitted_sum'], 0, ',', '.') }}.</p>
+
     <div class="panel overflow-x-auto">
         <table class="ledger">
             <thead>
@@ -43,7 +45,7 @@
                         <td class="num">Rp&nbsp;{{ number_format($disbursement->amount, 0, ',', '.') }}</td>
                         <td>{{ $disbursement->description }}</td>
                         <td>{{ $disbursement->submitter->name }}</td>
-                        <td><span class="badge badge-ink">{{ $disbursement->status->label() }}</span></td>
+                        <td><span class="badge {{ match ($disbursement->status) { \App\Enums\DisbursementStatus::Approved => 'badge-paid', \App\Enums\DisbursementStatus::Rejected => 'badge-fail', default => 'badge-wait' } }}">{{ $disbursement->status->label() }}</span></td>
                     </tr>
                 @empty
                     <tr>

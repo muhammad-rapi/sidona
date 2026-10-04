@@ -1,4 +1,4 @@
-<div>
+<div wire:poll.visible.10s>
     <div class="page-head">
         <div>
             <h1 class="page-title">Tiket bantuan</h1>

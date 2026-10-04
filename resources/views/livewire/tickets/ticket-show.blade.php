@@ -1,4 +1,4 @@
-<div>
+<div wire:poll.visible.4s x-data="{ count: {{ $messages->count() }} }" x-effect="if ($el.dataset.count && Number($el.dataset.count) < {{ $messages->count() }}) { $nextTick(() => $refs.end?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })) }; $el.dataset.count = {{ $messages->count() }}">
     <div class="page-head">
         <div>
             <a href="{{ route('tickets.index') }}" wire:navigate class="mb-2 inline-flex items-center gap-1.5 text-sm font-semibold text-ink-soft hover:text-ink"><x-icon name="send" class="h-4 w-4 rotate-180" />Semua tiket</a>
@@ -30,6 +30,8 @@
                     </li>
                 @endforeach
             </ol>
+
+            <div x-ref="end"></div>
 
             @if ($canHandle)
                 <form wire:submit="reply" class="mt-6 space-y-3" novalidate>
