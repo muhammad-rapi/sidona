@@ -75,29 +75,26 @@
                         $campaignPercent = $campaign->progressPercent($campaignRaised);
                     @endphp
                     <li class="border-b-2 border-ink">
-                        <a href="{{ route('program.show', $campaign) }}" wire:navigate class="group grid items-center gap-x-6 gap-y-4 py-6 sm:grid-cols-[7rem_1fr_auto] md:grid-cols-[9rem_1fr_16rem_auto]">
+                        <a href="{{ route('program.show', $campaign) }}" wire:navigate class="group grid items-center gap-x-6 gap-y-3 py-6 sm:grid-cols-[7rem_1fr] md:grid-cols-[9rem_1fr_13rem]">
                             <div class="aspect-[4/3] overflow-hidden border-2 border-ink bg-board sm:aspect-square md:aspect-[4/3]">
                                 @if ($campaign->cover_image)
-                                    <img src="{{ Illuminate\Support\Facades\Storage::url($campaign->cover_image) }}" alt="" class="h-full w-full object-cover" loading="lazy">
+                                    <img src="{{ Illuminate\Support\Facades\Storage::url($campaign->cover_image) }}" alt="" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy">
                                 @else
                                     <div class="paint-type flex h-full w-full items-center justify-center text-5xl text-ink/80">{{ mb_substr($campaign->name, 0, 1) }}</div>
                                 @endif
                             </div>
 
                             <div class="min-w-0">
-                                <h3 class="paint-type text-3xl leading-none text-ink group-hover:text-paint-dark">{{ $campaign->name }}</h3>
-                                <p class="mt-2 line-clamp-2 text-sm text-ink-soft">{{ $campaign->description }}</p>
+                                <h3 class="text-2xl font-extrabold leading-tight tracking-tight text-ink group-hover:text-paint-dark">{{ $campaign->name }}</h3>
+                                <p class="mt-1.5 line-clamp-2 text-sm text-ink-soft">{{ $campaign->description }}</p>
+                                <p class="mt-2 text-xs font-semibold text-ink-soft">{{ number_format($campaign->donor_count, 0, ',', '.') }} donatur &middot; sisa {{ $campaign->daysLeft() }} hari</p>
                             </div>
 
-                            <div class="sm:col-span-2 md:col-span-1">
-                                <div class="thermo-h thermo-h-rise" style="--level: {{ $campaignPercent }}"><i></i></div>
-                                <div class="mt-2 flex items-baseline justify-between gap-3 text-sm">
-                                    <span class="font-extrabold text-paint-dark">Rp&nbsp;{{ number_format($campaignRaised, 0, ',', '.') }}</span>
-                                    <span class="font-bold text-ink">{{ $campaignPercent }}%</span>
-                                </div>
+                            <div class="sm:col-span-2 md:col-span-1 md:text-right" title="Rp {{ number_format($campaignRaised, 0, ',', '.') }} terkumpul dari Rp {{ number_format($campaign->target_amount, 0, ',', '.') }}">
+                                <p class="paint-type text-5xl leading-none text-ink">{{ App\Support\Rupiah::short($campaignRaised) }}</p>
+                                <div class="thermo-h thermo-h-rise mt-2 !h-2.5" style="--level: {{ $campaignPercent }}" role="img" aria-label="{{ $campaignPercent }} persen dari target"><i></i></div>
+                                <p class="mt-1.5 text-xs text-ink-soft">{{ $campaignPercent }}% dari target Rp&nbsp;{{ number_format($campaign->target_amount, 0, ',', '.') }}</p>
                             </div>
-
-                            <span class="btn btn-ink hidden md:inline-flex">Donasi</span>
                         </a>
                     </li>
                 @endforeach

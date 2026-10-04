@@ -5,6 +5,7 @@ use App\Livewire\Public\CampaignList;
 use App\Models\Campaign;
 use App\Models\Donation;
 use App\Services\AuditLogger;
+use App\Support\Rupiah;
 
 it('lets a guest view only active campaigns', function () {
     Campaign::factory()->create(['name' => 'Donasi Aktif', 'status' => CampaignStatus::Active]);
@@ -44,4 +45,12 @@ it('shows only non-personal audit ledger entries on the homepage', function () {
         ->assertDontSee('Rahasia Pribadi')
         ->assertDontSee('rahasia@example.com')
         ->assertDontSee('user.created');
+});
+
+it('formats large amounts compactly', function () {
+    expect(Rupiah::short(2898869))->toBe('2,9 jt');
+    expect(Rupiah::short(2000000))->toBe('2 jt');
+    expect(Rupiah::short(1250000000))->toBe('1,3 M');
+    expect(Rupiah::short(45000))->toBe('45 rb');
+    expect(Rupiah::short(900))->toBe('900');
 });
