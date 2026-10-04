@@ -12,6 +12,7 @@ use App\Livewire\Dashboard;
 use App\Livewire\Disbursements\DisbursementForm;
 use App\Livewire\Disbursements\DisbursementIndex;
 use App\Livewire\Donations\DonationIndex;
+use App\Livewire\Profile\ProfilePage;
 use App\Livewire\Public\CampaignDetail;
 use App\Livewire\Public\CampaignList;
 use App\Livewire\Public\CampaignSubmit;
@@ -50,6 +51,8 @@ Route::post('/logout', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
+
+    Route::get('/profil', ProfilePage::class)->name('profile');
 
     Route::get('/campaigns', CampaignIndex::class)->name('campaigns.index');
     Route::get('/campaigns/create', CampaignForm::class)

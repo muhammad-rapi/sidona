@@ -9,8 +9,8 @@
     <div class="mx-auto max-w-3xl px-5 py-10">
         @if ($submitted)
             <div class="border-2 border-paid bg-paid-wash p-6" role="status">
-                <h2 class="paint-type text-4xl text-paid">Pengajuan diterima</h2>
-                <p class="mt-3 max-w-xl text-ink">Terima kasih. Admin akan meninjau program Anda dan menghubungi lewat kontak yang Anda isi. Program baru tampil di situs setelah disetujui.</p>
+                <h2 class="paint-type text-4xl text-paid">Sudah kami terima</h2>
+                <p class="mt-3 max-w-xl text-ink">Cerita Anda sudah masuk ke meja admin. Kami baca dulu, lalu menghubungi Anda lewat kontak yang tadi diisi. Programnya baru tampil di situs setelah disetujui.</p>
                 <a href="{{ route('program.index') }}" wire:navigate class="btn btn-ink mt-6">Kembali ke program</a>
             </div>
         @else

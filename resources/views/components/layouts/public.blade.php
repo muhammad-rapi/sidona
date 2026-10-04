@@ -34,10 +34,10 @@
         <div class="mx-auto grid max-w-6xl gap-8 px-5 py-12 md:grid-cols-[1.2fr_1fr]">
             <div>
                 <p class="paint-type text-4xl text-board">Sidona</p>
-                <p class="mt-3 max-w-md text-base leading-relaxed text-white/80">Sistem Informasi Donasi dan Audit. Setiap donasi yang masuk dan setiap rupiah yang disalurkan dicatat di log berantai, bisa diperiksa auditor kapan saja.</p>
+                <p class="mt-3 max-w-md text-base leading-relaxed text-white/80">Setiap donasi yang masuk dicatat. Setiap rupiah yang keluar harus disetujui dua orang. Auditor bisa memeriksa semuanya kapan saja.</p>
             </div>
             <div class="text-sm leading-relaxed text-white/70 md:text-right">
-                <p>Donasi dikonfirmasi otomatis begitu pembayaran diterima. Tidak ada yang perlu menunggu persetujuan siapa pun.</p>
+                <p>Donasi sah begitu pembayaran masuk. Tidak ada yang menunggu persetujuan.</p>
                 <p class="mt-3">&copy; {{ now()->year }} SIDONA</p>
             </div>
         </div>

@@ -2,30 +2,33 @@
     <div class="page-head">
         <div>
             <h1 class="page-title">Ringkasan</h1>
-            <p class="page-sub">Posisi dana hari ini. Donasi masuk otomatis; yang perlu keputusan manusia hanya penyaluran.</p>
+            <p class="page-sub">Donasi masuk dan tercatat sendiri. Yang menunggu keputusan manusia hanya penyaluran dan pengajuan program.</p>
         </div>
         @if (auth()->user()->isBendahara() || auth()->user()->isAdmin())
             <a href="{{ route('campaigns.create') }}" wire:navigate class="btn btn-paint"><x-icon name="plus" />Program baru</a>
         @endif
     </div>
 
-    <div class="panel mb-8 grid divide-y divide-rule md:grid-cols-3 md:divide-x md:divide-y-0">
-        <div class="p-5">
-            <p class="stat-label">Donasi masuk</p>
-            <p class="stat-value">Rp&nbsp;{{ number_format($totalIn, 0, ',', '.') }}</p>
-            <p class="mt-2 text-sm text-ink-soft">Hari ini: Rp&nbsp;{{ number_format($todayTotal, 0, ',', '.') }} dari {{ $todayCount }} donasi</p>
+    @php
+        $outPercent = $totalIn > 0 ? min(100, (int) round($totalOut / $totalIn * 100)) : 0;
+    @endphp
+    <section class="mb-10" aria-labelledby="posisi-dana">
+        <h2 id="posisi-dana" class="sr-only">Posisi dana</h2>
+        <p class="text-sm font-semibold text-ink-soft">Saldo yang bisa disalurkan hari ini</p>
+        <p class="paint-type keep mt-1 text-6xl leading-none text-ink sm:text-8xl">Rp&nbsp;{{ number_format($balance, 0, ',', '.') }}</p>
+
+        <div class="mt-6 max-w-3xl">
+            <div class="thermo-h !h-6" style="--level: {{ $outPercent }}" role="img" aria-label="{{ $outPercent }} persen dana masuk sudah disalurkan"><i class="!bg-ink"></i></div>
+            <div class="mt-2 flex flex-wrap justify-between gap-x-6 gap-y-1 text-sm">
+                <p><span class="font-bold">Rp&nbsp;{{ number_format($totalOut, 0, ',', '.') }}</span> sudah disalurkan ({{ $outPercent }}%)</p>
+                <p class="text-ink-soft">dari Rp&nbsp;{{ number_format($totalIn, 0, ',', '.') }} yang masuk</p>
+            </div>
         </div>
-        <div class="p-5">
-            <p class="stat-label">Sudah disalurkan</p>
-            <p class="stat-value">Rp&nbsp;{{ number_format($totalOut, 0, ',', '.') }}</p>
-            <p class="mt-2 text-sm text-ink-soft">Penyaluran yang disetujui admin</p>
-        </div>
-        <div class="p-5">
-            <p class="stat-label">Saldo tersedia</p>
-            <p class="stat-value text-paid">Rp&nbsp;{{ number_format($balance, 0, ',', '.') }}</p>
-            <p class="mt-2 text-sm text-ink-soft">{{ $activeCampaigns }} program aktif</p>
-        </div>
-    </div>
+
+        <p class="mt-5 max-w-xl text-ink">
+            Hari ini masuk <strong>Rp&nbsp;{{ number_format($todayTotal, 0, ',', '.') }}</strong> dari {{ $todayCount }} donasi, ke {{ $activeCampaigns }} program yang sedang berjalan.
+        </p>
+    </section>
 
     @if ($pendingProposals > 0 && auth()->user()->isAdmin())
         <a href="{{ route('campaigns.index') }}" wire:navigate class="mb-4 flex items-center justify-between gap-4 border-2 border-ink bg-board px-5 py-4 transition-colors hover:bg-board-deep">
@@ -37,7 +40,7 @@
     @if ($pendingDisbursements > 0)
         <a href="{{ route('disbursements.index') }}" wire:navigate class="mb-8 flex items-center justify-between gap-4 border-2 border-ink bg-board px-5 py-4 transition-colors hover:bg-board-deep">
             <p class="font-bold">{{ $pendingDisbursements }} pengajuan penyaluran menunggu keputusan</p>
-            <span class="text-sm font-bold uppercase tracking-wider">Tinjau</span>
+            <span class="text-sm font-bold">Tinjau</span>
         </a>
     @endif
 

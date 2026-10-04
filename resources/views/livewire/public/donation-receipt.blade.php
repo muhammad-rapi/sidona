@@ -31,7 +31,7 @@
     </section>
 
     <div class="mx-auto max-w-2xl px-5 py-12 print:py-0">
-        <article class="relative border-2 border-ink bg-paper print:border-0" aria-labelledby="kuitansi-title">
+        <article class="relative -rotate-[0.7deg] border-2 border-ink bg-paper print:rotate-0 print:border-0" aria-labelledby="kuitansi-title">
             <header class="flex items-start justify-between gap-4 border-b-2 border-ink px-6 py-5">
                 <div>
                     <h2 id="kuitansi-title" class="paint-type text-5xl leading-none text-paint">Kuitansi</h2>
@@ -72,9 +72,10 @@
             </dl>
 
             <footer class="flex items-center justify-between gap-4 border-t-2 border-ink px-6 py-5">
-                <p class="max-w-[16rem] text-xs leading-relaxed text-ink-soft">Tercatat otomatis di log berantai SIDONA. Kuitansi ini sah tanpa tanda tangan.</p>
-                <p class="paint-type -rotate-6 border-4 px-3 py-1 text-3xl leading-none {{ $stamp[1] }}">{{ $stamp[0] }}</p>
+                <p class="max-w-[17rem] text-xs leading-relaxed text-ink-soft">Tercatat otomatis di log berantai SIDONA. Kuitansi ini sah tanpa tanda tangan.</p>
+
             </footer>
+            <p class="paint-type pointer-events-none absolute -bottom-5 -right-4 -rotate-[9deg] border-[5px] bg-paper/90 px-4 py-1 text-5xl leading-none {{ $stamp[1] }} print:right-4">{{ $stamp[0] }}</p>
         </article>
 
         <div class="mt-8 flex flex-wrap gap-3 print:hidden">

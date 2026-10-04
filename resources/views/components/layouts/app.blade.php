@@ -25,7 +25,7 @@
     @include('components.layouts.partials-head')
     <title>{{ $title ?? 'Panel' }} — SIDONA</title>
 </head>
-<body class="bg-desk" x-data="{ menu: false }" @keydown.escape.window="menu = false">
+<body class="staff bg-desk" x-data="{ menu: false }" @keydown.escape.window="menu = false">
     {{-- Mobile top bar --}}
     <header class="on-ink sticky top-0 z-30 flex h-14 items-center justify-between border-b-4 border-board bg-ink px-4 text-white lg:hidden">
         <a href="{{ route('dashboard') }}" wire:navigate class="paint-type text-2xl tracking-wide text-board">Sidona</a>
@@ -70,8 +70,10 @@
         </nav>
 
         <div class="shrink-0 border-t border-white/10 p-4">
-            <p class="truncate text-sm font-bold">{{ $user->name }}</p>
-            <p class="mt-0.5 text-xs uppercase tracking-wider text-board">{{ $user->role->label() }}</p>
+            <a href="{{ route('profile') }}" wire:navigate @if (request()->routeIs('profile')) aria-current="page" @endif class="-mx-2 block px-2 py-1.5 transition-colors hover:bg-white/10 aria-[current=page]:bg-board aria-[current=page]:text-ink" title="Profil saya">
+                <span class="block truncate text-sm font-bold">{{ $user->name }}</span>
+                <span class="mt-0.5 block text-xs uppercase tracking-wider opacity-80">{{ $user->role->label() }} &middot; profil</span>
+            </a>
             <div class="mt-4 flex items-center justify-between gap-3 text-sm">
                 <a href="{{ route('program.index') }}" class="font-semibold text-white/70 underline-offset-4 hover:text-white hover:underline">Lihat situs</a>
                 <form method="POST" action="{{ route('logout') }}">

@@ -82,6 +82,6 @@
             <a href="{{ route('program.show', $donation->campaign) }}" wire:navigate class="btn btn-line">Ganti nominal</a>
         </div>
 
-        <p class="text-sm text-ink-soft">Simpan kode <span class="font-mono font-bold text-ink">{{ $donation->reference_code }}</span>. Dengan kode ini kuitansi bisa dibuka lagi kapan saja lewat menu Cek Donasi.</p>
+        <p class="text-sm text-ink-soft">Catat kode <span class="font-mono font-bold text-ink">{{ $donation->reference_code }}</span>. Lewat menu Cek Donasi, kuitansi bisa dibuka lagi kapan pun.</p>
     </div>
 </div>

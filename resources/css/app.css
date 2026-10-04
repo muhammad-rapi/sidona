@@ -115,6 +115,32 @@
         @apply min-h-9 px-3.5 py-1.5 text-sm;
     }
 
+    /* Area staf: lebih tenang dari sisi publik yang "dicat" */
+    .staff .paint-type:not(.keep) {
+        font-family: var(--font-sans);
+        text-transform: none;
+        letter-spacing: -0.015em;
+        font-weight: 800;
+    }
+
+    .staff .page-title {
+        font-family: var(--font-sans);
+        text-transform: none;
+        letter-spacing: -0.025em;
+        font-size: 1.9rem;
+        line-height: 1.15;
+    }
+
+    .staff .field,
+    .staff .btn:not(.btn-lg),
+    .staff .action {
+        border-width: 1.5px;
+    }
+
+    .staff .ledger thead th {
+        border-bottom-width: 1.5px;
+    }
+
     /* Tombol aksi ikon dengan tooltip */
     .action {
         @apply relative inline-flex h-10 w-10 shrink-0 items-center justify-center border-2 border-ink transition-colors duration-150;
