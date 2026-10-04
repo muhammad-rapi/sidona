@@ -116,8 +116,7 @@
     }
 
     .legal-prose h2 {
-        @apply mb-2 font-display text-3xl font-extrabold uppercase leading-none text-ink;
-        letter-spacing: -0.01em;
+        @apply mb-2 text-xl font-extrabold leading-snug tracking-tight text-ink;
     }
 
     .legal-prose p,
@@ -238,6 +237,25 @@
         @apply border border-rule bg-paper;
     }
 
+    /* Tabel di area staf: buku besar tanpa kotak, hanya garis */
+    .panel:has(> .ledger),
+    .panel:has(> div > .ledger) {
+        @apply border-0 bg-transparent;
+    }
+
+    .staff .ledger tbody td {
+        @apply border-ink/15;
+    }
+
+    .staff .ledger .sticky-col,
+    .staff .ledger thead .sticky-col {
+        background: var(--color-desk);
+    }
+
+    .staff .ledger tbody tr:hover td.sticky-col {
+        background: color-mix(in srgb, var(--color-board-wash) 55%, var(--color-desk));
+    }
+
     .page-head {
         @apply mb-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-3;
     }
@@ -255,7 +273,7 @@
     }
 
     .ledger thead th {
-        @apply whitespace-nowrap border-b-2 border-ink bg-paper px-4 py-3 text-xs font-bold uppercase tracking-wider text-ink-soft;
+        @apply whitespace-nowrap border-b-2 border-ink px-4 py-3 text-xs font-bold uppercase tracking-wider text-ink-soft;
     }
 
     .ledger tbody td {
@@ -271,23 +289,36 @@
     }
 
     .badge {
-        @apply inline-flex items-center gap-1.5 border px-2 py-0.5 text-xs font-bold uppercase tracking-wide;
+        @apply inline-flex items-center gap-2 text-sm font-semibold;
+    }
+
+    .badge::before {
+        content: '';
+        @apply h-2.5 w-2.5 shrink-0 bg-current;
     }
 
     .badge-paid {
-        @apply border-paid bg-paid-wash text-paid;
+        @apply text-paid;
     }
 
     .badge-wait {
-        @apply border-ink-faint bg-board-wash text-ink;
+        @apply text-ink-soft;
+    }
+
+    .badge-wait::before {
+        @apply bg-board-deep;
     }
 
     .badge-fail {
-        @apply border-paint bg-paint-wash text-paint-dark;
+        @apply text-paint-dark;
     }
 
     .badge-ink {
-        @apply border-ink bg-ink text-board;
+        @apply bg-ink px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-board;
+    }
+
+    .badge-ink::before {
+        display: none;
     }
 
     .flash {

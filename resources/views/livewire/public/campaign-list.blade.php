@@ -52,7 +52,7 @@
 
     <section id="semua-program" class="mx-auto max-w-6xl px-5 py-14">
         <div class="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
-            <h2 class="paint-type text-4xl text-ink sm:text-5xl">{{ $searching ? 'Hasil pencarian' : ($featured ? 'Program lain yang sedang berjalan' : 'Program yang sedang berjalan') }}</h2>
+            <h2 class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{{ $searching ? 'Hasil pencarian' : ($featured ? 'Program lain yang sedang berjalan' : 'Program yang sedang berjalan') }}</h2>
             <div class="w-full sm:w-80">
                 <label for="cari" class="sr-only">Cari program</label>
                 <div class="relative">
@@ -115,7 +115,7 @@
         <section class="border-t-4 border-ink bg-board-wash" aria-labelledby="faq-ringkas">
             <div class="mx-auto grid max-w-6xl gap-x-16 gap-y-8 px-5 py-14 lg:grid-cols-[18rem_1fr]">
                 <div>
-                    <h2 id="faq-ringkas" class="paint-type text-4xl text-ink sm:text-5xl">Sebelum berdonasi</h2>
+                    <h2 id="faq-ringkas" class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Sebelum berdonasi</h2>
                     <p class="mt-3 text-ink-soft">Jawaban singkat untuk yang paling sering ditanyakan.</p>
                     <a href="{{ route('faq') }}" wire:navigate class="mt-5 inline-block text-sm font-bold underline decoration-2 underline-offset-4 hover:text-paint-dark">Lihat semua pertanyaan</a>
                 </div>

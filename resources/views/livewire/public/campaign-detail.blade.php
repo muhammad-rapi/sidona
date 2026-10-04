@@ -121,18 +121,18 @@
 
         <div class="min-w-0 space-y-12">
             <section aria-labelledby="tentang">
-                <h2 id="tentang" class="paint-type text-4xl text-ink">Tentang program ini</h2>
+                <h2 id="tentang" class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Tentang program ini</h2>
                 <p class="mt-4 max-w-prose whitespace-pre-line text-lg leading-relaxed text-ink">{{ $campaign->description }}</p>
                 <p class="mt-6 max-w-prose border-t-2 border-ink pt-4 text-sm text-ink-soft">Program berjalan sampai {{ $campaign->ends_on->translatedFormat('j F Y') }}. Dana yang terkumpul disalurkan lewat pengajuan bendahara dan persetujuan admin, dan setiap penyaluran tercatat di log audit.</p>
             </section>
 
             @if ($campaign->photos->isNotEmpty())
-                <section aria-labelledby="galeri" x-data="{ open: null }" @keydown.escape.window="open = null">
-                    <h2 id="galeri" class="paint-type text-4xl text-ink">Galeri</h2>
+                <section aria-labelledby="galeri" x-data="{ open: null, caption: null }" @keydown.escape.window="open = null">
+                    <h2 id="galeri" class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Galeri</h2>
                     <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                         @foreach ($campaign->photos as $photo)
                             <li>
-                                <button type="button" @click="open = '{{ $photo->url() }}'" class="block aspect-[4/3] w-full overflow-hidden border-2 border-ink bg-board" aria-label="Perbesar foto {{ $loop->iteration }}">
+                                <button type="button" @click="open = '{{ $photo->url() }}'; caption = @js($photo->caption)" class="block aspect-[4/3] w-full overflow-hidden border-2 border-ink bg-board" aria-label="Perbesar foto {{ $loop->iteration }}">
                                     <img src="{{ $photo->url() }}" alt="{{ $photo->caption ?? $campaign->name.' foto '.$loop->iteration }}" class="h-full w-full object-cover transition-transform duration-300 hover:scale-105" loading="lazy">
                                 </button>
                             </li>
@@ -140,14 +140,17 @@
                     </ul>
 
                     <div x-show="open" x-cloak class="on-ink fixed inset-0 z-50 flex items-center justify-center bg-ink/90 p-4" @click="open = null" role="dialog" aria-modal="true" aria-label="Foto diperbesar">
-                        <img :src="open" alt="" class="max-h-full max-w-full border-4 border-board object-contain">
+                        <figure class="flex max-h-full max-w-full flex-col items-center gap-3" @click.stop>
+                            <img :src="open" alt="" class="max-h-[80vh] max-w-full border-4 border-board object-contain">
+                            <figcaption x-show="caption" x-text="caption" class="max-w-xl text-center text-sm text-white/80"></figcaption>
+                        </figure>
                         <button type="button" class="btn btn-sm absolute right-4 top-4 border-board bg-ink text-board" @click="open = null">Tutup</button>
                     </div>
                 </section>
             @endif
 
             <section aria-labelledby="donatur">
-                <h2 id="donatur" class="paint-type text-4xl text-ink">Donatur terakhir</h2>
+                <h2 id="donatur" class="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">Donatur terakhir</h2>
                 @if ($recentDonations->isEmpty())
                     <p class="mt-4 text-ink-soft">Belum ada donasi. Jadilah donatur pertama untuk program ini.</p>
                 @else

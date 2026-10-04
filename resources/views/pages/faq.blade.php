@@ -6,7 +6,7 @@
     <div class="space-y-10">
         @foreach ($groups as $group => $items)
             <section aria-labelledby="g-{{ $loop->index }}">
-                <h2 id="g-{{ $loop->index }}" class="paint-type mb-3 text-3xl">{{ $group }}</h2>
+                <h2 id="g-{{ $loop->index }}" class="mb-3 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">{{ $group }}</h2>
                 <div class="border-t-2 border-ink">
                     @foreach ($items as [$question, $answer])
                         <details class="group border-b border-rule">
