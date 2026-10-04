@@ -117,9 +117,9 @@
                 <div class="mx-auto grid max-w-6xl gap-x-16 gap-y-8 px-5 py-14 lg:grid-cols-[1fr_1.15fr] lg:items-center">
                     <div>
                         <h2 id="buku-kas" class="text-3xl font-extrabold leading-tight tracking-tight text-board sm:text-4xl">Setiap rupiah meninggalkan jejak.</h2>
-                        <p class="mt-4 max-w-md text-lg text-white/80">Ini catatan asli yang baru saja masuk ke buku kas SIDONA. Tiap baris memuat sidik hash dan menunjuk ke baris sebelumnya, jadi mengubah satu catatan akan merusak semua yang sesudahnya.</p>
-                        <p class="mt-3 text-sm text-white/60">{{ number_format($ledgerTotal, 0, ',', '.') }} catatan sejauh ini. Hanya jenis kejadian dan waktu yang terlihat di sini, tanpa nama atau kontak siapa pun.</p>
-                        <a href="{{ route('faq') }}" wire:navigate class="mt-5 inline-block text-sm font-bold text-board underline decoration-2 underline-offset-4">Bagaimana cara memeriksanya</a>
+                        <p class="mt-4 max-w-md text-lg text-white/80">Ini catatan asli yang baru saja masuk ke buku kas SIDONA. Setiap donasi dan penyaluran dicatat, dan catatan lama tidak bisa diubah diam-diam.</p>
+                        <p class="mt-3 text-sm text-white/60">{{ number_format($ledgerTotal, 0, ',', '.') }} catatan sejauh ini. Yang tampil hanya jenis kejadian dan waktunya, tanpa nama atau kontak siapa pun.</p>
+                        <a href="{{ route('faq') }}" wire:navigate class="mt-5 inline-block text-sm font-bold text-board underline decoration-2 underline-offset-4">Baca selengkapnya</a>
                     </div>
 
                     <ol class="font-mono text-sm" aria-label="Catatan buku kas terbaru">
@@ -128,8 +128,8 @@
                                 <span class="text-white/50">#{{ $row['id'] }}</span>
                                 <span class="font-sans font-semibold text-board">{{ $row['label'] }}</span>
                                 <span class="col-span-2 mt-1 text-white/70 sm:col-span-1 sm:mt-0 sm:text-right">
-                                    <span class="text-white/40">{{ $row['prev'] }}</span> &rarr; <span class="text-white">{{ $row['hash'] }}</span>
-                                    <span class="block text-xs text-white/40">{{ $row['at']->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}</span>
+                                    <span class="text-white">{{ $row['at']->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}</span>
+                                    <span class="block text-xs text-white/40" title="Kode catatan">{{ $row['hash'] }}</span>
                                 </span>
                             </li>
                         @endforeach

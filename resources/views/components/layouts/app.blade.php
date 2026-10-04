@@ -5,6 +5,7 @@
         ['label' => 'Program Donasi', 'route' => 'campaigns.index', 'match' => 'campaigns.*', 'icon' => 'programs'],
         ['label' => 'Riwayat Donasi', 'route' => 'donations.index', 'match' => 'donations.*', 'icon' => 'coins'],
         ['label' => 'Penyaluran Dana', 'route' => 'disbursements.index', 'match' => 'disbursements.*', 'icon' => 'send'],
+        ['label' => 'Tiket Bantuan', 'route' => 'tickets.index', 'match' => 'tickets.*', 'icon' => 'inbox'],
     ];
     $audit = [
         ['label' => 'Verifikasi Integritas', 'route' => 'audit.integrity', 'icon' => 'shield'],

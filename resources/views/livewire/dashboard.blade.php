@@ -44,7 +44,9 @@
                             <p class="truncate font-bold group-hover:text-paint-dark">{{ $item['title'] }}</p>
                             <p class="truncate text-sm text-ink-soft">{{ $item['meta'] }}</p>
                         </div>
-                        <p class="shrink-0 text-right text-sm"><span class="block font-bold">Rp&nbsp;{{ number_format($item['amount'], 0, ',', '.') }}</span><span class="text-ink-soft">{{ $item['amount_label'] }}</span></p>
+                        @if ($item['amount'] !== null)
+                            <p class="shrink-0 text-right text-sm"><span class="block font-bold">Rp&nbsp;{{ number_format($item['amount'], 0, ',', '.') }}</span><span class="text-ink-soft">{{ $item['amount_label'] }}</span></p>
+                        @endif
                     </a>
                 @empty
                     <p class="py-6 text-sm text-ink-soft">Tidak ada yang menunggu. Semua sudah diputuskan.</p>

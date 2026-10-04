@@ -48,6 +48,7 @@ class ActivityLog extends Model
             $subject instanceof Disbursement => 'Penyaluran Rp '.number_format($subject->amount, 0, ',', '.').' ('.($subject->campaign?->name ?? 'program').')',
             $subject instanceof User => 'Pengguna: '.$subject->name,
             $this->subject_type === Campaign::class => 'Program: '.($name ?? '#'.$this->subject_id).' (sudah dihapus)',
+            $subject instanceof Ticket => 'Tiket '.$subject->code,
             $this->subject_type === AnomalyReview::class => 'Temuan anomali',
             $this->subject_type !== null => class_basename($this->subject_type).' #'.$this->subject_id,
             default => '-',

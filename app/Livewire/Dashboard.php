@@ -5,9 +5,11 @@ namespace App\Livewire;
 use App\Enums\CampaignStatus;
 use App\Enums\DisbursementStatus;
 use App\Enums\DonationStatus;
+use App\Enums\TicketStatus;
 use App\Models\Campaign;
 use App\Models\Disbursement;
 use App\Models\Donation;
+use App\Models\Ticket;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -45,7 +47,18 @@ class Dashboard extends Component
                 'url' => route('disbursements.index'),
             ]);
 
-        return $proposals->concat($disbursements)->sortBy('at')->values()->take(8);
+        $tickets = Ticket::query()->where('status', TicketStatus::Open)->get()
+            ->map(fn (Ticket $t) => [
+                'kind' => 'Tiket bantuan',
+                'title' => $t->subject,
+                'meta' => 'dari '.$t->name.', '.$t->category->label(),
+                'amount' => null,
+                'amount_label' => null,
+                'at' => $t->last_activity_at ?? $t->created_at,
+                'url' => route('tickets.show', $t),
+            ]);
+
+        return $proposals->concat($disbursements)->concat($tickets)->sortBy('at')->values()->take(8);
     }
 
     public function render()
@@ -62,7 +75,7 @@ class Dashboard extends Component
             'todayTotal' => (int) (clone $paid)->whereDate('paid_at', today())->sum('amount'),
             'activeCampaigns' => Campaign::where('status', CampaignStatus::Active)->count(),
             'pendingProposals' => Campaign::where('status', CampaignStatus::Pending)->count(),
-            'pendingDisbursements' => Disbursement::where('status', DisbursementStatus::Submitted)->count(),
+            'pendingDisbursements' => Disbursement::where('status', DisbursementStatus::Submitted)->count() + Ticket::where('status', TicketStatus::Open)->count(),
             'queue' => $this->decisionQueue(),
             'runningCampaigns' => Campaign::query()
                 ->where('status', CampaignStatus::Active)

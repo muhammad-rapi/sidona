@@ -22,10 +22,14 @@ use App\Livewire\Public\DonationReceipt;
 use App\Livewire\Public\DonationStatusCheck;
 use App\Livewire\Public\MonitorProposal;
 use App\Livewire\Public\ProposalStatus;
+use App\Livewire\Public\TicketCreate;
+use App\Livewire\Public\TicketThread;
 use App\Livewire\Reports\BalanceSummary;
 use App\Livewire\Reports\DisbursementReport;
 use App\Livewire\Reports\DonationReport;
 use App\Livewire\Reports\VerifyReport;
+use App\Livewire\Tickets\TicketIndex;
+use App\Livewire\Tickets\TicketShow;
 use App\Livewire\Users\UserIndex;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +48,8 @@ Route::get('/ajukan-program', CampaignSubmit::class)->name('program.submit');
 Route::get('/ajukan-program/verifikasi/{code}/{hash}', VerifyProposalController::class)->middleware('signed')->name('program.verify');
 Route::get('/ajukan-program/{code}', ProposalStatus::class)->name('program.proposal');
 Route::get('/pantau/{token}', MonitorProposal::class)->name('program.monitor');
+Route::get('/bantuan', TicketCreate::class)->name('support.new');
+Route::get('/bantuan/{token}', TicketThread::class)->name('support.thread');
 Route::get('/donasi/cek', DonationStatusCheck::class)->name('donations.check');
 Route::get('/donasi/{reference}/bayar', DonationPay::class)->name('donations.pay');
 Route::get('/donasi/{reference}', DonationReceipt::class)->name('donations.receipt');
@@ -64,6 +70,8 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
     Route::get('/profil', ProfilePage::class)->name('profile');
+    Route::get('/tiket', TicketIndex::class)->name('tickets.index');
+    Route::get('/tiket/{ticket}', TicketShow::class)->name('tickets.show');
     Route::get('/pengguna', UserIndex::class)->middleware('role:super_admin')->name('users.index');
 
     Route::get('/campaigns', CampaignIndex::class)->name('campaigns.index');

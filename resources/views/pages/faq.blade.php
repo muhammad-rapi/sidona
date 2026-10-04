@@ -22,5 +22,5 @@
         @endforeach
     </div>
 
-    <p class="mt-10 border-t-2 border-ink pt-4 text-sm text-ink-soft">Belum terjawab? Baca juga <a href="{{ route('terms') }}" wire:navigate class="font-bold text-ink underline underline-offset-4">Syarat dan ketentuan</a> dan <a href="{{ route('privacy') }}" wire:navigate class="font-bold text-ink underline underline-offset-4">Kebijakan privasi</a>.</p>
+    <p class="mt-10 border-t-2 border-ink pt-4 text-sm text-ink-soft">Belum terjawab? <a href="{{ route('support.new') }}" wire:navigate class="font-bold text-ink underline underline-offset-4">Hubungi kami</a>. Baca juga <a href="{{ route('terms') }}" wire:navigate class="font-bold text-ink underline underline-offset-4">Syarat dan ketentuan</a> dan <a href="{{ route('privacy') }}" wire:navigate class="font-bold text-ink underline underline-offset-4">Kebijakan privasi</a>.</p>
 </x-legal-page>

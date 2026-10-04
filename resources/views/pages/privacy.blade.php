@@ -6,6 +6,7 @@
                 <li><strong>Donatur:</strong> nama, email atau nomor WhatsApp, nominal, metode dan waktu pembayaran, status donasi, dan pilihan menyamarkan nama.</li>
                 <li><strong>Pengaju program:</strong> nama, kontak, cerita program, target, data rekening penerima, dan foto yang Anda unggah.</li>
                 <li><strong>Staf:</strong> nama, email, peran, serta catatan login berupa waktu, alamat IP, dan jenis perangkat.</li>
+                <li><strong>Tiket bantuan:</strong> nama, email, isi pesan, dan kode donasi atau pengajuan yang Anda sebutkan.</li>
                 <li><strong>Teknis:</strong> cookie sesi yang diperlukan agar halaman berfungsi.</li>
             </ul>
             <p>Kami tidak meminta dan tidak menyimpan nomor kartu atau data login bank Anda.</p>
