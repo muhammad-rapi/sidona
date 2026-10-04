@@ -2,6 +2,7 @@
 
 use App\Enums\DonationStatus;
 use App\Enums\UserRole;
+use App\Livewire\Donations\DonationIndex;
 use App\Livewire\Reports\DonationReport;
 use App\Models\Campaign;
 use App\Models\Donation;
@@ -73,4 +74,18 @@ it('searches the donation report by donor name, contact or reference code', func
         ->set('search', 'budi')->assertSee('Budi Santoso')->assertDontSee('Siti Aminah')
         ->set('search', '081111111111')->assertSee('Siti Aminah')->assertDontSee('Budi Santoso')
         ->set('search', $budi->reference_code)->assertSee('Budi Santoso')->assertDontSee('Siti Aminah');
+});
+
+it('groups the donation history by day with a daily total', function () {
+    $staff = User::factory()->create(['role' => UserRole::Bendahara]);
+    $campaign = Campaign::factory()->create();
+    Donation::factory()->for($campaign)->create(['amount' => 100000, 'status' => DonationStatus::Verified, 'paid_at' => now()]);
+    Donation::factory()->for($campaign)->create(['amount' => 50000, 'status' => DonationStatus::Verified, 'paid_at' => now()]);
+    Donation::factory()->for($campaign)->create(['amount' => 70000, 'status' => DonationStatus::Verified, 'paid_at' => now()->subDays(2)]);
+
+    Livewire::actingAs($staff)->test(DonationIndex::class)
+        ->assertSee('2 donasi berhasil')
+        ->assertSee('150.000')
+        ->assertSee('1 donasi berhasil')
+        ->assertSee('70.000');
 });

@@ -6,16 +6,12 @@
         </div>
     </div>
 
-    <div class="panel mb-6 grid divide-y divide-rule sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-        <div class="p-5">
-            <p class="stat-label">Total donasi berhasil</p>
-            <p class="stat-value text-paid">Rp&nbsp;{{ number_format($paidTotal, 0, ',', '.') }}</p>
-        </div>
-        <div class="p-5">
-            <p class="stat-label">Menunggu pembayaran</p>
-            <p class="stat-value">{{ number_format($pendingCount, 0, ',', '.') }}</p>
-        </div>
-    </div>
+    <p class="mb-6 max-w-2xl text-lg">
+        <strong class="text-paid">Rp&nbsp;{{ number_format($paidTotal, 0, ',', '.') }}</strong> sudah masuk dari semua donasi berhasil.
+        @if ($pendingCount > 0)
+            <span class="text-ink-soft">{{ number_format($pendingCount, 0, ',', '.') }} lagi masih menunggu pembayaran.</span>
+        @endif
+    </p>
 
     <div class="mb-4 flex flex-wrap items-end justify-between gap-4">
         <div class="flex flex-wrap gap-2" role="group" aria-label="Filter status">
@@ -38,13 +34,29 @@
                     <th>Program</th>
                     <th class="num">Nominal</th>
                     <th>Metode</th>
-                    <th>Waktu</th>
+                    <th>Jam</th>
                     <th>Status</th>
                     <th class="sticky-col"><span class="sr-only">Aksi</span></th>
                 </tr>
             </thead>
             <tbody>
+                @php $lastDay = null; @endphp
                 @forelse ($donations as $donation)
+                    @php
+                        $day = ($donation->paid_at ?? $donation->created_at)->timezone('Asia/Jakarta');
+                        $dayKey = $day->toDateString();
+                    @endphp
+                    @if ($dayKey !== $lastDay)
+                        @php $lastDay = $dayKey; @endphp
+                        <tr>
+                            <td colspan="8" class="!border-b-2 !border-ink !bg-transparent !px-4 !pb-2 !pt-6">
+                                <div class="flex flex-wrap items-baseline gap-x-5 gap-y-0.5">
+                                    <p class="text-base font-extrabold">{{ $day->locale('id')->translatedFormat('l, j F Y') }}</p>
+                                    <p class="text-sm text-ink-soft">{{ $dayTotals[$dayKey]['count'] ?? 0 }} donasi berhasil &middot; <span class="font-bold text-ink">Rp&nbsp;{{ number_format($dayTotals[$dayKey]['sum'] ?? 0, 0, ',', '.') }}</span></p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endif
                     @php
                         $badge = match ($donation->status) {
                             \App\Enums\DonationStatus::Verified => 'badge-paid',
@@ -61,7 +73,7 @@
                         <td>{{ $donation->campaign->name }}</td>
                         <td class="num font-bold">Rp&nbsp;{{ number_format($donation->amount, 0, ',', '.') }}</td>
                         <td>{{ $donation->payment_method?->label() ?? '-' }}</td>
-                        <td class="whitespace-nowrap text-ink-soft">{{ ($donation->paid_at ?? $donation->created_at)->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}</td>
+                        <td class="whitespace-nowrap text-ink-soft">{{ ($donation->paid_at ?? $donation->created_at)->timezone('Asia/Jakarta')->format('H:i') }}</td>
                         <td><span class="badge {{ $badge }}">{{ $donation->status->label() }}</span></td>
                         <td class="sticky-col text-right">
                             <x-action :icon="$detailId === $donation->id ? 'close' : 'detail'" :label="$detailId === $donation->id ? 'Tutup detail' : 'Lihat detail'" wire:click="toggleDetail({{ $donation->id }})" aria-expanded="{{ $detailId === $donation->id ? 'true' : 'false' }}" />
