@@ -1,119 +1,83 @@
-<div x-data="{ confirmId: null, confirmCode: '' }">
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-xl font-semibold">Donasi Masuk</h1>
-        <select wire:model.live="status" class="rounded-full border border-frost-gray px-4 py-2 text-sm outline-none transition-all duration-200 focus:border-coral-pulse focus:ring-2 focus:ring-coral-pulse/20">
-            <option value="pending">Menunggu</option>
-            <option value="verified">Terverifikasi</option>
-            <option value="rejected">Ditolak</option>
-            <option value="all">Semua</option>
-        </select>
+<div>
+    <div class="page-head">
+        <div>
+            <h1 class="page-title">Riwayat Donasi</h1>
+            <p class="page-sub">Donasi dikonfirmasi otomatis saat pembayaran diterima. Halaman ini hanya untuk memantau; tidak ada yang perlu diverifikasi manual.</p>
+        </div>
     </div>
 
-    <div class="bg-white rounded-3xl border border-frost-gray overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
+    <div class="panel mb-6 grid divide-y divide-rule sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+        <div class="p-5">
+            <p class="stat-label">Total donasi berhasil</p>
+            <p class="stat-value text-paid">Rp&nbsp;{{ number_format($paidTotal, 0, ',', '.') }}</p>
+        </div>
+        <div class="p-5">
+            <p class="stat-label">Menunggu pembayaran</p>
+            <p class="stat-value">{{ number_format($pendingCount, 0, ',', '.') }}</p>
+        </div>
+    </div>
+
+    <div class="mb-4 flex flex-wrap items-end justify-between gap-4">
+        <div class="flex flex-wrap gap-2" role="group" aria-label="Filter status">
+            @foreach (['all' => 'Semua', 'verified' => 'Berhasil', 'pending' => 'Menunggu', 'rejected' => 'Gagal'] as $value => $label)
+                <button type="button" wire:click="$set('status', '{{ $value }}')" aria-pressed="{{ $status === $value ? 'true' : 'false' }}" class="btn btn-sm {{ $status === $value ? 'btn-ink' : 'btn-line' }}">{{ $label }}</button>
+            @endforeach
+        </div>
+        <div class="w-full sm:w-72">
+            <label for="search" class="sr-only">Cari donasi</label>
+            <input id="search" type="search" wire:model.live.debounce.300ms="search" placeholder="Cari nama, kontak, atau kode" class="field field-sm">
+        </div>
+    </div>
+
+    <div class="panel overflow-x-auto">
+        <table class="ledger">
+            <thead>
+                <tr>
+                    <th>Kode</th>
+                    <th>Donatur</th>
+                    <th>Program</th>
+                    <th class="num">Nominal</th>
+                    <th>Metode</th>
+                    <th>Waktu</th>
+                    <th>Status</th>
+                    <th><span class="sr-only">Aksi</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($donations as $donation)
+                    @php
+                        $badge = match ($donation->status) {
+                            \App\Enums\DonationStatus::Verified => 'badge-paid',
+                            \App\Enums\DonationStatus::Rejected => 'badge-fail',
+                            default => 'badge-wait',
+                        };
+                    @endphp
                     <tr>
-                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Kode</th>
-                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Program</th>
-                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Donatur</th>
-                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Nominal</th>
-                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Bukti</th>
-                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Status</th>
-                        <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Aksi</th>
+                        <td class="font-mono text-xs">{{ $donation->reference_code }}</td>
+                        <td>
+                            <p class="font-semibold">{{ $donation->donor_name }}@if ($donation->is_anonymous) <span class="badge badge-ink ml-1">Anonim</span>@endif</p>
+                            <p class="text-xs text-ink-soft">{{ $donation->donor_contact }}</p>
+                        </td>
+                        <td>{{ $donation->campaign->name }}</td>
+                        <td class="num font-bold">Rp&nbsp;{{ number_format($donation->amount, 0, ',', '.') }}</td>
+                        <td>{{ $donation->payment_method?->label() ?? '-' }}</td>
+                        <td class="whitespace-nowrap text-ink-soft">{{ ($donation->paid_at ?? $donation->created_at)->timezone('Asia/Jakarta')->format('d/m/Y H:i') }}</td>
+                        <td><span class="badge {{ $badge }}">{{ $donation->status->label() }}</span></td>
+                        <td class="text-right">
+                            <button type="button" wire:click="toggleDetail({{ $donation->id }})" aria-expanded="{{ $detailId === $donation->id ? 'true' : 'false' }}" class="btn btn-line btn-sm">{{ $detailId === $donation->id ? 'Tutup' : 'Detail' }}</button>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @forelse ($donations as $donation)
-                        @php
-                            $statusBadge = match ($donation->status->value) {
-                                'verified' => ['bg-mint-wash', 'text-canopy-green'],
-                                'rejected' => ['bg-flag-red/10', 'text-flag-red'],
-                                default => ['bg-sand', 'text-graphite'],
-                            };
-                        @endphp
-                        <tr class="hover:bg-mint-wash/40 transition-colors duration-150">
-                            <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">{{ $donation->reference_code }}</td>
-                            <td class="border-b border-frost-gray px-4 py-3">{{ $donation->campaign->name }}</td>
-                            <td class="border-b border-frost-gray px-4 py-3">{{ $donation->donor_name }}</td>
-                            <td class="border-b border-frost-gray px-4 py-3 font-mono whitespace-nowrap">
-                                Rp {{ number_format($donation->amount, 0, ',', '.') }}
-                                @if ($donation->transferred_at)
-                                    <p class="text-xs font-sans font-normal text-graphite">{{ $donation->transferred_at->timezone('Asia/Jakarta')->format('d/m/Y H:i') }} WIB</p>
-                                @endif
-                            </td>
-                            <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap">
-                                <a href="{{ Illuminate\Support\Facades\Storage::url($donation->proof_path) }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-sm text-coral-pulse transition-colors duration-200 hover:text-coral-pulse-dark">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"/><circle cx="12" cy="12" r="3"/></svg>
-                                    Lihat
-                                </a>
-                            </td>
-                            <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap">
-                                <span class="inline-flex items-center rounded-full {{ $statusBadge[0] }} {{ $statusBadge[1] }} px-3 py-1 text-xs font-medium">{{ $donation->status->label() }}</span>
-                            </td>
-                            <td class="border-b border-frost-gray px-4 py-3 whitespace-nowrap space-x-2">
-                                @can('verify', $donation)
-                                    <button type="button" @click="confirmId = {{ $donation->id }}; confirmCode = '{{ $donation->reference_code }}'" class="inline-flex items-center rounded-full bg-mint-wash px-3 py-1 text-xs font-medium text-canopy-green transition-all duration-200 hover:bg-sky-wash active:scale-95">Verifikasi</button>
-                                @endcan
-                                @can('reject', $donation)
-                                    <button type="button" wire:click="startReject({{ $donation->id }})" class="inline-flex items-center rounded-full border border-flag-red/30 px-3 py-1 text-xs font-medium text-flag-red transition-colors duration-200 hover:bg-flag-red/10">Tolak</button>
-                                @endcan
-                            </td>
-                        </tr>
-                        @if ($rejectingId === $donation->id)
-                            <tr>
-                                <td colspan="7" class="border-b border-frost-gray px-4 py-3 bg-cloud-gray">
-                                    <form wire:submit="confirmReject" class="flex items-start gap-3">
-                                        <div class="flex-1">
-                                            <textarea wire:model="rejectionReason" class="w-full rounded border border-frost-gray px-3 py-2 text-sm outline-none transition-all duration-200 focus:border-coral-pulse focus:ring-2 focus:ring-coral-pulse/20" placeholder="Alasan penolakan"></textarea>
-                                            @error('rejectionReason') <p class="text-sm text-red-700 mt-1">{{ $message }}</p> @enderror
-                                        </div>
-                                        <button type="submit" class="rounded-full bg-coral-pulse px-5 py-2 text-white text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-coral-pulse-dark active:scale-95">Kirim</button>
-                                        <button type="button" wire:click="cancelReject" class="rounded-full border border-ink-black px-5 py-2 text-sm transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-ink-black hover:text-white active:scale-95">Batal</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endif
-                    @empty
-                        <tr>
-                            <td colspan="7" class="border-b border-frost-gray px-4 py-6 text-center text-graphite">Tidak ada donasi.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                    @if ($detailId === $donation->id)
+                        @include('livewire.partials.donation-detail-row', ['donation' => $donation, 'trail' => $trail, 'colspan' => 8])
+                    @endif
+                @empty
+                    <tr>
+                        <td colspan="8" class="py-12 text-center text-ink-soft">Belum ada donasi yang cocok dengan filter ini.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 
-    <div class="mt-4">{{ $donations->links() }}</div>
-
-    <div
-        x-show="confirmId !== null"
-        x-cloak
-        class="fixed inset-0 z-50 flex items-center justify-center bg-ink-black/30 backdrop-blur-sm px-4"
-        style="display: none"
-    >
-        <div
-            x-show="confirmId !== null"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 scale-90"
-            x-transition:enter-end="opacity-100 scale-100"
-            x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-90"
-            @click.outside="confirmId = null"
-            class="w-full max-w-sm rounded-3xl bg-white p-6 shadow-xl"
-        >
-            <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-mint-wash text-canopy-green">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-            </div>
-            <h2 class="mt-4 text-center font-semibold text-ink-black">Verifikasi Donasi?</h2>
-            <p class="mt-1 text-center text-sm text-graphite">
-                Donasi <span class="font-mono" x-text="confirmCode"></span> akan ditandai sebagai terverifikasi.
-            </p>
-            <div class="mt-6 flex gap-3">
-                <button type="button" @click="confirmId = null" class="flex-1 rounded-full border border-frost-gray px-4 py-2 text-sm font-medium text-graphite transition-all duration-200 ease-out hover:bg-cloud-gray active:scale-95">Batal</button>
-                <button type="button" @click="$wire.verify(confirmId); confirmId = null" class="flex-1 rounded-full bg-coral-pulse px-4 py-2 text-sm font-medium text-white transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-coral-pulse-dark active:scale-95">Ya, Verifikasi</button>
-            </div>
-        </div>
-    </div>
+    <div class="mt-6">{{ $donations->links() }}</div>
 </div>

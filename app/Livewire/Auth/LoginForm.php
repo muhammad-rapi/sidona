@@ -28,6 +28,7 @@ class LoginForm extends Component
         }
 
         session()->regenerate();
+        session()->flash('status', 'Berhasil masuk. Selamat datang, '.auth()->user()->name.'.');
 
         $this->redirectRoute('dashboard', navigate: true);
     }

@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class DonationVerifiedMail extends Mailable
+class DonationPaidMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -18,14 +18,14 @@ class DonationVerifiedMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Donasi Anda Telah Terverifikasi - SIDONA',
+            subject: 'Terima kasih, donasi Anda berhasil - SIDONA',
         );
     }
 
     public function content(): Content
     {
         return new Content(
-            view: 'mail.donation-verified',
+            view: 'mail.donation-paid',
         );
     }
 }

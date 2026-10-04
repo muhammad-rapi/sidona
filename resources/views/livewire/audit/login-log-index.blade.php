@@ -1,45 +1,51 @@
 <div>
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-xl font-semibold">Log Login</h1>
-        <button type="button" wire:click="exportPdf" class="rounded-full bg-coral-pulse px-6 py-3 text-white text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-coral-pulse-dark active:scale-95">Unduh PDF</button>
+    <div class="page-head">
+        <div>
+            <h1 class="page-title">Log Login</h1>
+        </div>
+        <div>
+            <button type="button" wire:click="exportPdf" class="btn btn-paint">Unduh PDF</button>
+        </div>
     </div>
 
-    <form class="flex flex-wrap gap-3 mb-4 bg-white p-4 rounded-2xl border border-frost-gray">
-        <input type="text" wire:model.live="email" placeholder="Email" class="rounded border border-frost-gray px-3 py-2 text-sm">
-        <select wire:model.live="status" class="rounded border border-frost-gray px-3 py-2 text-sm">
+    <form class="panel p-4 mb-4 flex flex-wrap gap-3 items-end">
+        <input type="text" wire:model.live="email" placeholder="Email" class="field field-sm w-auto">
+        <select wire:model.live="status" class="field field-sm w-auto">
             <option value="">Semua Status</option>
             <option value="success">Berhasil</option>
             <option value="failed">Gagal</option>
         </select>
-        <input type="date" wire:model.live="from" class="rounded border border-frost-gray px-3 py-2 text-sm">
-        <input type="date" wire:model.live="to" class="rounded border border-frost-gray px-3 py-2 text-sm">
+        <input type="date" wire:model.live="from" class="field field-sm w-auto">
+        <input type="date" wire:model.live="to" class="field field-sm w-auto">
     </form>
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-        <thead>
-            <tr>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Waktu</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Email</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Alamat IP</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($entries as $entry)
+    <div class="panel overflow-x-auto">
+        <table class="ledger">
+            <thead>
                 <tr>
-                    <td class="border-b border-frost-gray px-4 py-3 font-mono">{{ $entry->created_at->format('d/m/Y H:i') }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $entry->email }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3 font-mono">{{ $entry->ip_address }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $entry->status === 'success' ? 'Berhasil' : 'Gagal' }}</td>
+                    <th>Waktu</th>
+                    <th>Email</th>
+                    <th>Alamat IP</th>
+                    <th>Status</th>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="4" class="border-b border-frost-gray px-4 py-6 text-center text-graphite">Tidak ada catatan login.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse ($entries as $entry)
+                    <tr>
+                        <td class="font-mono text-xs">{{ $entry->created_at->format('d/m/Y H:i') }}</td>
+                        <td>{{ $entry->email }}</td>
+                        <td class="font-mono text-xs">{{ $entry->ip_address }}</td>
+                        <td>
+                            <span class="badge {{ $entry->status === 'success' ? 'badge-paid' : 'badge-fail' }}">{{ $entry->status === 'success' ? 'Berhasil' : 'Gagal' }}</span>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" class="text-center text-ink-soft py-6">Tidak ada catatan login.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 
     <div class="mt-4">{{ $entries->links() }}</div>

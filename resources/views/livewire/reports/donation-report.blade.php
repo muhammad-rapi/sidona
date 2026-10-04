@@ -1,53 +1,64 @@
 <div>
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-xl font-semibold">Laporan Donasi</h1>
-        <button type="button" wire:click="exportPdf" class="rounded-full bg-coral-pulse px-6 py-3 text-white text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-coral-pulse-dark active:scale-95">Unduh PDF</button>
+    <div class="page-head">
+        <div>
+            <h1 class="page-title">Laporan Donasi</h1>
+        </div>
+        <div>
+            <button type="button" wire:click="exportPdf" class="btn btn-paint">Unduh PDF</button>
+        </div>
     </div>
 
-    <form class="flex flex-wrap gap-3 mb-4 bg-white p-4 rounded-2xl border border-frost-gray">
-        <select wire:model.live="campaign_id" class="rounded border border-frost-gray px-3 py-2 text-sm">
+    <form class="panel p-4 mb-4 flex flex-wrap gap-3 items-end">
+        <select wire:model.live="campaign_id" class="field field-sm w-auto">
             <option value="">Semua Program</option>
             @foreach ($campaigns as $campaign)
                 <option value="{{ $campaign->id }}">{{ $campaign->name }}</option>
             @endforeach
         </select>
-        <select wire:model.live="status" class="rounded border border-frost-gray px-3 py-2 text-sm">
+        <select wire:model.live="status" class="field field-sm w-auto">
             <option value="">Semua Status</option>
-            <option value="pending">Menunggu</option>
-            <option value="verified">Terverifikasi</option>
-            <option value="rejected">Ditolak</option>
+            <option value="pending">Menunggu pembayaran</option>
+            <option value="verified">Berhasil</option>
+            <option value="rejected">Gagal</option>
         </select>
-        <input type="date" wire:model.live="from" class="rounded border border-frost-gray px-3 py-2 text-sm">
-        <input type="date" wire:model.live="to" class="rounded border border-frost-gray px-3 py-2 text-sm">
+        <input type="date" wire:model.live="from" class="field field-sm w-auto">
+        <input type="date" wire:model.live="to" class="field field-sm w-auto">
     </form>
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-        <thead>
-            <tr>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Kode</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Program</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Donatur</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Nominal</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($donations as $donation)
+    <div class="panel overflow-x-auto">
+        <table class="ledger">
+            <thead>
                 <tr>
-                    <td class="border-b border-frost-gray px-4 py-3 font-mono">{{ $donation->reference_code }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $donation->campaign->name }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $donation->donor_name }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3 font-mono">Rp {{ number_format($donation->amount, 0, ',', '.') }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $donation->status->label() }}</td>
+                    <th>Kode</th>
+                    <th>Program</th>
+                    <th>Donatur</th>
+                    <th class="num">Nominal</th>
+                    <th>Status</th>
+                    <th><span class="sr-only">Aksi</span></th>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="5" class="border-b border-frost-gray px-4 py-6 text-center text-graphite">Tidak ada donasi.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse ($donations as $donation)
+                    <tr>
+                        <td class="font-mono text-xs break-all">{{ $donation->reference_code }}</td>
+                        <td>{{ $donation->campaign->name }}</td>
+                        <td>{{ $donation->donor_name }}</td>
+                        <td class="num">Rp&nbsp;{{ number_format($donation->amount, 0, ',', '.') }}</td>
+                        <td><span class="badge badge-ink">{{ $donation->status->label() }}</span></td>
+                        <td class="text-right">
+                            <button type="button" wire:click="toggleDetail({{ $donation->id }})" aria-expanded="{{ $detailId === $donation->id ? 'true' : 'false' }}" class="btn btn-line btn-sm">{{ $detailId === $donation->id ? 'Tutup' : 'Detail' }}</button>
+                        </td>
+                    </tr>
+                    @if ($detailId === $donation->id)
+                        @include('livewire.partials.donation-detail-row', ['donation' => $donation, 'trail' => $trail, 'colspan' => 6])
+                    @endif
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center text-ink-soft py-6">Tidak ada donasi.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 
     <div class="mt-4">{{ $donations->links() }}</div>

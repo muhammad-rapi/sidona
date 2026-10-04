@@ -3,10 +3,9 @@
 namespace Database\Seeders;
 
 use App\Enums\DonationStatus;
-use App\Enums\UserRole;
+use App\Enums\PaymentMethod;
 use App\Models\Campaign;
 use App\Models\Donation;
-use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Database\Seeder;
 
@@ -14,7 +13,6 @@ class DonationSeeder extends Seeder
 {
     public function run(AuditLogger $logger): void
     {
-        $bendaharas = User::query()->where('role', UserRole::Bendahara)->get();
         $campaigns = Campaign::all();
 
         foreach ($campaigns as $campaign) {
@@ -36,29 +34,18 @@ class DonationSeeder extends Seeder
 
                 $roll = fake()->numberBetween(1, 100);
 
-                if ($roll <= 60) {
-                    $bendahara = $bendaharas->random();
-                    $before = $donation->only(['status', 'verified_by', 'verified_at']);
+                if ($roll <= 90) {
+                    $before = $donation->only(['status', 'paid_at']);
+                    $paidAt = $donation->created_at->addMinutes(fake()->numberBetween(1, 5));
 
                     $donation->update([
                         'status' => DonationStatus::Verified,
-                        'verified_by' => $bendahara->id,
-                        'verified_at' => $donation->created_at->addMinutes(fake()->numberBetween(5, 600)),
+                        'paid_at' => $paidAt,
+                        'is_anonymous' => fake()->boolean(20),
+                        'payment_method' => fake()->randomElement(PaymentMethod::cases()),
                     ]);
 
-                    $logger->log('donation.verified', $bendahara, $donation, $before, $donation->only(['status', 'verified_by', 'verified_at']));
-                } elseif ($roll <= 85) {
-                    $bendahara = $bendaharas->random();
-                    $before = $donation->only(['status', 'verified_by', 'verified_at', 'rejection_reason']);
-
-                    $donation->update([
-                        'status' => DonationStatus::Rejected,
-                        'verified_by' => $bendahara->id,
-                        'verified_at' => $donation->created_at->addMinutes(fake()->numberBetween(5, 600)),
-                        'rejection_reason' => 'Bukti transfer tidak sesuai atau tidak terbaca.',
-                    ]);
-
-                    $logger->log('donation.rejected', $bendahara, $donation, $before, $donation->only(['status', 'verified_by', 'verified_at', 'rejection_reason']));
+                    $logger->log('donation.paid', null, $donation, $before, $donation->only(['status', 'paid_at', 'payment_method']) + ['source' => 'simulation']);
                 }
             }
         }

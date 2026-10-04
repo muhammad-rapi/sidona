@@ -7,6 +7,7 @@ use App\Models\Campaign;
 use App\Models\Donation;
 use App\Models\ReportExport;
 use App\Models\User;
+use App\Services\AuditLogger;
 use App\Services\ReportChecksum;
 use Livewire\Livewire;
 
@@ -47,4 +48,18 @@ it('blocks non auditors from the donation report', function () {
     $bendahara = User::factory()->create(['role' => UserRole::Bendahara]);
 
     $this->actingAs($bendahara)->get(route('reports.donations'))->assertForbidden();
+});
+
+it('opens a donation detail with its audit trail and closes it again', function () {
+    $auditor = User::factory()->create(['role' => UserRole::Auditor]);
+    $donation = Donation::factory()->create(['donor_contact' => 'detail@example.com']);
+    app(AuditLogger::class)->log('donation.created', null, $donation, [], []);
+
+    Livewire::actingAs($auditor)->test(DonationReport::class)
+        ->assertDontSee('detail@example.com')
+        ->call('toggleDetail', $donation->id)
+        ->assertSee('detail@example.com')
+        ->assertSee('donation.created')
+        ->call('toggleDetail', $donation->id)
+        ->assertDontSee('detail@example.com');
 });

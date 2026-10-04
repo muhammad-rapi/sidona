@@ -1,195 +1,161 @@
+@php
+    $percent = $campaign->progressPercent($raised);
+    $methods = \App\Enums\PaymentMethod::cases();
+@endphp
+
 <div>
-    <a href="{{ route('program.index') }}" wire:navigate class="group inline-flex items-center gap-2 rounded-full py-2 pl-1 pr-4 text-sm text-graphite transition-all duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] hover:bg-black/[0.03] hover:text-coral-pulse">
-        <span class="flex h-7 w-7 items-center justify-center rounded-full bg-black/[0.04] transition-transform duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] group-hover:-translate-x-0.5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        </span>
-        Kembali ke Program Donasi
-    </a>
+    <section class="on-board bg-board" aria-labelledby="campaign-title">
+        <div class="mx-auto max-w-6xl px-5 pb-10 pt-6 md:pb-14">
+            <a href="{{ route('program.index') }}" wire:navigate class="inline-flex min-h-11 items-center gap-2 text-sm font-bold uppercase tracking-wider text-ink hover:text-paint-dark">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+                Semua program
+            </a>
 
-    @php
-        $raised = $campaign->verifiedDonationsTotal();
-        $percent = $campaign->target_amount > 0 ? min(100, (int) round($raised / $campaign->target_amount * 100)) : 0;
-    @endphp
+            <div class="mt-4 grid grid-cols-[1fr_auto] items-center gap-x-6 gap-y-6 sm:gap-x-12">
+                <div class="rise-in min-w-0">
+                    <h1 id="campaign-title" class="paint-type text-[2.5rem] leading-[0.95] text-ink sm:text-6xl lg:text-7xl">{{ $campaign->name }}</h1>
+                    <p class="mt-2 text-sm font-bold uppercase tracking-wider text-ink-soft">{{ $campaign->account_holder ?: 'Program SIDONA' }}</p>
 
-    <div class="animate-fade-in-up-blur mt-6 aspect-[21/9] w-full overflow-hidden rounded-[2rem]">
-        @if ($campaign->cover_image)
-            <img src="{{ Illuminate\Support\Facades\Storage::url($campaign->cover_image) }}" alt="{{ $campaign->name }}" class="h-full w-full object-cover">
-        @else
-            <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-mint-wash to-sky-wash">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-14 w-14 text-canopy-green/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"/></svg>
-            </div>
-        @endif
-    </div>
-
-    <div class="mt-8 grid gap-12 py-4 lg:grid-cols-[1fr_400px] lg:items-start">
-        <div class="animate-fade-in-up-blur max-w-lg">
-            <span class="inline-flex items-center rounded-full bg-mint-wash px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-canopy-green">Program Aktif</span>
-
-            <h1 class="mt-5 text-4xl font-semibold tracking-tight text-ink-black sm:text-5xl">{{ $campaign->name }}</h1>
-            <p class="mt-5 text-base leading-relaxed text-graphite">{{ $campaign->description }}</p>
-
-            <div class="mt-10 rounded-[2rem] bg-mint-wash/60 p-1.5 ring-1 ring-black/5">
-                <div class="rounded-[calc(2rem-0.375rem)] bg-white p-7 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
-                    <div class="h-2 overflow-hidden rounded-full bg-mint-wash">
-                        <div class="h-full rounded-full bg-coral-pulse transition-all duration-700 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)]" style="width: {{ $percent }}%"></div>
-                    </div>
-                    <div class="mt-5 flex items-baseline justify-between">
-                        <span class="text-2xl font-semibold tracking-tight text-canopy-green">Rp {{ number_format($raised, 0, ',', '.') }}</span>
-                        <span class="text-sm text-graphite">dari target Rp {{ number_format($campaign->target_amount, 0, ',', '.') }}</span>
-                    </div>
+                    <p class="paint-type mt-8 text-[2.2rem] leading-none text-paint sm:text-7xl">Rp&nbsp;{{ number_format($raised, 0, ',', '.') }}</p>
+                    <p class="mt-2 font-semibold text-ink">terkumpul dari target Rp&nbsp;{{ number_format($campaign->target_amount, 0, ',', '.') }}</p>
+                    <p class="mt-1 text-sm text-ink-soft">{{ number_format($donorCount, 0, ',', '.') }} donatur &middot; sisa {{ $campaign->daysLeft() }} hari</p>
                 </div>
+
+                <x-thermometer :percent="$percent" rise class="[--thermo-h:15rem] sm:[--thermo-h:20rem]" />
             </div>
-
-            @if ($campaign->bank_name && $campaign->account_number)
-                <div class="mt-6 animate-fade-in-up-blur rounded-[2rem] bg-mint-wash/60 p-1.5 ring-1 ring-black/5" style="animation-delay: 90ms">
-                    <div class="rounded-[calc(2rem-0.375rem)] bg-white p-7 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
-                        <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-canopy-green">Langkah Donasi</p>
-                        <ol class="mt-3 list-inside list-decimal space-y-1.5 text-sm text-graphite">
-                            <li>Transfer sesuai nominal ke rekening tujuan di bawah ini.</li>
-                            <li>Isi formulir &amp; unggah bukti transfer di sebelah kanan.</li>
-                        </ol>
-
-                        <div class="mt-5 rounded-[1.5rem] bg-mint-wash/50 p-4 ring-1 ring-black/5">
-                            <p class="text-xs uppercase tracking-wide text-graphite">{{ $campaign->bank_name }}</p>
-                            <div
-                                x-data="{ copied: false }"
-                                x-on:click="navigator.clipboard.writeText('{{ $campaign->account_number }}'); copied = true; setTimeout(() => copied = false, 1500)"
-                                class="group mt-1 flex cursor-pointer items-center justify-between gap-2"
-                            >
-                                <span class="font-mono text-lg font-semibold tracking-wider text-ink-black">{{ $campaign->account_number }}</span>
-                                <span class="flex shrink-0 items-center justify-center rounded-full bg-white px-3 py-1 text-xs font-medium text-canopy-green shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)] transition-transform duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105" x-text="copied ? 'Tersalin!' : 'Salin'"></span>
-                            </div>
-                            <p class="mt-1 text-sm text-graphite">a.n. {{ $campaign->account_holder }}</p>
-                        </div>
-                    </div>
-                </div>
-            @endif
         </div>
+        <div class="stripe"></div>
+    </section>
 
-        <div class="animate-fade-in-up-blur lg:sticky lg:top-8" style="animation-delay: 140ms">
-            @if ($referenceCode)
-                <div class="rounded-[2rem] bg-mint-wash/60 p-1.5 ring-1 ring-black/5">
-                    <div class="rounded-[calc(2rem-0.375rem)] bg-white p-7 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
-                        <div class="flex h-11 w-11 items-center justify-center rounded-full bg-mint-wash text-canopy-green">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-                        </div>
-                        <p class="mt-4 text-sm font-medium text-ink-black">Donasi Anda berhasil tercatat</p>
+    <div class="mx-auto grid max-w-6xl gap-x-14 gap-y-10 px-5 py-10 lg:grid-cols-[1fr_25rem] lg:items-start">
+        {{-- Donation form: first on phones, sticky on the right on desktop --}}
+        <form wire:submit="submit" class="rise-in order-first border-2 border-ink bg-paper lg:sticky lg:top-24 lg:order-last" style="animation-delay: 120ms" novalidate>
+            <div class="on-board border-b-2 border-ink bg-board px-5 py-3">
+                <h2 class="paint-type text-3xl text-ink">Donasi sekarang</h2>
+            </div>
 
-                        <p class="mt-5 text-[10px] font-semibold uppercase tracking-[0.2em] text-graphite">Kode Referensi</p>
-                        <div
-                            x-data="{ copied: false }"
-                            x-on:click="navigator.clipboard.writeText('{{ $referenceCode }}'); copied = true; setTimeout(() => copied = false, 1500)"
-                            class="mt-2 flex cursor-pointer items-center justify-between gap-2 rounded-[1.5rem] border-2 border-dashed border-frost-gray bg-mint-wash/50 px-4 py-3 transition-colors duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] hover:bg-mint-wash"
-                        >
-                            <span class="font-mono text-xl font-semibold tracking-wider text-canopy-green">{{ $referenceCode }}</span>
-                            <span class="shrink-0 text-xs font-medium text-canopy-green" x-text="copied ? 'Tersalin!' : 'Salin'"></span>
-                        </div>
-
-                        <p class="mt-4 text-sm text-graphite">Simpan kode ini untuk memeriksa status donasi Anda.</p>
-                        <a href="{{ route('donations.check') }}" wire:navigate class="group mt-5 inline-flex items-center gap-2 text-sm font-medium text-coral-pulse transition-colors duration-300 hover:text-coral-pulse-dark">
-                            Cek status donasi
-                            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-mint-wash transition-transform duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-                            </span>
-                        </a>
+            <div class="space-y-6 p-5"
+                x-data="{
+                    amount: $wire.entangle('amount'),
+                    chips: [25000, 50000, 100000, 250000, 500000],
+                    fmt(v) { return v ? new Intl.NumberFormat('id-ID').format(v) : ''; },
+                }">
+                <fieldset>
+                    <legend class="label">Nominal donasi</legend>
+                    <div class="grid grid-cols-3 gap-2">
+                        <template x-for="chip in chips" :key="chip">
+                            <button type="button" @click="amount = chip"
+                                class="min-h-11 border-2 border-ink px-2 py-2 text-sm font-bold transition-colors"
+                                :class="amount === chip ? 'bg-ink text-board' : 'bg-paper text-ink hover:bg-board-wash'"
+                                :aria-pressed="amount === chip"
+                                x-text="fmt(chip)"></button>
+                        </template>
                     </div>
+                    <div class="relative mt-2">
+                        <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-base font-bold text-ink-soft">Rp</span>
+                        <input type="text" inputmode="numeric" autocomplete="off" aria-label="Nominal lain"
+                            :value="fmt(amount)"
+                            @input="amount = parseInt($event.target.value.replace(/[^0-9]/g, '')) || 0"
+                            placeholder="Nominal lain"
+                            class="field pl-11 font-bold @error('amount') field-error @enderror">
+                    </div>
+                    @error('amount') <p class="error-text" role="alert">{{ $message }}</p> @enderror
+                </fieldset>
+
+                <div>
+                    <label for="donor_name" class="label">Nama</label>
+                    <input id="donor_name" type="text" wire:model.blur="donor_name" autocomplete="name" class="field @error('donor_name') field-error @enderror">
+                    @error('donor_name') <p class="error-text" role="alert">{{ $message }}</p> @enderror
+                    <label class="mt-3 flex cursor-pointer items-start gap-3 text-sm">
+                        <input type="checkbox" wire:model="is_anonymous" class="mt-0.5 h-5 w-5 shrink-0 border-2 border-ink">
+                        <span>Samarkan nama saya. Di halaman publik tampil sebagai <strong>Hamba Allah</strong>.</span>
+                    </label>
                 </div>
-            @else
-                <form wire:submit="submit" class="rounded-[2rem] bg-mint-wash/60 p-1.5 ring-1 ring-black/5">
-                    <div class="space-y-5 rounded-[calc(2rem-0.375rem)] bg-white p-7 shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
-                        <h2 class="text-lg font-semibold tracking-tight text-ink-black">Isi Formulir Donasi</h2>
 
-                        <div>
-                            <label class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-graphite">Nama Donatur</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-graphite">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <div>
+                    <label for="donor_contact" class="label">Email atau WhatsApp</label>
+                    <input id="donor_contact" type="text" wire:model.blur="donor_contact" autocomplete="email" class="field @error('donor_contact') field-error @enderror">
+                    <p class="hint">Kuitansi dikirim ke email. Kode kuitansi juga muncul di layar.</p>
+                    @error('donor_contact') <p class="error-text" role="alert">{{ $message }}</p> @enderror
+                </div>
+
+                <fieldset>
+                    <legend class="label">Bayar lewat</legend>
+                    <div class="space-y-2">
+                        @foreach ($methods as $method)
+                            <label class="block cursor-pointer">
+                                <input type="radio" wire:model="payment_method" value="{{ $method->value }}" class="peer sr-only">
+                                <span class="flex items-center justify-between gap-3 border-2 border-ink bg-paper px-4 py-3 transition-colors peer-checked:bg-board peer-focus-visible:outline peer-focus-visible:outline-[3px] peer-focus-visible:outline-paint hover:bg-board-wash peer-checked:hover:bg-board">
+                                    <span>
+                                        <span class="block font-bold">{{ $method->label() }}</span>
+                                        <span class="block text-xs text-ink-soft">{{ $method->hint() }}</span>
+                                    </span>
                                 </span>
-                                <input type="text" wire:model="donor_name" class="w-full rounded-2xl border border-frost-gray bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition-all duration-300 focus:border-coral-pulse focus:ring-2 focus:ring-coral-pulse/20">
-                            </div>
-                            @error('donor_name') <p class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror
-                        </div>
-
-                        <div>
-                            <label class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-graphite">Kontak (Telepon/Email)</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-graphite">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                                </span>
-                                <input type="text" wire:model="donor_contact" class="w-full rounded-2xl border border-frost-gray bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition-all duration-300 focus:border-coral-pulse focus:ring-2 focus:ring-coral-pulse/20">
-                            </div>
-                            @error('donor_contact') <p class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror
-                        </div>
-
-                        <div>
-                            <label class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-graphite">Nominal</label>
-                            <div
-                                x-data="{
-                                    raw: $wire.entangle('amount'),
-                                    formatted: '',
-                                    format(v) { return v ? new Intl.NumberFormat('id-ID').format(v) : ''; },
-                                    init() { this.formatted = this.format(this.raw); },
-                                }"
-                                class="relative"
-                            >
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-sm text-graphite">Rp</span>
-                                <input
-                                    type="text"
-                                    inputmode="numeric"
-                                    x-model="formatted"
-                                    x-on:input="
-                                        let digits = $event.target.value.replace(/[^0-9]/g, '');
-                                        raw = digits ? parseInt(digits) : 0;
-                                        formatted = format(raw);
-                                    "
-                                    placeholder="0"
-                                    class="w-full rounded-2xl border border-frost-gray bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition-all duration-300 focus:border-coral-pulse focus:ring-2 focus:ring-coral-pulse/20"
-                                >
-                            </div>
-                            @error('amount') <p class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror
-                        </div>
-
-                        <div>
-                            <label class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-graphite">Waktu Transfer (WIB)</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 z-10 flex items-center pl-4 text-graphite">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-                                </span>
-                                <input type="datetime-local" wire:model="transferred_at" class="w-full rounded-2xl border border-frost-gray bg-white py-2.5 pl-10 pr-24 text-sm outline-none transition-all duration-300 focus:border-coral-pulse focus:ring-2 focus:ring-coral-pulse/20">
-                                <button
-                                    type="button"
-                                    x-on:click="
-                                        let n = new Date();
-                                        n.setSeconds(0, 0);
-                                        let pad = (v) => String(v).padStart(2, '0');
-                                        $wire.set('transferred_at', `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}T${pad(n.getHours())}:${pad(n.getMinutes())}`);
-                                    "
-                                    class="absolute inset-y-0 right-1.5 my-1.5 rounded-full bg-mint-wash px-3 text-xs font-medium text-canopy-green transition-colors duration-300 hover:bg-sky-wash"
-                                >Sekarang</button>
-                            </div>
-                            <p class="mt-1.5 text-xs text-graphite">Isi sesuai waktu transfer di aplikasi bank/e-wallet Anda (WIB), agar mudah dicocokkan.</p>
-                            @error('transferred_at') <p class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror
-                        </div>
-
-                        <div>
-                            <label class="mb-1.5 block text-xs font-medium uppercase tracking-wide text-graphite">Bukti Transfer (jpg/png/pdf, maks 2MB)</label>
-                            <input
-                                type="file"
-                                wire:model="proof"
-                                class="w-full rounded-2xl border border-frost-gray bg-white px-4 py-2.5 text-sm outline-none transition-all duration-300 focus:border-coral-pulse focus:ring-2 focus:ring-coral-pulse/20 file:mr-3 file:rounded-full file:border-0 file:bg-mint-wash file:px-4 file:py-1.5 file:text-sm file:font-medium file:text-canopy-green file:transition-colors file:duration-300 hover:file:bg-sky-wash"
-                            >
-                            @error('proof') <p class="mt-1 text-sm text-red-700">{{ $message }}</p> @enderror
-                        </div>
-
-                        <button type="submit" class="group relative flex w-full items-center justify-center gap-2 rounded-full bg-coral-pulse py-3.5 text-sm font-medium text-white transition-all duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] hover:scale-[1.02] hover:bg-coral-pulse-dark active:scale-[0.98]">
-                            Kirim Donasi
-                            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 transition-transform duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] group-hover:translate-x-1 group-hover:-translate-y-px">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-                            </span>
-                        </button>
+                            </label>
+                        @endforeach
                     </div>
-                </form>
+                    @error('payment_method') <p class="error-text" role="alert">{{ $message }}</p> @enderror
+                </fieldset>
+
+                <button type="submit" class="btn btn-paint btn-lg w-full" wire:loading.attr="disabled" wire:target="submit">
+                    <span wire:loading.remove wire:target="submit">Lanjut bayar<span x-show="amount >= 10000" x-cloak> &middot; Rp&nbsp;<span x-text="fmt(amount)"></span></span></span>
+                    <span wire:loading wire:target="submit">Menyiapkan pembayaran&hellip;</span>
+                </button>
+                <p class="text-center text-xs text-ink-soft">Donasi dikonfirmasi otomatis begitu pembayaran masuk.</p>
+            </div>
+        </form>
+
+        <div class="min-w-0 space-y-12">
+            @if ($campaign->cover_image)
+                <div class="aspect-[16/9] overflow-hidden border-2 border-ink bg-board">
+                    <img src="{{ Illuminate\Support\Facades\Storage::url($campaign->cover_image) }}" alt="{{ $campaign->name }}" class="h-full w-full object-cover">
+                </div>
             @endif
+
+            <section aria-labelledby="tentang">
+                <h2 id="tentang" class="paint-type text-4xl text-ink">Tentang program ini</h2>
+                <p class="mt-4 max-w-prose whitespace-pre-line text-lg leading-relaxed text-ink">{{ $campaign->description }}</p>
+                <p class="mt-6 max-w-prose border-t-2 border-ink pt-4 text-sm text-ink-soft">Program berjalan sampai {{ $campaign->ends_on->translatedFormat('j F Y') }}. Dana yang terkumpul disalurkan lewat pengajuan bendahara dan persetujuan admin, dan setiap penyaluran tercatat di log audit.</p>
+            </section>
+
+            @if ($campaign->photos->isNotEmpty())
+                <section aria-labelledby="galeri" x-data="{ open: null }" @keydown.escape.window="open = null">
+                    <h2 id="galeri" class="paint-type text-4xl text-ink">Galeri</h2>
+                    <ul class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        @foreach ($campaign->photos as $photo)
+                            <li>
+                                <button type="button" @click="open = '{{ $photo->url() }}'" class="block aspect-[4/3] w-full overflow-hidden border-2 border-ink bg-board" aria-label="Perbesar foto {{ $loop->iteration }}">
+                                    <img src="{{ $photo->url() }}" alt="{{ $photo->caption ?? $campaign->name.' foto '.$loop->iteration }}" class="h-full w-full object-cover transition-transform duration-300 hover:scale-105" loading="lazy">
+                                </button>
+                            </li>
+                        @endforeach
+                    </ul>
+
+                    <div x-show="open" x-cloak class="on-ink fixed inset-0 z-50 flex items-center justify-center bg-ink/90 p-4" @click="open = null" role="dialog" aria-modal="true" aria-label="Foto diperbesar">
+                        <img :src="open" alt="" class="max-h-full max-w-full border-4 border-board object-contain">
+                        <button type="button" class="btn btn-sm absolute right-4 top-4 border-board bg-ink text-board" @click="open = null">Tutup</button>
+                    </div>
+                </section>
+            @endif
+
+            <section aria-labelledby="donatur">
+                <h2 id="donatur" class="paint-type text-4xl text-ink">Donatur terakhir</h2>
+                @if ($recentDonations->isEmpty())
+                    <p class="mt-4 text-ink-soft">Belum ada donasi. Jadilah donatur pertama untuk program ini.</p>
+                @else
+                    <ul class="mt-4 border-t-2 border-ink">
+                        @foreach ($recentDonations as $donation)
+                            <li class="flex items-baseline justify-between gap-4 border-b border-rule py-3.5">
+                                <div class="min-w-0">
+                                    <p class="truncate font-bold">{{ $donation->publicName() }}</p>
+                                    <p class="text-sm text-ink-soft">{{ ($donation->paid_at ?? $donation->created_at)->locale('id')->diffForHumans() }}</p>
+                                </div>
+                                <p class="shrink-0 text-lg font-extrabold text-paint-dark">Rp&nbsp;{{ number_format($donation->amount, 0, ',', '.') }}</p>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </section>
         </div>
     </div>
 </div>

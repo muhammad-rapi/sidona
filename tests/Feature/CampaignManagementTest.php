@@ -6,6 +6,8 @@ use App\Livewire\Campaigns\CampaignIndex;
 use App\Models\ActivityLog;
 use App\Models\Campaign;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 it('blocks an auditor from opening the campaign creation route', function () {
@@ -101,4 +103,48 @@ it('lets an admin delete a campaign and logs it', function () {
     expect(ActivityLog::where('action', 'campaign.deleted')
         ->where('subject_id', $campaign->id)
         ->exists())->toBeTrue();
+});
+
+it('uploads gallery photos, shows them publicly and lets staff remove one', function () {
+    Storage::fake('public');
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+    $campaign = Campaign::factory()->create();
+
+    Livewire::actingAs($admin)
+        ->test(CampaignForm::class, ['campaign' => $campaign])
+        ->set('gallery_uploads', [
+            UploadedFile::fake()->image('a.jpg'),
+            UploadedFile::fake()->image('b.png'),
+        ])
+        ->call('save')
+        ->assertHasNoErrors();
+
+    expect($campaign->photos()->count())->toBe(2);
+    expect(ActivityLog::where('action', 'campaign.photos_added')->count())->toBe(1);
+
+    $this->get(route('program.show', $campaign))->assertOk()->assertSee('Galeri');
+
+    $photo = $campaign->photos()->first();
+    Livewire::actingAs($admin)
+        ->test(CampaignForm::class, ['campaign' => $campaign])
+        ->call('removePhoto', $photo->id);
+
+    expect($campaign->photos()->count())->toBe(1);
+    Storage::disk('public')->assertMissing($photo->path);
+});
+
+it('rejects non-image gallery files and more than twelve photos', function () {
+    Storage::fake('public');
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+    $campaign = Campaign::factory()->create();
+
+    Livewire::actingAs($admin)->test(CampaignForm::class, ['campaign' => $campaign])
+        ->set('gallery_uploads', [UploadedFile::fake()->create('x.pdf', 10, 'application/pdf')])
+        ->call('save')
+        ->assertHasErrors('gallery_uploads.0');
+
+    Livewire::actingAs($admin)->test(CampaignForm::class, ['campaign' => $campaign])
+        ->set('gallery_uploads', array_map(fn ($i) => UploadedFile::fake()->image("p{$i}.jpg"), range(1, 13)))
+        ->call('save')
+        ->assertHasErrors('gallery_uploads');
 });

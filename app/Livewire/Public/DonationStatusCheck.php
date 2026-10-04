@@ -11,22 +11,25 @@ class DonationStatusCheck extends Component
 {
     public string $reference_code = '';
 
-    public ?Donation $result = null;
+    public bool $notFound = false;
 
-    public bool $searched = false;
-
-    public function check(): void
+    public function check()
     {
         $this->validate([
             'reference_code' => ['required', 'string'],
         ]);
 
-        $this->result = Donation::query()
-            ->with('campaign')
+        $donation = Donation::query()
             ->where('reference_code', strtoupper(trim($this->reference_code)))
             ->first();
 
-        $this->searched = true;
+        if (! $donation) {
+            $this->notFound = true;
+
+            return null;
+        }
+
+        return $this->redirectRoute('donations.receipt', $donation->reference_code, navigate: true);
     }
 
     public function render()

@@ -27,3 +27,17 @@ it('rejects a wrong password', function () {
 
     $this->assertGuest();
 });
+
+it('shows a success notice after logging in and after logging out', function () {
+    $user = User::factory()->create(['password' => bcrypt('rahasia123')]);
+
+    Livewire::test(LoginForm::class)
+        ->set('email', $user->email)
+        ->set('password', 'rahasia123')
+        ->call('authenticate');
+
+    $this->get(route('dashboard'))->assertSee('Berhasil masuk. Selamat datang, '.$user->name);
+
+    $this->post(route('logout'))->assertRedirect(route('program.index'));
+    $this->get(route('program.index'))->assertSee('Anda sudah keluar.');
+});

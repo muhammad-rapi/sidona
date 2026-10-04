@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Disbursements;
 
+use App\Enums\CampaignStatus;
 use App\Enums\DisbursementStatus;
 use App\Livewire\Concerns\HasRejectionWorkflow;
 use App\Models\Campaign;
@@ -90,7 +91,14 @@ class DisbursementIndex extends Component
             $query->where('status', $this->status);
         }
 
+        $eligibleCampaigns = auth()->user()->can('create', Disbursement::class)
+            ? Campaign::query()->where('status', CampaignStatus::Active)->orderBy('name')->get()
+                ->filter(fn (Campaign $campaign) => $campaign->availableBalance() > 0)
+                ->values()
+            : collect();
+
         return view('livewire.disbursements.disbursement-index', [
+            'eligibleCampaigns' => $eligibleCampaigns,
             'disbursements' => $query->paginate(15),
         ]);
     }

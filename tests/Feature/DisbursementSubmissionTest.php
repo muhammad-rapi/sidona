@@ -4,6 +4,7 @@ use App\Enums\CampaignStatus;
 use App\Enums\DonationStatus;
 use App\Enums\UserRole;
 use App\Livewire\Disbursements\DisbursementForm;
+use App\Livewire\Disbursements\DisbursementIndex;
 use App\Models\ActivityLog;
 use App\Models\Campaign;
 use App\Models\Disbursement;
@@ -68,4 +69,21 @@ it('refuses to load the form for a completed campaign even with a positive balan
     Livewire::actingAs($bendahara)
         ->test(DisbursementForm::class, ['campaign' => $campaign])
         ->assertForbidden();
+});
+
+it('offers the submit action on the disbursement page only to bendahara with eligible programs', function () {
+    $campaign = Campaign::factory()->create(['status' => CampaignStatus::Active, 'name' => 'Program Bersaldo']);
+    Donation::factory()->for($campaign)->create(['amount' => 500000, 'status' => DonationStatus::Verified]);
+    $empty = Campaign::factory()->create(['status' => CampaignStatus::Active, 'name' => 'Program Kosong']);
+
+    $bendahara = User::factory()->create(['role' => UserRole::Bendahara]);
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+
+    Livewire::actingAs($bendahara)->test(DisbursementIndex::class)
+        ->assertSee('Ajukan penyaluran')
+        ->assertSee('Program Bersaldo')
+        ->assertDontSee('Program Kosong');
+
+    Livewire::actingAs($admin)->test(DisbursementIndex::class)
+        ->assertDontSee('Ajukan penyaluran');
 });

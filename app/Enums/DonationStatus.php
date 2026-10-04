@@ -11,9 +11,9 @@ enum DonationStatus: string
     public function label(): string
     {
         return match ($this) {
-            self::Pending => 'Menunggu',
-            self::Verified => 'Terverifikasi',
-            self::Rejected => 'Ditolak',
+            self::Pending => 'Menunggu pembayaran',
+            self::Verified => 'Berhasil',
+            self::Rejected => 'Gagal',
         };
     }
 }

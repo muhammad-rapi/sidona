@@ -6,93 +6,66 @@ use App\Livewire\Public\CampaignDetail;
 use App\Models\ActivityLog;
 use App\Models\Campaign;
 use App\Models\Donation;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
-it('lets a guest submit a donation with valid data and a proof file', function () {
-    Storage::fake('public');
-    $campaign = Campaign::factory()->create(['status' => CampaignStatus::Active, 'ends_on' => now()->addDays(10)]);
+function activeCampaign(): Campaign
+{
+    return Campaign::factory()->create(['status' => CampaignStatus::Active, 'ends_on' => now()->addDays(10)]);
+}
 
-    Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
+it('creates a pending donation and sends the donor to the payment page', function () {
+    $campaign = activeCampaign();
+
+    $component = Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
         ->set('donor_name', 'Budi Santoso')
         ->set('donor_contact', '08123456789')
         ->set('amount', 50000)
-        ->set('transferred_at', now('Asia/Jakarta')->subMinutes(5)->format('Y-m-d\TH:i'))
-        ->set('proof', UploadedFile::fake()->create('bukti.jpg', 500, 'image/jpeg'))
+        ->set('payment_method', 'qris')
         ->call('submit')
         ->assertHasNoErrors();
 
     $donation = Donation::first();
     expect($donation->campaign_id)->toBe($campaign->id);
     expect($donation->status)->toBe(DonationStatus::Pending);
-    Storage::disk('public')->assertExists($donation->proof_path);
+    expect($donation->proof_path)->toBeNull();
+
+    $component->assertRedirect(route('donations.pay', $donation->reference_code));
 });
 
 it('rejects a donation below the minimum amount', function () {
-    Storage::fake('public');
-    $campaign = Campaign::factory()->create(['status' => CampaignStatus::Active, 'ends_on' => now()->addDays(10)]);
-
-    Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
+    Livewire::test(CampaignDetail::class, ['campaign' => activeCampaign()])
         ->set('donor_name', 'Budi')
         ->set('donor_contact', '08123456789')
         ->set('amount', 5000)
-        ->set('proof', UploadedFile::fake()->create('bukti.jpg', 100, 'image/jpeg'))
         ->call('submit')
         ->assertHasErrors('amount');
 
     expect(Donation::count())->toBe(0);
 });
 
-it('rejects a donation whose transfer time is in the future', function () {
-    Storage::fake('public');
-    $campaign = Campaign::factory()->create(['status' => CampaignStatus::Active, 'ends_on' => now()->addDays(10)]);
-
-    Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
+it('rejects an unknown payment method', function () {
+    Livewire::test(CampaignDetail::class, ['campaign' => activeCampaign()])
         ->set('donor_name', 'Budi')
         ->set('donor_contact', '08123456789')
         ->set('amount', 50000)
-        ->set('transferred_at', now('Asia/Jakarta')->addMinutes(5)->format('Y-m-d\TH:i'))
-        ->set('proof', UploadedFile::fake()->create('bukti.jpg', 100, 'image/jpeg'))
+        ->set('payment_method', 'cash')
         ->call('submit')
-        ->assertHasErrors('transferred_at');
-
-    expect(Donation::count())->toBe(0);
+        ->assertHasErrors('payment_method');
 });
 
-it('accepts a transfer time that is current in Jakarta time even though the server runs in UTC', function () {
-    Storage::fake('public');
-    config(['app.timezone' => 'UTC']);
-    $campaign = Campaign::factory()->create(['status' => CampaignStatus::Active, 'ends_on' => now()->addDays(10)]);
-
-    // Jakarta (UTC+7) is ahead of the server's UTC clock, so this string
-    // would look like it's in the future if compared against naive now().
-    $jakartaNow = now('Asia/Jakarta')->format('Y-m-d\TH:i');
+it('keeps the donor name for staff but shows an alias publicly when anonymous', function () {
+    $campaign = activeCampaign();
 
     Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
-        ->set('donor_name', 'Budi Santoso')
+        ->set('donor_name', 'Budi Rahasia')
         ->set('donor_contact', '08123456789')
+        ->set('is_anonymous', true)
         ->set('amount', 50000)
-        ->set('transferred_at', $jakartaNow)
-        ->set('proof', UploadedFile::fake()->create('bukti.jpg', 100, 'image/jpeg'))
-        ->call('submit')
-        ->assertHasNoErrors();
+        ->call('submit');
 
     $donation = Donation::first();
-    expect($donation->transferred_at->diffInMinutes(now(), true))->toBeLessThan(1);
-});
-
-it('rejects a proof file that is not jpg, png or pdf', function () {
-    Storage::fake('public');
-    $campaign = Campaign::factory()->create(['status' => CampaignStatus::Active, 'ends_on' => now()->addDays(10)]);
-
-    Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
-        ->set('donor_name', 'Budi')
-        ->set('donor_contact', '08123456789')
-        ->set('amount', 50000)
-        ->set('proof', UploadedFile::fake()->create('bukti.txt', 100))
-        ->call('submit')
-        ->assertHasErrors('proof');
+    expect($donation->donor_name)->toBe('Budi Rahasia');
+    expect($donation->publicName())->toBe('Hamba Allah');
 });
 
 it('refuses to load the donation form for a completed campaign', function () {
@@ -114,15 +87,10 @@ it('refuses to load the donation form for a campaign that has not started yet', 
 });
 
 it('writes an activity log entry for a submitted donation without a user', function () {
-    Storage::fake('public');
-    $campaign = Campaign::factory()->create(['status' => CampaignStatus::Active, 'ends_on' => now()->addDays(10)]);
-
-    Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
+    Livewire::test(CampaignDetail::class, ['campaign' => activeCampaign()])
         ->set('donor_name', 'Budi')
         ->set('donor_contact', '08123456789')
         ->set('amount', 50000)
-        ->set('transferred_at', now('Asia/Jakarta')->subMinutes(5)->format('Y-m-d\TH:i'))
-        ->set('proof', UploadedFile::fake()->create('bukti.jpg', 100, 'image/jpeg'))
         ->call('submit');
 
     $donation = Donation::first();
@@ -130,4 +98,47 @@ it('writes an activity log entry for a submitted donation without a user', funct
         ->where('subject_id', $donation->id)
         ->whereNull('user_id')
         ->exists())->toBeTrue();
+});
+
+it('validates donor name, contact and amount boundaries', function (string $field, mixed $value) {
+    Livewire::test(CampaignDetail::class, ['campaign' => activeCampaign()])
+        ->set('donor_name', 'Budi')
+        ->set('donor_contact', 'budi@example.com')
+        ->set('amount', 50000)
+        ->set($field, $value)
+        ->call('submit')
+        ->assertHasErrors($field);
+
+    expect(Donation::count())->toBe(0);
+})->with([
+    'name too short' => ['donor_name', 'B'],
+    'name with digits' => ['donor_name', 'Budi123'],
+    'name empty' => ['donor_name', ''],
+    'contact is gibberish' => ['donor_contact', 'halo dunia'],
+    'contact bad phone' => ['donor_contact', '12345'],
+    'contact empty' => ['donor_contact', ''],
+    'amount zero' => ['amount', 0],
+    'amount above cap' => ['amount', 2_000_000_000],
+]);
+
+it('accepts valid email and Indonesian phone formats', function (string $contact) {
+    Livewire::test(CampaignDetail::class, ['campaign' => activeCampaign()])
+        ->set('donor_name', "Siti Nur'aini-Putri")
+        ->set('donor_contact', $contact)
+        ->set('amount', 10000)
+        ->call('submit')
+        ->assertHasNoErrors();
+})->with(['siti@example.com', '081234567890', '+6281234567890', '0812-3456-7890']);
+
+it('refuses a donation when the campaign closed after the page loaded', function () {
+    $campaign = activeCampaign();
+    $component = Livewire::test(CampaignDetail::class, ['campaign' => $campaign])
+        ->set('donor_name', 'Budi')
+        ->set('donor_contact', 'budi@example.com')
+        ->set('amount', 50000);
+
+    $campaign->update(['status' => CampaignStatus::Completed]);
+
+    $component->call('submit')->assertForbidden();
+    expect(Donation::count())->toBe(0);
 });

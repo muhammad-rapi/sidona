@@ -1,58 +1,92 @@
+@php
+    $featured = $campaigns->onFirstPage() ? $campaigns->first() : null;
+    $others = $featured ? $campaigns->slice(1) : $campaigns;
+@endphp
+
 <div>
-    <div class="animate-fade-in-up-blur mb-14">
-        <span class="inline-flex items-center rounded-full bg-mint-wash px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-canopy-green">Donasi Terbuka</span>
-        <h1 class="mt-4 text-4xl font-semibold tracking-tight text-ink-black sm:text-5xl">Program Donasi Aktif</h1>
-        <p class="mt-3 max-w-md text-base text-graphite">Pilih program yang ingin Anda bantu, transfer, lalu unggah bukti dalam hitungan menit.</p>
-    </div>
+    @if ($featured)
+        @php
+            $raised = (int) $featured->raised_sum;
+            $percent = $featured->progressPercent($raised);
+        @endphp
+        <section class="on-board bg-board" aria-labelledby="featured-title">
+            <div class="mx-auto grid max-w-6xl grid-cols-[1fr_auto] items-center gap-x-6 gap-y-8 px-5 py-10 sm:gap-x-12 md:py-16 lg:gap-x-16">
+                <div class="rise-in min-w-0">
+                    <p class="text-sm font-bold uppercase tracking-wider text-ink-soft">{{ $featured->account_holder ?: 'Program SIDONA' }}</p>
+                    <h1 id="featured-title" class="paint-type mt-2 text-[2.6rem] leading-[0.95] text-ink sm:text-6xl lg:text-7xl">{{ $featured->name }}</h1>
 
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        @forelse ($campaigns as $campaign)
-            @php
-                $raised = $campaign->verifiedDonationsTotal();
-                $percent = $campaign->target_amount > 0 ? min(100, (int) round($raised / $campaign->target_amount * 100)) : 0;
-            @endphp
-            <a
-                href="{{ route('program.show', $campaign) }}"
-                wire:navigate
-                class="group animate-fade-in-up-blur block overflow-hidden rounded-[1.75rem] bg-white ring-1 ring-black/5 transition-all duration-500 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.12)]"
-                style="animation-delay: {{ min($loop->index, 6) * 70 }}ms"
-            >
-                <div class="relative aspect-video w-full overflow-hidden">
-                    @if ($campaign->cover_image)
-                        <img
-                            src="{{ Illuminate\Support\Facades\Storage::url($campaign->cover_image) }}"
-                            alt="{{ $campaign->name }}"
-                            class="h-full w-full object-cover transition-transform duration-700 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)] group-hover:scale-105"
-                        >
-                    @else
-                        <div class="flex h-full w-full items-center justify-center bg-gradient-to-br from-mint-wash to-sky-wash">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-canopy-green/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"/></svg>
-                        </div>
-                    @endif
-                </div>
+                    <p class="mt-8 text-sm font-bold uppercase tracking-wider text-ink-soft">Terkumpul</p>
+                    <p class="paint-type text-[2.2rem] leading-none text-paint sm:text-7xl lg:text-8xl">Rp&nbsp;{{ number_format($raised, 0, ',', '.') }}</p>
+                    <p class="mt-3 text-base font-semibold text-ink">dari target Rp&nbsp;{{ number_format($featured->target_amount, 0, ',', '.') }}</p>
 
-                <div class="p-5">
-                    <div class="flex items-center gap-1.5 text-xs text-graphite">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 shrink-0 text-canopy-green" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 9.5 4.5 6 4l-.5 3.5L2 9l2 3-2 3 3.5 1.5L6 20l3.5-.5L12 22l2.5-2.5 3.5.5.5-3.5L22 15l-2-3 2-3-3.5-1.5L18 4l-3.5.5L12 2Z"/><path d="m9 12 2 2 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-                        {{ $campaign->account_holder ?: 'Yayasan SIDONA' }}
-                    </div>
+                    <p class="mt-2 text-sm text-ink-soft">{{ number_format($featured->donor_count, 0, ',', '.') }} donatur &middot; sisa {{ $featured->daysLeft() }} hari</p>
 
-                    <h2 class="mt-2 line-clamp-2 font-semibold leading-snug tracking-tight text-ink-black transition-colors duration-300 group-hover:text-canopy-green">{{ $campaign->name }}</h2>
-
-                    <div class="mt-3 flex items-baseline gap-1.5 text-sm">
-                        <span class="text-graphite">Terkumpul</span>
-                        <span class="font-semibold text-coral-pulse">Rp {{ number_format($raised, 0, ',', '.') }}</span>
-                    </div>
-
-                    <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-black/[0.06]">
-                        <div class="h-full rounded-full bg-coral-pulse transition-all duration-700 [transition-timing-function:cubic-bezier(0.32,0.72,0,1)]" style="width: {{ $percent }}%"></div>
+                    <div class="mt-8 flex flex-wrap items-center gap-4">
+                        <a href="{{ route('program.show', $featured) }}" wire:navigate class="btn btn-paint btn-lg">Donasi sekarang</a>
+                        <a href="#semua-program" class="text-sm font-bold uppercase tracking-wider text-ink underline decoration-2 underline-offset-4 hover:text-paint-dark">Lihat program lain</a>
                     </div>
                 </div>
-            </a>
-        @empty
-            <p class="text-graphite sm:col-span-2 lg:col-span-3">Belum ada program donasi aktif.</p>
-        @endforelse
-    </div>
 
-    <div class="mt-10">{{ $campaigns->links() }}</div>
+                <x-thermometer :percent="$percent" rise class="[--thermo-h:16rem] sm:[--thermo-h:22rem] lg:[--thermo-h:28rem]" />
+            </div>
+            <div class="stripe"></div>
+        </section>
+    @else
+        <section class="on-board bg-board">
+            <div class="mx-auto max-w-6xl px-5 py-20">
+                <h1 class="paint-type text-6xl text-ink sm:text-8xl">Belum ada papan terpasang</h1>
+                <p class="mt-4 max-w-md text-lg text-ink">Program donasi aktif akan tampil di sini begitu dibuka.</p>
+            </div>
+            <div class="stripe"></div>
+        </section>
+    @endif
+
+    <section id="semua-program" class="mx-auto max-w-6xl px-5 py-14">
+        <ol class="mb-12 grid gap-px border-2 border-ink bg-ink text-ink sm:grid-cols-3" aria-label="Cara berdonasi">
+            <li class="flex items-baseline gap-3 bg-board-wash px-5 py-4"><span class="paint-type text-4xl text-paint">1</span><span class="font-bold">Pilih program dan nominal</span></li>
+            <li class="flex items-baseline gap-3 bg-board-wash px-5 py-4"><span class="paint-type text-4xl text-paint">2</span><span class="font-bold">Bayar lewat QRIS, VA, atau e-wallet</span></li>
+            <li class="flex items-baseline gap-3 bg-board-wash px-5 py-4"><span class="paint-type text-4xl text-paint">3</span><span class="font-bold">Kuitansi langsung terbit, tanpa menunggu</span></li>
+        </ol>
+
+        @if ($others->isNotEmpty())
+            <h2 class="paint-type text-4xl text-ink sm:text-5xl">Program lain yang sedang berjalan</h2>
+
+            <ul class="mt-6 border-t-2 border-ink">
+                @foreach ($others as $campaign)
+                    @php
+                        $campaignRaised = (int) $campaign->raised_sum;
+                        $campaignPercent = $campaign->progressPercent($campaignRaised);
+                    @endphp
+                    <li class="border-b-2 border-ink">
+                        <a href="{{ route('program.show', $campaign) }}" wire:navigate class="group grid items-center gap-x-6 gap-y-4 py-6 sm:grid-cols-[7rem_1fr_auto] md:grid-cols-[9rem_1fr_16rem_auto]">
+                            <div class="aspect-[4/3] overflow-hidden border-2 border-ink bg-board sm:aspect-square md:aspect-[4/3]">
+                                @if ($campaign->cover_image)
+                                    <img src="{{ Illuminate\Support\Facades\Storage::url($campaign->cover_image) }}" alt="" class="h-full w-full object-cover" loading="lazy">
+                                @else
+                                    <div class="paint-type flex h-full w-full items-center justify-center text-5xl text-ink/80">{{ mb_substr($campaign->name, 0, 1) }}</div>
+                                @endif
+                            </div>
+
+                            <div class="min-w-0">
+                                <h3 class="paint-type text-3xl leading-none text-ink group-hover:text-paint-dark">{{ $campaign->name }}</h3>
+                                <p class="mt-2 line-clamp-2 text-sm text-ink-soft">{{ $campaign->description }}</p>
+                            </div>
+
+                            <div class="sm:col-span-2 md:col-span-1">
+                                <div class="thermo-h thermo-h-rise" style="--level: {{ $campaignPercent }}"><i></i></div>
+                                <div class="mt-2 flex items-baseline justify-between gap-3 text-sm">
+                                    <span class="font-extrabold text-paint-dark">Rp&nbsp;{{ number_format($campaignRaised, 0, ',', '.') }}</span>
+                                    <span class="font-bold text-ink">{{ $campaignPercent }}%</span>
+                                </div>
+                            </div>
+
+                            <span class="btn btn-ink hidden md:inline-flex">Donasi</span>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
+
+        <div class="mt-10">{{ $campaigns->links() }}</div>
+    </section>
 </div>

@@ -1,53 +1,57 @@
 <div>
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-xl font-semibold">Laporan Penyaluran</h1>
-        <button type="button" wire:click="exportPdf" class="rounded-full bg-coral-pulse px-6 py-3 text-white text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.03] hover:bg-coral-pulse-dark active:scale-95">Unduh PDF</button>
+    <div class="page-head">
+        <div>
+            <h1 class="page-title">Laporan Penyaluran</h1>
+        </div>
+        <div>
+            <button type="button" wire:click="exportPdf" class="btn btn-paint">Unduh PDF</button>
+        </div>
     </div>
 
-    <form class="flex flex-wrap gap-3 mb-4 bg-white p-4 rounded-2xl border border-frost-gray">
-        <select wire:model.live="campaign_id" class="rounded border border-frost-gray px-3 py-2 text-sm">
+    <form class="panel p-4 mb-4 flex flex-wrap gap-3 items-end">
+        <select wire:model.live="campaign_id" class="field field-sm w-auto">
             <option value="">Semua Program</option>
             @foreach ($campaigns as $campaign)
                 <option value="{{ $campaign->id }}">{{ $campaign->name }}</option>
             @endforeach
         </select>
-        <select wire:model.live="status" class="rounded border border-frost-gray px-3 py-2 text-sm">
+        <select wire:model.live="status" class="field field-sm w-auto">
             <option value="">Semua Status</option>
             <option value="submitted">Diajukan</option>
             <option value="approved">Disetujui</option>
             <option value="rejected">Ditolak</option>
         </select>
-        <input type="date" wire:model.live="from" class="rounded border border-frost-gray px-3 py-2 text-sm">
-        <input type="date" wire:model.live="to" class="rounded border border-frost-gray px-3 py-2 text-sm">
+        <input type="date" wire:model.live="from" class="field field-sm w-auto">
+        <input type="date" wire:model.live="to" class="field field-sm w-auto">
     </form>
 
-    <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-        <thead>
-            <tr>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Program</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Jumlah</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Keterangan</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Diajukan Oleh</th>
-                <th class="border-b-2 border-ink-black px-4 py-3 text-left font-medium text-graphite">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse ($disbursements as $disbursement)
+    <div class="panel overflow-x-auto">
+        <table class="ledger">
+            <thead>
                 <tr>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $disbursement->campaign->name }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3 font-mono">Rp {{ number_format($disbursement->amount, 0, ',', '.') }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $disbursement->description }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $disbursement->submitter->name }}</td>
-                    <td class="border-b border-frost-gray px-4 py-3">{{ $disbursement->status->label() }}</td>
+                    <th>Program</th>
+                    <th class="num">Jumlah</th>
+                    <th>Keterangan</th>
+                    <th>Diajukan Oleh</th>
+                    <th>Status</th>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="5" class="border-b border-frost-gray px-4 py-6 text-center text-graphite">Tidak ada penyaluran.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @forelse ($disbursements as $disbursement)
+                    <tr>
+                        <td>{{ $disbursement->campaign->name }}</td>
+                        <td class="num">Rp&nbsp;{{ number_format($disbursement->amount, 0, ',', '.') }}</td>
+                        <td>{{ $disbursement->description }}</td>
+                        <td>{{ $disbursement->submitter->name }}</td>
+                        <td><span class="badge badge-ink">{{ $disbursement->status->label() }}</span></td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center text-ink-soft py-6">Tidak ada penyaluran.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 
     <div class="mt-4">{{ $disbursements->links() }}</div>

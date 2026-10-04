@@ -8,11 +8,14 @@ use App\Livewire\Audit\VerifyIntegrity;
 use App\Livewire\Auth\LoginForm;
 use App\Livewire\Campaigns\CampaignForm;
 use App\Livewire\Campaigns\CampaignIndex;
+use App\Livewire\Dashboard;
 use App\Livewire\Disbursements\DisbursementForm;
 use App\Livewire\Disbursements\DisbursementIndex;
 use App\Livewire\Donations\DonationIndex;
 use App\Livewire\Public\CampaignDetail;
 use App\Livewire\Public\CampaignList;
+use App\Livewire\Public\DonationPay;
+use App\Livewire\Public\DonationReceipt;
 use App\Livewire\Public\DonationStatusCheck;
 use App\Livewire\Reports\BalanceSummary;
 use App\Livewire\Reports\DisbursementReport;
@@ -28,6 +31,8 @@ Route::get('/', function () {
 Route::get('/program', CampaignList::class)->name('program.index');
 Route::get('/program/{campaign}', CampaignDetail::class)->name('program.show');
 Route::get('/donasi/cek', DonationStatusCheck::class)->name('donations.check');
+Route::get('/donasi/{reference}/bayar', DonationPay::class)->name('donations.pay');
+Route::get('/donasi/{reference}', DonationReceipt::class)->name('donations.receipt');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', LoginForm::class)->name('login');
@@ -38,13 +43,11 @@ Route::post('/logout', function () {
     request()->session()->invalidate();
     request()->session()->regenerateToken();
 
-    return redirect()->route('program.index');
+    return redirect()->route('program.index')->with('status', 'Anda sudah keluar.');
 })->middleware('auth')->name('logout');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return redirect()->route('campaigns.index');
-    })->name('dashboard');
+    Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
     Route::get('/campaigns', CampaignIndex::class)->name('campaigns.index');
     Route::get('/campaigns/create', CampaignForm::class)
@@ -54,7 +57,7 @@ Route::middleware('auth')->group(function () {
         ->middleware('role:bendahara,admin')
         ->name('campaigns.edit');
 
-    Route::get('/donasi', DonationIndex::class)->name('donations.index');
+    Route::get('/riwayat-donasi', DonationIndex::class)->name('donations.index');
 
     Route::get('/campaigns/{campaign}/penyaluran/ajukan', DisbursementForm::class)
         ->middleware('role:bendahara')

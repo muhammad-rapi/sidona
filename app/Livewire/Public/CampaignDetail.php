@@ -4,32 +4,28 @@ namespace App\Livewire\Public;
 
 use App\Enums\CampaignStatus;
 use App\Enums\DonationStatus;
+use App\Enums\PaymentMethod;
 use App\Models\Campaign;
 use App\Models\Donation;
 use App\Services\AuditLogger;
-use Illuminate\Support\Carbon;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 #[Layout('components.layouts.public')]
 class CampaignDetail extends Component
 {
-    use WithFileUploads;
-
     public Campaign $campaign;
 
     public string $donor_name = '';
 
     public string $donor_contact = '';
 
+    public bool $is_anonymous = false;
+
     public int $amount = 0;
 
-    public string $transferred_at = '';
-
-    public $proof;
-
-    public ?string $referenceCode = null;
+    public string $payment_method = 'qris';
 
     public function mount(Campaign $campaign): void
     {
@@ -46,48 +42,85 @@ class CampaignDetail extends Component
     protected function rules(): array
     {
         return [
-            'donor_name' => ['required', 'string', 'max:255'],
-            'donor_contact' => ['required', 'string', 'max:255'],
-            'amount' => ['required', 'integer', 'min:10000'],
-            'transferred_at' => ['required', 'date_format:Y-m-d\TH:i'],
-            'proof' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
+            'donor_name' => ['required', 'string', 'min:2', 'max:100', "regex:/^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s.'\\-]*$/u"],
+            'donor_contact' => ['required', 'string', 'max:255', function (string $attribute, mixed $value, \Closure $fail) {
+                $value = trim($value);
+                $isEmail = filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
+                $isPhone = preg_match('/^(\\+62|62|0)8[0-9]{8,12}$/', preg_replace('/[\\s-]/', '', $value)) === 1;
+
+                if (! $isEmail && ! $isPhone) {
+                    $fail('Isi email yang valid atau nomor WhatsApp, contoh 08123456789.');
+                }
+            }],
+            'is_anonymous' => ['boolean'],
+            'amount' => ['required', 'integer', 'min:10000', 'max:1000000000'],
+            'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
         ];
     }
 
-    public function submit(AuditLogger $logger): void
+    protected function messages(): array
     {
-        $data = $this->validate();
+        return [
+            'amount.min' => 'Donasi minimal Rp 10.000.',
+            'amount.max' => 'Donasi maksimal Rp 1.000.000.000 per transaksi.',
+            'donor_name.min' => 'Nama minimal 2 huruf.',
+            'donor_name.regex' => 'Nama hanya boleh berisi huruf, spasi, titik, atau tanda hubung.',
+            'payment_method.required' => 'Pilih metode pembayaran.',
+            'amount.required' => 'Pilih atau isi nominal donasi.',
+            'donor_name.required' => 'Nama wajib diisi (boleh disamarkan di bawah).',
+            'donor_contact.required' => 'Isi email atau nomor WhatsApp untuk kuitansi.',
+        ];
+    }
 
-        $transferredAt = Carbon::createFromFormat('Y-m-d\TH:i', $data['transferred_at'], 'Asia/Jakarta')->utc();
-
-        if ($transferredAt->isFuture()) {
-            $this->addError('transferred_at', 'Waktu transfer tidak boleh di masa depan.');
-
-            return;
+    public function updated(string $property): void
+    {
+        if (in_array($property, ['donor_name', 'donor_contact'], true)) {
+            $this->validateOnly($property);
         }
+    }
 
-        $path = $this->proof->store('donation-proofs', 'public');
+    public function submit(AuditLogger $logger)
+    {
+        abort_unless(
+            $this->campaign->status === CampaignStatus::Active && ! $this->campaign->ends_on->isPast(),
+            403
+        );
+
+        $data = $this->validate();
+        $data['donor_name'] = trim($data['donor_name']);
+        $data['donor_contact'] = trim($data['donor_contact']);
 
         $donation = Donation::create([
             'campaign_id' => $this->campaign->id,
             'donor_name' => $data['donor_name'],
             'donor_contact' => $data['donor_contact'],
+            'is_anonymous' => $data['is_anonymous'],
             'amount' => $data['amount'],
-            'transferred_at' => $transferredAt,
-            'proof_path' => $path,
+            'payment_method' => $data['payment_method'],
             'status' => DonationStatus::Pending,
         ]);
 
         $logger->log('donation.created', null, $donation, [], $donation->only([
-            'campaign_id', 'donor_name', 'donor_contact', 'amount', 'transferred_at', 'status',
+            'campaign_id', 'donor_name', 'donor_contact', 'amount', 'payment_method', 'status',
         ]));
 
-        $this->referenceCode = $donation->reference_code;
-        $this->reset(['donor_name', 'donor_contact', 'amount', 'transferred_at', 'proof']);
+        return $this->redirectRoute('donations.pay', $donation->reference_code, navigate: true);
     }
 
     public function render()
     {
-        return view('livewire.public.campaign-detail');
+        $recent = Donation::query()
+            ->where('campaign_id', $this->campaign->id)
+            ->where('status', DonationStatus::Verified)
+            ->latest('paid_at')
+            ->latest('id')
+            ->limit(6)
+            ->get();
+
+        return view('livewire.public.campaign-detail', [
+            'recentDonations' => $recent,
+            'raised' => $this->campaign->verifiedDonationsTotal(),
+            'donorCount' => $this->campaign->donations()->where('status', DonationStatus::Verified)->count(),
+        ]);
     }
 }

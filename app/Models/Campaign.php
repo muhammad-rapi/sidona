@@ -40,6 +40,11 @@ class Campaign extends Model
         return $this->hasMany(Donation::class);
     }
 
+    public function photos(): HasMany
+    {
+        return $this->hasMany(CampaignPhoto::class)->orderBy('position')->orderBy('id');
+    }
+
     public function disbursements(): HasMany
     {
         return $this->hasMany(Disbursement::class);
@@ -53,6 +58,20 @@ class Campaign extends Model
     public function approvedDisbursementsTotal(): int
     {
         return (int) $this->disbursements()->where('status', DisbursementStatus::Approved)->sum('amount');
+    }
+
+    public function progressPercent(?int $raised = null): int
+    {
+        $raised ??= $this->verifiedDonationsTotal();
+
+        return $this->target_amount > 0
+            ? min(100, (int) floor($raised / $this->target_amount * 100))
+            : 0;
+    }
+
+    public function daysLeft(): int
+    {
+        return max(0, (int) ceil(now()->startOfDay()->diffInDays($this->ends_on->startOfDay(), false)));
     }
 
     public function availableBalance(): int

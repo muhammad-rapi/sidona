@@ -3,6 +3,7 @@
 namespace App\Livewire\Reports;
 
 use App\Enums\DonationStatus;
+use App\Livewire\Concerns\HasDonationDetail;
 use App\Models\Campaign;
 use App\Models\Donation;
 use App\Services\ReportChecksum;
@@ -14,6 +15,7 @@ use Livewire\WithPagination;
 #[Layout('components.layouts.app')]
 class DonationReport extends Component
 {
+    use HasDonationDetail;
     use WithPagination;
 
     #[Url]
@@ -75,6 +77,7 @@ class DonationReport extends Component
     {
         return view('livewire.reports.donation-report', [
             'donations' => $this->filteredQuery()->latest()->paginate(15),
+            'trail' => $this->detailTrail(),
             'campaigns' => Campaign::all(),
         ]);
     }

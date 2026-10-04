@@ -39,8 +39,17 @@ class DisbursementForm extends Component
     protected function rules(): array
     {
         return [
-            'amount' => ['required', 'integer', 'min:1'],
-            'description' => ['required', 'string', 'max:1000'],
+            'amount' => ['required', 'integer', 'min:1', 'max:'.$this->availableBalance],
+            'description' => ['required', 'string', 'min:10', 'max:1000'],
+        ];
+    }
+
+    protected function messages(): array
+    {
+        return [
+            'amount.min' => 'Jumlah penyaluran minimal Rp 1.',
+            'amount.max' => 'Jumlah melebihi saldo program yang tersedia.',
+            'description.min' => 'Jelaskan peruntukan dana minimal 10 karakter.',
         ];
     }
 

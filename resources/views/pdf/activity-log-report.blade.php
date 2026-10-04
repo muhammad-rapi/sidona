@@ -28,7 +28,7 @@
             @forelse ($entries as $entry)
                 <tr>
                     <td>{{ $entry->created_at->format('d/m/Y H:i') }}</td>
-                    <td>{{ $entry->user?->name ?? 'Tamu' }}</td>
+                    <td>{{ $entry->user?->name ?? ($entry->action === 'donation.paid' ? 'Sistem (otomatis)' : 'Tamu') }}</td>
                     <td>{{ $entry->action }}</td>
                     <td>{{ $entry->subject_type ? class_basename($entry->subject_type).' #'.$entry->subject_id : '-' }}</td>
                 </tr>

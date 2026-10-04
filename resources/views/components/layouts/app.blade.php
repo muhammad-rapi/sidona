@@ -1,93 +1,98 @@
+@php
+    $user = auth()->user();
+    $nav = [
+        ['label' => 'Ringkasan', 'route' => 'dashboard', 'match' => 'dashboard', 'icon' => 'M3 12 12 4l9 8M5 10v10h14V10'],
+        ['label' => 'Program Donasi', 'route' => 'campaigns.index', 'match' => 'campaigns.*', 'icon' => 'M4 5h16v4H4zM4 13h16v6H4z'],
+        ['label' => 'Riwayat Donasi', 'route' => 'donations.index', 'match' => 'donations.*', 'icon' => 'M12 3v18M17 7H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'],
+        ['label' => 'Penyaluran Dana', 'route' => 'disbursements.index', 'match' => 'disbursements.*', 'icon' => 'M5 12h14M13 6l6 6-6 6'],
+    ];
+    $audit = [
+        ['label' => 'Verifikasi Integritas', 'route' => 'audit.integrity'],
+        ['label' => 'Log Aktivitas', 'route' => 'audit.activity'],
+        ['label' => 'Log Login', 'route' => 'audit.login'],
+        ['label' => 'Dashboard Anomali', 'route' => 'audit.anomalies'],
+    ];
+    $reports = [
+        ['label' => 'Laporan Donasi', 'route' => 'reports.donations'],
+        ['label' => 'Laporan Penyaluran', 'route' => 'reports.disbursements'],
+        ['label' => 'Ringkasan Saldo', 'route' => 'reports.balance'],
+        ['label' => 'Cek Keaslian Laporan', 'route' => 'reports.verify'],
+    ];
+@endphp
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SIDONA</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @livewireStyles
+    @include('components.layouts.partials-head')
+    <title>{{ $title ?? 'Panel' }} — SIDONA</title>
 </head>
-<body class="bg-lavender-mist text-ink-black">
-    <nav class="bg-paper-white border-b border-frost-gray px-6 py-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-        <a href="{{ route('dashboard') }}" class="font-medium tracking-tight text-graphite">SIDONA</a>
-        <div class="flex flex-wrap items-center gap-x-1 gap-y-2 text-sm">
-            <a href="{{ route('campaigns.index') }}" wire:navigate class="rounded-full px-3 py-1.5 text-graphite transition-all duration-200 hover:bg-mint-wash hover:text-coral-pulse active:scale-95">Program Donasi</a>
-            <a href="{{ route('donations.index') }}" wire:navigate class="rounded-full px-3 py-1.5 text-graphite transition-all duration-200 hover:bg-mint-wash hover:text-coral-pulse active:scale-95">Donasi</a>
-            <a href="{{ route('disbursements.index') }}" wire:navigate class="rounded-full px-3 py-1.5 text-graphite transition-all duration-200 hover:bg-mint-wash hover:text-coral-pulse active:scale-95">Penyaluran</a>
+<body class="bg-desk" x-data="{ menu: false }" @keydown.escape.window="menu = false">
+    {{-- Mobile top bar --}}
+    <header class="on-ink sticky top-0 z-30 flex h-14 items-center justify-between border-b-4 border-board bg-ink px-4 text-white lg:hidden">
+        <a href="{{ route('dashboard') }}" wire:navigate class="paint-type text-2xl tracking-wide text-board">Sidona</a>
+        <button type="button" @click="menu = true" class="flex h-11 w-11 items-center justify-center" aria-label="Buka menu" :aria-expanded="menu">
+            <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="square"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+    </header>
 
-            @if (auth()->user()->isAuditor())
-                <div x-data="{ open: false }" @click.outside="open = false" class="relative">
-                    <button
-                        type="button"
-                        @click="open = !open"
-                        class="flex items-center gap-1 rounded-full px-3 py-1.5 text-graphite transition-all duration-200 hover:bg-mint-wash hover:text-coral-pulse active:scale-95"
-                    >
-                        Audit
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform duration-200" :class="open && 'rotate-180'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                    </button>
-                    <div
-                        x-show="open"
-                        x-transition:enter="transition ease-out duration-150"
-                        x-transition:enter-start="opacity-0 scale-95"
-                        x-transition:enter-end="opacity-100 scale-100"
-                        x-transition:leave="transition ease-in duration-100"
-                        x-transition:leave-start="opacity-100 scale-100"
-                        x-transition:leave-end="opacity-0 scale-95"
-                        class="absolute left-0 z-20 mt-2 w-56 origin-top-left rounded-2xl border border-frost-gray bg-white p-2 shadow-lg"
-                        style="display: none"
-                    >
-                        <a href="{{ route('audit.integrity') }}" wire:navigate @click="open = false" class="block rounded-lg px-3 py-2 text-graphite transition-colors duration-150 hover:bg-mint-wash hover:text-canopy-green">Verifikasi Integritas</a>
-                        <a href="{{ route('audit.activity') }}" wire:navigate @click="open = false" class="block rounded-lg px-3 py-2 text-graphite transition-colors duration-150 hover:bg-mint-wash hover:text-canopy-green">Log Aktivitas</a>
-                        <a href="{{ route('audit.login') }}" wire:navigate @click="open = false" class="block rounded-lg px-3 py-2 text-graphite transition-colors duration-150 hover:bg-mint-wash hover:text-canopy-green">Log Login</a>
-                        <a href="{{ route('audit.anomalies') }}" wire:navigate @click="open = false" class="block rounded-lg px-3 py-2 text-graphite transition-colors duration-150 hover:bg-mint-wash hover:text-canopy-green">Dashboard Anomali</a>
-                    </div>
-                </div>
+    <div x-show="menu" x-cloak x-transition.opacity @click="menu = false" class="fixed inset-0 z-40 bg-ink/60 lg:hidden"></div>
 
-                <div x-data="{ open: false }" @click.outside="open = false" class="relative">
-                    <button
-                        type="button"
-                        @click="open = !open"
-                        class="flex items-center gap-1 rounded-full px-3 py-1.5 text-graphite transition-all duration-200 hover:bg-mint-wash hover:text-coral-pulse active:scale-95"
-                    >
-                        Laporan
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform duration-200" :class="open && 'rotate-180'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                    </button>
-                    <div
-                        x-show="open"
-                        x-transition:enter="transition ease-out duration-150"
-                        x-transition:enter-start="opacity-0 scale-95"
-                        x-transition:enter-end="opacity-100 scale-100"
-                        x-transition:leave="transition ease-in duration-100"
-                        x-transition:leave-start="opacity-100 scale-100"
-                        x-transition:leave-end="opacity-0 scale-95"
-                        class="absolute left-0 z-20 mt-2 w-56 origin-top-left rounded-2xl border border-frost-gray bg-white p-2 shadow-lg"
-                        style="display: none"
-                    >
-                        <a href="{{ route('reports.donations') }}" wire:navigate @click="open = false" class="block rounded-lg px-3 py-2 text-graphite transition-colors duration-150 hover:bg-mint-wash hover:text-canopy-green">Laporan Donasi</a>
-                        <a href="{{ route('reports.disbursements') }}" wire:navigate @click="open = false" class="block rounded-lg px-3 py-2 text-graphite transition-colors duration-150 hover:bg-mint-wash hover:text-canopy-green">Laporan Penyaluran</a>
-                        <a href="{{ route('reports.balance') }}" wire:navigate @click="open = false" class="block rounded-lg px-3 py-2 text-graphite transition-colors duration-150 hover:bg-mint-wash hover:text-canopy-green">Ringkasan Saldo</a>
-                        <a href="{{ route('reports.verify') }}" wire:navigate @click="open = false" class="block rounded-lg px-3 py-2 text-graphite transition-colors duration-150 hover:bg-mint-wash hover:text-canopy-green">Cek Keaslian Laporan</a>
-                    </div>
+    <aside
+        class="on-ink fixed inset-y-0 left-0 z-50 flex w-64 -translate-x-full flex-col overflow-y-auto bg-ink text-white transition-transform duration-200 lg:translate-x-0"
+        :class="menu && '!translate-x-0'"
+        aria-label="Menu panel"
+    >
+        <div class="flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-4">
+            <a href="{{ route('dashboard') }}" wire:navigate class="paint-type text-3xl tracking-wide text-board">Sidona</a>
+            <button type="button" @click="menu = false" class="flex h-11 w-11 items-center justify-center lg:hidden" aria-label="Tutup menu">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="square"><path d="M6 6l12 12M18 6 6 18"/></svg>
+            </button>
+        </div>
+
+        <nav class="flex-1 pb-4" @click="menu = false">
+            @foreach ($nav as $item)
+                <a href="{{ route($item['route']) }}" wire:navigate class="nav-link" @if (request()->routeIs($item['match'])) aria-current="page" @endif>
+                    <svg class="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="square" stroke-linejoin="round"><path d="{{ $item['icon'] }}"/></svg>
+                    {{ $item['label'] }}
+                </a>
+            @endforeach
+
+            @if ($user->isAuditor())
+                <p class="nav-heading">Audit</p>
+                @foreach ($audit as $item)
+                    <a href="{{ route($item['route']) }}" wire:navigate class="nav-link" @if (request()->routeIs($item['route'])) aria-current="page" @endif>{{ $item['label'] }}</a>
+                @endforeach
+
+                <p class="nav-heading">Laporan</p>
+                @foreach ($reports as $item)
+                    <a href="{{ route($item['route']) }}" wire:navigate class="nav-link" @if (request()->routeIs($item['route'])) aria-current="page" @endif>{{ $item['label'] }}</a>
+                @endforeach
+            @endif
+        </nav>
+
+        <div class="shrink-0 border-t border-white/10 p-4">
+            <p class="truncate text-sm font-bold">{{ $user->name }}</p>
+            <p class="mt-0.5 text-xs uppercase tracking-wider text-board">{{ $user->role->label() }}</p>
+            <div class="mt-4 flex items-center justify-between gap-3 text-sm">
+                <a href="{{ route('program.index') }}" class="font-semibold text-white/70 underline-offset-4 hover:text-white hover:underline">Lihat situs</a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="btn btn-sm border-white/40 bg-transparent text-white hover:bg-board hover:text-ink">Keluar</button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <main class="lg:pl-64">
+        <div class="mx-auto max-w-6xl px-4 py-8 sm:px-8 lg:py-10">
+            @if (session('status'))
+                <div class="flash" role="status">
+                    <svg class="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"><path d="M5 12.5 10 17.5 19 7"/></svg>
+                    {{ session('status') }}
                 </div>
             @endif
-        </div>
-        <div class="flex items-center gap-4 text-sm">
-            <span class="text-graphite">{{ auth()->user()->name }} ({{ auth()->user()->role->label() }})</span>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="rounded-full px-3 py-1.5 text-graphite transition-all duration-200 hover:bg-mint-wash hover:text-coral-pulse active:scale-95">Keluar</button>
-            </form>
-        </div>
-    </nav>
 
-    <main class="max-w-5xl mx-auto px-6 py-10">
-        @if (session('status'))
-            <div class="mb-6 border-l-2 border-leaf-bright bg-mint-wash px-4 py-3 text-leaf-bright text-sm">
-                {{ session('status') }}
-            </div>
-        @endif
-
-        {{ $slot }}
+            {{ $slot }}
+        </div>
     </main>
 
     @livewireScripts
