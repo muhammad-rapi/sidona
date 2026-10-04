@@ -52,6 +52,8 @@ class CampaignProposalSeeder extends Seeder
         foreach ($proposals as $data) {
             $campaign = Campaign::create($data + [
                 'proposal_code' => 'PRG-'.strtoupper(Str::random(8)),
+                'monitor_token' => Str::random(40),
+                'proposer_verified_at' => now(),
                 'starts_on' => today(),
                 'ends_on' => today()->addDays(30),
             ]);

@@ -25,7 +25,7 @@ class Faq
             ],
             'Mengajukan program' => [
                 ['Bagaimana cara mengajukan program donasi?', 'Buka menu Ajukan Program, isi cerita, target, rekening penerima, dan kontak Anda. Admin akan memeriksa sebelum program tayang.'],
-                ['Bagaimana saya tahu pengajuan saya sudah diputuskan?', 'Setelah mengirim, Anda mendapat kode pengajuan (PRG-...). Masukkan kode itu di menu Cek Donasi untuk melihat statusnya. Kalau Anda mengisi email, kami juga mengirim kabar ke sana saat program disetujui atau ditolak.'],
+                ['Bagaimana saya tahu pengajuan saya sudah diputuskan?', 'Setelah mengirim, konfirmasi email Anda lewat tautan yang kami kirim, supaya admin bisa menyetujui. Anda juga mendapat kode pengajuan (PRG-...). Masukkan kode itu di menu Cek Donasi untuk melihat statusnya. Kalau Anda mengisi email, kami juga mengirim kabar ke sana saat program disetujui atau ditolak. Setelah disetujui, kabar itu memuat tautan pribadi untuk memantau donasi dan penyaluran program Anda.'],
                 ['Kenapa pengajuan bisa ditolak?', 'Misalnya data rekening tidak bisa diverifikasi, cerita kurang jelas, atau tujuannya tidak termasuk program sosial. Alasannya selalu ditampilkan, dan Anda boleh mengajukan lagi setelah memperbaikinya.'],
                 ['Berapa lama program berjalan?', 'Anda memilih 14, 30, 60, atau 90 hari. Hitungannya dimulai pada hari program disetujui.'],
             ],
