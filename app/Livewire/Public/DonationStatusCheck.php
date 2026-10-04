@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Public;
 
+use App\Models\Campaign;
 use App\Models\Donation;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -19,8 +20,22 @@ class DonationStatusCheck extends Component
             'reference_code' => ['required', 'string'],
         ]);
 
+        $code = strtoupper(trim($this->reference_code));
+
+        if (str_starts_with($code, 'PRG-')) {
+            $proposal = Campaign::query()->where('proposal_code', $code)->first();
+
+            if ($proposal) {
+                return $this->redirectRoute('program.proposal', $proposal->proposal_code, navigate: true);
+            }
+
+            $this->notFound = true;
+
+            return null;
+        }
+
         $donation = Donation::query()
-            ->where('reference_code', strtoupper(trim($this->reference_code)))
+            ->where('reference_code', $code)
             ->first();
 
         if (! $donation) {

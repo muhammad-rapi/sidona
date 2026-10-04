@@ -7,6 +7,7 @@ use App\Models\Campaign;
 use App\Services\AuditLogger;
 use App\Support\Banks;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -41,6 +42,8 @@ class CampaignSubmit extends Component
     public string $website = '';
 
     public bool $submitted = false;
+
+    public ?string $trackingCode = null;
 
     protected function rules(): array
     {
@@ -107,6 +110,7 @@ class CampaignSubmit extends Component
         RateLimiter::hit($key, 3600);
 
         $campaign = Campaign::create([
+            'proposal_code' => 'PRG-'.strtoupper(Str::random(8)),
             'name' => trim($data['name']),
             'description' => trim($data['description']),
             'target_amount' => $data['target_amount'],
@@ -125,6 +129,7 @@ class CampaignSubmit extends Component
             'name', 'target_amount', 'proposer_name', 'proposer_contact', 'status',
         ]));
 
+        $this->trackingCode = $campaign->proposal_code;
         $this->submitted = true;
     }
 

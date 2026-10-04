@@ -15,7 +15,17 @@
             <div class="border-2 border-paid bg-paid-wash p-6" role="status">
                 <h2 class="paint-type text-4xl text-paid">Sudah kami terima</h2>
                 <p class="mt-3 max-w-xl text-ink">Cerita Anda sudah masuk ke meja admin. Kami baca dulu, lalu menghubungi Anda lewat kontak yang tadi diisi. Programnya baru tampil di situs setelah disetujui.</p>
-                <a href="{{ route('program.index') }}" wire:navigate class="btn btn-ink mt-6">Kembali ke program</a>
+                @if ($trackingCode)
+                    <p class="mt-5 text-sm font-semibold text-ink-soft">Simpan kode pengajuan Anda</p>
+                    <p class="font-mono text-2xl font-bold text-ink">{{ $trackingCode }}</p>
+                    <p class="mt-1 max-w-xl text-sm text-ink-soft">Dengan kode ini Anda bisa melihat status pengajuan kapan saja lewat menu Cek Donasi. Kalau kontak Anda email, kami juga kirim kabar ke sana.</p>
+                @endif
+                <div class="mt-6 flex flex-wrap gap-3">
+                    @if ($trackingCode)
+                        <a href="{{ route('program.proposal', $trackingCode) }}" wire:navigate class="btn btn-paint">Lihat status</a>
+                    @endif
+                    <a href="{{ route('program.index') }}" wire:navigate class="btn btn-ink">Kembali ke program</a>
+                </div>
             </div>
         @else
             <form wire:submit="submit" class="space-y-8" novalidate>

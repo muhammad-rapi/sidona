@@ -6,6 +6,7 @@ use App\Enums\CampaignStatus;
 use App\Models\Campaign;
 use App\Services\AuditLogger;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class CampaignProposalSeeder extends Seeder
 {
@@ -50,6 +51,7 @@ class CampaignProposalSeeder extends Seeder
 
         foreach ($proposals as $data) {
             $campaign = Campaign::create($data + [
+                'proposal_code' => 'PRG-'.strtoupper(Str::random(8)),
                 'starts_on' => today(),
                 'ends_on' => today()->addDays(30),
             ]);

@@ -4,9 +4,12 @@ use App\Enums\CampaignStatus;
 use App\Enums\UserRole;
 use App\Livewire\Campaigns\CampaignIndex;
 use App\Livewire\Public\CampaignSubmit;
+use App\Livewire\Public\DonationStatusCheck;
+use App\Mail\ProposalDecisionMail;
 use App\Models\ActivityLog;
 use App\Models\Campaign;
 use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Livewire\Livewire;
 
@@ -112,4 +115,51 @@ it('tells admins about proposals waiting for review on the dashboard', function 
         ->get(route('dashboard'))->assertSee('pengajuan program baru menunggu tinjauan');
     $this->actingAs(User::factory()->create(['role' => UserRole::Auditor]))
         ->get(route('dashboard'))->assertDontSee('pengajuan program baru menunggu tinjauan');
+});
+
+it('gives the proposer a tracking code and a status page that follows the decision', function () {
+    $component = fillProposal(Livewire::test(CampaignSubmit::class))->call('submit')->assertSet('submitted', true);
+
+    $campaign = Campaign::first();
+    expect($campaign->proposal_code)->toStartWith('PRG-');
+    $component->assertSet('trackingCode', $campaign->proposal_code)->assertSee($campaign->proposal_code);
+
+    $this->get(route('program.proposal', $campaign->proposal_code))->assertOk()->assertSee('Menunggu tinjauan');
+
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+    Livewire::actingAs($admin)->test(CampaignIndex::class)->call('approve', $campaign->id);
+
+    $this->get(route('program.proposal', strtolower($campaign->proposal_code)))
+        ->assertOk()->assertSee('Aktif')->assertSee('Buka halaman program');
+});
+
+it('finds a proposal from the check page and 404s on unknown codes', function () {
+    $campaign = Campaign::factory()->create(['status' => CampaignStatus::Pending, 'proposal_code' => 'PRG-ABCD1234']);
+
+    Livewire::test(DonationStatusCheck::class)
+        ->set('reference_code', 'prg-abcd1234')->call('check')
+        ->assertRedirect(route('program.proposal', 'PRG-ABCD1234'));
+
+    Livewire::test(DonationStatusCheck::class)
+        ->set('reference_code', 'PRG-TIDAKADA')->call('check')
+        ->assertSee('tidak ditemukan');
+
+    $this->get(route('program.proposal', 'PRG-TIDAKADA'))->assertNotFound();
+});
+
+it('emails the proposer when the decision is made and the contact is an email', function () {
+    Mail::fake();
+    $admin = User::factory()->create(['role' => UserRole::Admin]);
+    $approved = Campaign::factory()->create(['status' => CampaignStatus::Pending, 'proposer_name' => 'Rina', 'proposer_contact' => 'rina@example.com', 'proposal_code' => 'PRG-AAAA1111']);
+    $rejected = Campaign::factory()->create(['status' => CampaignStatus::Pending, 'proposer_name' => 'Doni', 'proposer_contact' => 'doni@example.com', 'proposal_code' => 'PRG-BBBB2222']);
+    $byPhone = Campaign::factory()->create(['status' => CampaignStatus::Pending, 'proposer_name' => 'Eka', 'proposer_contact' => '081234567890', 'proposal_code' => 'PRG-CCCC3333']);
+
+    $index = Livewire::actingAs($admin)->test(CampaignIndex::class);
+    $index->call('approve', $approved->id);
+    $index->call('startReject', $rejected->id)->set('rejectionReason', 'Data tidak lengkap')->call('confirmReject');
+    $index->call('approve', $byPhone->id);
+
+    Mail::assertSent(ProposalDecisionMail::class, 2);
+    Mail::assertSent(ProposalDecisionMail::class, fn ($m) => $m->hasTo('rina@example.com') && $m->campaign->status === CampaignStatus::Active);
+    Mail::assertSent(ProposalDecisionMail::class, fn ($m) => $m->hasTo('doni@example.com') && $m->campaign->rejection_reason === 'Data tidak lengkap');
 });

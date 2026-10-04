@@ -4,10 +4,12 @@ namespace App\Livewire\Campaigns;
 
 use App\Enums\CampaignStatus;
 use App\Livewire\Concerns\HasRejectionWorkflow;
+use App\Mail\ProposalDecisionMail;
 use App\Models\ActivityLog;
 use App\Models\Campaign;
 use App\Services\AuditLogger;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -55,6 +57,8 @@ class CampaignIndex extends Component
 
         $logger->log('campaign.approved', auth()->user(), $campaign, $before, $campaign->only(['status', 'starts_on', 'ends_on']));
 
+        $this->notifyProposer($campaign);
+
         session()->flash('status', 'Program disetujui dan sekarang tayang.');
     }
 
@@ -77,7 +81,15 @@ class CampaignIndex extends Component
         $logger->log('campaign.rejected', auth()->user(), $campaign, $before, $campaign->only(['status', 'rejection_reason']));
 
         $this->cancelReject();
+        $this->notifyProposer($campaign->refresh());
         session()->flash('status', 'Pengajuan program ditolak.');
+    }
+
+    private function notifyProposer(Campaign $campaign): void
+    {
+        if ($campaign->proposer_contact && filter_var($campaign->proposer_contact, FILTER_VALIDATE_EMAIL)) {
+            Mail::to($campaign->proposer_contact)->send(new ProposalDecisionMail($campaign));
+        }
     }
 
     public function render()

@@ -19,6 +19,7 @@ use App\Livewire\Public\CampaignSubmit;
 use App\Livewire\Public\DonationPay;
 use App\Livewire\Public\DonationReceipt;
 use App\Livewire\Public\DonationStatusCheck;
+use App\Livewire\Public\ProposalStatus;
 use App\Livewire\Reports\BalanceSummary;
 use App\Livewire\Reports\DisbursementReport;
 use App\Livewire\Reports\DonationReport;
@@ -34,6 +35,7 @@ Route::get('/', function () {
 Route::get('/program', CampaignList::class)->name('program.index');
 Route::get('/program/{campaign}', CampaignDetail::class)->name('program.show');
 Route::get('/ajukan-program', CampaignSubmit::class)->name('program.submit');
+Route::get('/ajukan-program/{code}', ProposalStatus::class)->name('program.proposal');
 Route::get('/donasi/cek', DonationStatusCheck::class)->name('donations.check');
 Route::get('/donasi/{reference}/bayar', DonationPay::class)->name('donations.pay');
 Route::get('/donasi/{reference}', DonationReceipt::class)->name('donations.receipt');

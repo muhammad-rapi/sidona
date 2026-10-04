@@ -24,6 +24,7 @@ class Campaign extends Model
         'starts_on',
         'ends_on',
         'status',
+        'proposal_code',
         'proposer_name',
         'proposer_contact',
         'rejection_reason',
