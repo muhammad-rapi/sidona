@@ -16,11 +16,17 @@
 
     @foreach ($sections as $section)
         <section>
-            <h2 class="font-display text-lg mb-3">{{ $section['title'] }}</h2>
+            <div class="mb-1 flex items-baseline justify-between gap-4">
+                <h2 class="text-xl font-extrabold tracking-tight">{{ $section['title'] }}</h2>
+                <p class="text-sm text-ink-soft">{{ $section['items']->count() }} temuan</p>
+            </div>
+            <div class="border-t-2 border-ink">
             @forelse ($section['items'] as $item)
                 @php $review = $reviews->get($section['type'].':'.$item->id); @endphp
-                <div class="mb-2 flex flex-wrap items-center justify-between gap-3 border px-4 py-3 text-sm {{ $review ? 'border-rule bg-paper text-ink-soft' : 'border-paint bg-paint-wash text-paint-dark' }}">
-                    <p class="min-w-0">
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-ink/15 py-3.5 text-sm {{ $review ? 'text-ink-soft' : 'text-ink' }}">
+                    <p class="flex min-w-0 items-baseline gap-3">
+                        <span class="mt-1 h-2.5 w-2.5 shrink-0 {{ $review ? 'bg-ink-faint' : 'bg-paint' }}" aria-hidden="true"></span>
+                        <span>
                         @if ($section['type'] === 'donation')
                             <span class="font-mono">{{ $item->reference_code }}</span> —
                             {{ $item->campaign->name }} — Rp&nbsp;{{ number_format($item->amount, 0, ',', '.') }}
@@ -32,6 +38,7 @@
                             {{ $item->campaign->name }} — Rp&nbsp;{{ number_format($item->amount, 0, ',', '.') }}
                             disetujui kurang dari 1 menit setelah diajukan
                         @endif
+                        </span>
                     </p>
 
                     <div class="flex shrink-0 flex-wrap items-center gap-2">
@@ -43,7 +50,7 @@
                 </div>
 
                 @if ($detailKey === $section['type'].':'.$item->id)
-                    <div class="mb-3 border-2 border-ink bg-paper px-5 py-5 text-ink">
+                    <div class="border-b border-ink/15 bg-board-wash/50 px-5 py-5 text-ink">
                         <div class="grid gap-x-10 gap-y-6 md:grid-cols-2">
                             <dl class="space-y-2 text-sm">
                                 @if ($section['type'] === 'donation')
@@ -109,8 +116,9 @@
                     </div>
                 @endif
             @empty
-                <p class="panel p-4 text-sm text-ink-soft">{{ $section['empty'] }}</p>
+                <p class="py-5 text-sm text-ink-soft">{{ $section['empty'] }}</p>
             @endforelse
+            </div>
         </section>
     @endforeach
 </div>
