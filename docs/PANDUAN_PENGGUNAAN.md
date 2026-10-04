@@ -100,7 +100,7 @@ Navbar publik berisi Program, Ajukan Program, FAQ, dan Cek Donasi. Tautan login 
 | Detail program, galeri, donatur terakhir, form donasi | `/program/{id}` |
 | Halaman bayar | `/donasi/{kode}/bayar` |
 | Kuitansi dan status donasi | `/donasi/{kode}` |
-| Cek donasi, pengajuan, atau tiket dengan kode | `/donasi/cek` |
+| Cek donasi (kode DON) atau pengajuan (kode PRG) | `/donasi/cek` |
 | Ajukan program | `/ajukan-program` |
 | Status pengajuan (kode PRG) | `/ajukan-program/{kode}` |
 | Pantau program (tautan pribadi) | `/pantau/{token}` |
@@ -123,7 +123,7 @@ Navbar publik berisi Program, Ajukan Program, FAQ, dan Cek Donasi. Tautan login 
 3. Kode pengajuan `PRG-xxxxxxxx` dipakai di Cek Donasi untuk melihat status.
 4. Setelah disetujui, email keputusan memuat **tautan pantau pribadi** (`/pantau/{token}`): dana terkumpul, donatur, penyaluran yang disetujui, dan saldo, hanya baca. Mengubah isi program dilakukan lewat admin.
 
-### 4.2 Tiket bantuan
+### 4.3 Tiket bantuan
 
 Isi form di `/bantuan`. Tiket langsung mendapat balasan otomatis (konfirmasi, status terkini dari kode DON atau PRG yang disebut, dan petunjuk sesuai kategori), lalu staf membalas. Pengirim membuka percakapan lewat tautan pribadi di email, atau lewat **Lacak tiket** (kode + email, tautan dikirim ulang ke email itu). Percakapan diperbarui otomatis tiap beberapa detik.
 
