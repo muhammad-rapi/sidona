@@ -36,6 +36,21 @@ class DonationPay extends Component
         return $this->redirectRoute('donations.receipt', $this->donation->reference_code, navigate: true);
     }
 
+    /**
+     * Dipanggil berkala: kalau pembayaran sudah terkonfirmasi (misalnya dari notifikasi gateway),
+     * donatur langsung dibawa ke kuitansi tanpa perlu menekan apa pun.
+     */
+    public function checkPaid()
+    {
+        $this->donation->refresh();
+
+        if ($this->donation->isPaid()) {
+            return $this->redirectRoute('donations.receipt', $this->donation->reference_code, navigate: true);
+        }
+
+        return null;
+    }
+
     public function render()
     {
         return view('livewire.public.donation-pay');

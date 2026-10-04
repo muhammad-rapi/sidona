@@ -16,22 +16,25 @@
     $vaNumber = '8808'.str_pad((string) ($donation->id * 7919 % 100000000), 8, '0', STR_PAD_LEFT).str_pad((string) ($seed % 10000), 4, '0', STR_PAD_LEFT);
 @endphp
 
-<div>
-    <section class="on-board bg-board" aria-labelledby="pay-title">
-        <div class="mx-auto max-w-3xl px-5 pb-10 pt-8">
-            <h1 id="pay-title" class="paint-type rise-in text-5xl text-ink sm:text-7xl">Selesaikan pembayaran</h1>
-            <p class="mt-3 text-lg font-semibold text-ink">{{ $donation->campaign->name }}</p>
-            <p class="paint-type mt-6 text-6xl leading-none text-paint sm:text-8xl">Rp&nbsp;{{ number_format($donation->amount, 0, ',', '.') }}</p>
-        </div>
-        <div class="h-1 bg-ink"></div>
-    </section>
+<div wire:poll.visible.5s="checkPaid">
 
     <div class="mx-auto grid max-w-5xl gap-x-12 gap-y-8 px-5 py-10 lg:grid-cols-[1fr_19rem] lg:items-start">
+
+        <div class="min-w-0 space-y-8">
+            <header>
+                <h1 id="pay-title" class="text-2xl font-extrabold tracking-tight text-ink">Selesaikan pembayaran</h1>
+                <p class="paint-type mt-2 text-7xl leading-none text-paint sm:text-8xl">Rp&nbsp;{{ number_format($donation->amount, 0, ',', '.') }}</p>
+                <dl class="mt-6 grid max-w-md grid-cols-[7rem_1fr] gap-x-4 gap-y-1.5 border-t-2 border-ink pt-4 text-sm">
+                    <dt class="font-bold text-ink-soft">Program</dt><dd>{{ $donation->campaign->name }}</dd>
+                    <dt class="font-bold text-ink-soft">Atas nama</dt><dd>{{ $donation->is_anonymous ? 'Hamba Allah (nama disamarkan)' : $donation->donor_name }}</dd>
+                    <dt class="font-bold text-ink-soft">Kode</dt><dd class="font-mono font-bold">{{ $donation->reference_code }}</dd>
+                </dl>
+            </header>
 
         <section class="border-2 border-ink" aria-labelledby="method-title">
             <div class="flex items-center justify-between gap-4 border-b-2 border-ink bg-ink px-5 py-3 text-white">
                 <h2 id="method-title" class="paint-type text-2xl text-board">{{ $method?->label() ?? 'Pembayaran' }}</h2>
-                <p class="text-xs font-bold uppercase tracking-wider text-white/70">{{ $donation->reference_code }}</p>
+                <p class="text-xs font-semibold text-white/60">menunggu pembayaran</p>
             </div>
 
             <div class="p-6">
@@ -69,6 +72,7 @@
                 @endif
             </div>
         </section>
+        </div>
 
         <aside class="space-y-5 lg:sticky lg:top-24">
         <div class="border-2 border-ink bg-board-wash px-5 py-4 text-sm leading-relaxed">

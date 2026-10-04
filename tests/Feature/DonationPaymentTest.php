@@ -74,3 +74,26 @@ it('shows the receipt for a paid donation and the way to pay for a pending one',
 it('returns 404 for an unknown reference code', function () {
     $this->get(route('donations.receipt', 'DON-TIDAKADA'))->assertNotFound();
 });
+
+it('polls the payment page and sends the donor to the receipt once the payment is confirmed elsewhere', function () {
+    $donation = Donation::factory()->create(['status' => DonationStatus::Pending]);
+
+    $page = Livewire::test(DonationPay::class, ['reference' => $donation->reference_code]);
+    $page->assertSee('wire:poll.visible.5s="checkPaid"', false);
+    $page->call('checkPaid')->assertNoRedirect();
+
+    app(DonationPayment::class)->confirm($donation, 'gateway');
+
+    $page->call('checkPaid')->assertRedirect(route('donations.receipt', $donation->reference_code));
+});
+
+it('summarises the program, donor name and code on the payment page', function () {
+    $donation = Donation::factory()->create(['donor_name' => 'Dewi Lestari', 'is_anonymous' => false]);
+    $anon = Donation::factory()->create(['donor_name' => 'Nama Rahasia', 'is_anonymous' => true]);
+
+    Livewire::test(DonationPay::class, ['reference' => $donation->reference_code])
+        ->assertSee('Dewi Lestari')->assertSee($donation->campaign->name)->assertSee($donation->reference_code);
+
+    Livewire::test(DonationPay::class, ['reference' => $anon->reference_code])
+        ->assertSee('Hamba Allah')->assertDontSee('Nama Rahasia');
+});
