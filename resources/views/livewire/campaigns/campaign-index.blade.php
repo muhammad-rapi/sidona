@@ -27,8 +27,8 @@
                 <thead>
                     <tr>
                         <th>Nama</th>
-                        <th class="num">Target</th>
-                        <th>Periode</th>
+                        <th>Pendanaan</th>
+                        <th>Masa</th>
                         <th>Status</th>
                         <th class="sticky-col">Aksi</th>
                     </tr>
@@ -59,8 +59,34 @@
                                     <p class="text-xs font-normal text-paint-dark">Alasan ditolak: {{ $campaign->rejection_reason }}</p>
                                 @endif
                             </td>
-                            <td class="num whitespace-nowrap">Rp&nbsp;{{ number_format($campaign->target_amount, 0, ',', '.') }}</td>
-                            <td class="whitespace-nowrap text-ink-soft">{{ $campaign->starts_on->format('d/m/Y') }} &ndash; {{ $campaign->ends_on->format('d/m/Y') }}</td>
+                            <td class="min-w-[13rem]">
+                                @if (in_array($campaign->status->value, ['active', 'completed'], true))
+                                    @php
+                                        $raised = (int) $campaign->raised_sum;
+                                        $percent = $campaign->progressPercent($raised);
+                                        $balance = $raised - (int) $campaign->disbursed_sum;
+                                    @endphp
+                                    <div class="flex items-baseline justify-between gap-3 text-sm">
+                                        <span class="font-bold">Rp&nbsp;{{ number_format($raised, 0, ',', '.') }}</span>
+                                        <span class="font-bold">{{ $percent }}%</span>
+                                    </div>
+                                    <div class="thermo-h mt-1.5 !h-2.5" style="--level: {{ $percent }}" role="img" aria-label="{{ $percent }} persen dari target"><i></i></div>
+                                    <p class="mt-1.5 text-xs text-ink-soft">target Rp&nbsp;{{ number_format($campaign->target_amount, 0, ',', '.') }} &middot; saldo Rp&nbsp;{{ number_format($balance, 0, ',', '.') }}</p>
+                                @else
+                                    <p class="text-sm font-bold">Rp&nbsp;{{ number_format($campaign->target_amount, 0, ',', '.') }}</p>
+                                    <p class="text-xs text-ink-soft">target, belum tayang</p>
+                                @endif
+                            </td>
+                            <td class="whitespace-nowrap text-sm">
+                                @if ($campaign->status === \App\Enums\CampaignStatus::Active)
+                                    <span class="font-bold">sisa {{ $campaign->daysLeft() }} hari</span>
+                                    <span class="block text-xs text-ink-soft">sampai {{ $campaign->ends_on->format('d/m/Y') }}</span>
+                                @elseif ($campaign->status === \App\Enums\CampaignStatus::Completed)
+                                    <span class="text-ink-soft">selesai {{ $campaign->ends_on->format('d/m/Y') }}</span>
+                                @else
+                                    <span class="text-ink-soft">diajukan {{ $campaign->created_at->timezone('Asia/Jakarta')->format('d/m/Y') }}</span>
+                                @endif
+                            </td>
                             <td class="whitespace-nowrap">
                                 <span class="badge {{ $statusBadge }}">{{ $campaign->status->label() }}</span>
                             </td>

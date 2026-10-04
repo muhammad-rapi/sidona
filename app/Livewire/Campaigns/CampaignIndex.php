@@ -3,6 +3,8 @@
 namespace App\Livewire\Campaigns;
 
 use App\Enums\CampaignStatus;
+use App\Enums\DisbursementStatus;
+use App\Enums\DonationStatus;
 use App\Livewire\Concerns\HasRejectionWorkflow;
 use App\Mail\ProposalDecisionMail;
 use App\Models\ActivityLog;
@@ -104,6 +106,8 @@ class CampaignIndex extends Component
             'trail' => $trail,
             'campaigns' => Campaign::query()
                 ->with('pic')
+                ->withSum(['donations as raised_sum' => fn ($q) => $q->where('status', DonationStatus::Verified)], 'amount')
+                ->withSum(['disbursements as disbursed_sum' => fn ($q) => $q->where('status', DisbursementStatus::Approved)], 'amount')
                 ->orderByRaw("case when status = 'pending' then 0 else 1 end")
                 ->latest()
                 ->paginate(10),

@@ -1,10 +1,14 @@
 <?php
 
+use App\Enums\DisbursementStatus;
+use App\Enums\DonationStatus;
 use App\Enums\UserRole;
 use App\Livewire\Campaigns\CampaignForm;
 use App\Livewire\Campaigns\CampaignIndex;
 use App\Models\ActivityLog;
 use App\Models\Campaign;
+use App\Models\Disbursement;
+use App\Models\Donation;
 use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Http\UploadedFile;
@@ -240,4 +244,17 @@ it('lets the PIC be an outside person with a private contact', function () {
     $this->get(route('program.show', $campaign))
         ->assertSee('Penanggung jawab: Ibu Ratna')
         ->assertDontSee('081234567890');
+});
+
+it('shows funding progress, balance and remaining days in the program table', function () {
+    $staff = User::factory()->create(['role' => UserRole::Admin]);
+    $campaign = Campaign::factory()->create(['target_amount' => 1000000, 'ends_on' => now()->addDays(10)->toDateString()]);
+    Donation::factory()->for($campaign)->create(['amount' => 400000, 'status' => DonationStatus::Verified]);
+    Disbursement::factory()->for($campaign)->create(['amount' => 100000, 'status' => DisbursementStatus::Approved, 'submitted_by' => $staff->id]);
+
+    Livewire::actingAs($staff)->test(CampaignIndex::class)
+        ->assertSee('40%')
+        ->assertSee('400.000')
+        ->assertSee('saldo Rp&nbsp;300.000', false)
+        ->assertSee('sisa 10 hari');
 });
