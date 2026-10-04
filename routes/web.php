@@ -32,6 +32,10 @@ Route::get('/', function () {
     return auth()->check() ? redirect()->route('dashboard') : redirect()->route('program.index');
 });
 
+Route::view('/faq', 'pages.faq')->name('faq');
+Route::view('/syarat-ketentuan', 'pages.terms')->name('terms');
+Route::view('/kebijakan-privasi', 'pages.privacy')->name('privacy');
+
 Route::get('/program', CampaignList::class)->name('program.index');
 Route::get('/program/{campaign}', CampaignDetail::class)->name('program.show');
 Route::get('/ajukan-program', CampaignSubmit::class)->name('program.submit');

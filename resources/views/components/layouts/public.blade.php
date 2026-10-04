@@ -17,6 +17,7 @@
             <div class="flex items-center gap-1 text-[0.95rem] font-semibold sm:gap-3">
                 <a href="{{ route('program.index') }}" wire:navigate @class(['px-3 py-2 transition-colors hover:text-board', 'text-board' => request()->routeIs('program.*')])>Program</a>
                 <a href="{{ route('program.submit') }}" wire:navigate @class(['px-3 py-2 transition-colors hover:text-board', 'text-board' => request()->routeIs('program.submit')])>Ajukan Program</a>
+                <a href="{{ route('faq') }}" wire:navigate @class(['px-3 py-2 transition-colors hover:text-board', 'text-board' => request()->routeIs('faq')])>FAQ</a>
                 <a href="{{ route('donations.check') }}" wire:navigate @class(['px-3 py-2 transition-colors hover:text-board', 'text-board' => request()->routeIs('donations.check', 'donations.receipt')])>Cek Donasi</a>
             </div>
         </nav>
@@ -38,6 +39,11 @@
             </div>
             <div class="text-sm leading-relaxed text-white/70 md:text-right">
                 <p>Donasi sah begitu pembayaran masuk. Tidak ada yang menunggu persetujuan.</p>
+                <p class="mt-4 flex flex-wrap gap-x-5 gap-y-1 md:justify-end">
+                    <a href="{{ route('faq') }}" wire:navigate class="underline-offset-4 hover:text-board hover:underline">FAQ</a>
+                    <a href="{{ route('terms') }}" wire:navigate class="underline-offset-4 hover:text-board hover:underline">Syarat dan ketentuan</a>
+                    <a href="{{ route('privacy') }}" wire:navigate class="underline-offset-4 hover:text-board hover:underline">Kebijakan privasi</a>
+                </p>
                 <p class="mt-3">&copy; {{ now()->year }} SIDONA</p>
             </div>
         </div>
